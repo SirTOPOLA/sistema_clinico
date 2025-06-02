@@ -1,6 +1,6 @@
 
 <?php 
 
-include_once ('auth/auth.php');
+include_once ('api/auth.php');
 
 logout();

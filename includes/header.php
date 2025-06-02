@@ -1,3 +1,22 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    // Si la sesión no está iniciada, se inicia
+    session_start();
+}
+// Si no hay sesión → redirige a login
+/* if (!isset($_SESSION['usuario'])) {
+    header("Location: ../index.php");
+    exit;
+}
+if (isset($_SESSION['usuario'])) {
+    header("Location: ../admin/index.php");
+    exit;
+} */
+
+require_once '../includes/conexion.php'; // ajusta según tu estructura
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -66,7 +85,8 @@
         }
 
         .sidebar.collapsed .link-text {
-            display: none; /* ocultar las letras en menu colapsado  */
+            display: none;
+            /* ocultar las letras en menu colapsado  */
         }
 
         .sidebar .nav-link {
@@ -499,28 +519,38 @@
         .card-title {
             color: #0d6efd;
         }
-    
-        /* impresion Factura */
-@media print {
-    body * {
-        visibility: hidden;
-    }
-    #factura-container, #factura-container * {
-        visibility: visible;
-    }
-    #factura-container {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: white;
-    }
-    .modal-footer,
-    .modal-header {
-        display: none !important;
-    }
+.modal-content {
+  border: 1px solid #e0e0e0;
 }
-</style>
+.form-label {
+  color: #34495e;
+}
+
+        /* impresion Factura */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #factura-container,
+            #factura-container * {
+                visibility: visible;
+            }
+
+            #factura-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+            }
+
+            .modal-footer,
+            .modal-header {
+                display: none !important;
+            }
+        }
+    </style>
 
 </head>
 
