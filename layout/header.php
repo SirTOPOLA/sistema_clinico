@@ -154,7 +154,7 @@
         #content {
             flex-grow: 1;
             overflow-y: auto;
-            
+            background-color:rgba(231, 233, 236, 0.56);
             height: calc(100vh - 80px);
 
             /*  height: 100vh; */
