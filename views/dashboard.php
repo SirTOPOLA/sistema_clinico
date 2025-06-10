@@ -134,6 +134,7 @@ switch ($rol) {
             'Pacientes' => contar($pdo, "SELECT COUNT(*) FROM pacientes"),
             'Consultas' => contar($pdo, "SELECT COUNT(*) FROM consultas"),
             'Analíticas' => contar($pdo, "SELECT COUNT(*) FROM analiticas"),
+            'Roles' => contar($pdo, "SELECT COUNT(*) FROM roles"),
             'Tasa Retención' => $tasa_retencion . '%',
             'Porcentaje con Analíticas' => $porcentaje_analisis . '%'
         ];
