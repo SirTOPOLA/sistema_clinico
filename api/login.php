@@ -1,28 +1,41 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) {
-  // Si la sesión no está iniciada, se inicia
-  session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
-require_once '../includes/conexion.php';
-require_once '../components/auth.php';
-header('Content-Type: application/json');
-// Validar datos POST
-$correo = filter_input(INPUT_POST, 'correo', FILTER_SANITIZE_STRING);
-$contrasena = $_POST['contrasena'] ?? '';
 
-if (!$correo || strlen($contrasena) < 6) {
-    http_response_code(400);
-    echo json_encode(['status' => true, 'menssage' => 'Datos inválidos']);
+include_once('../config/conexion.php');
+include_once('../helpers/auth.php');
+
+// Validar método
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    $_SESSION['alerta'] = ['tipo' => 'danger', 'mensaje' => 'Método no permitido.'];
+    header('Location: ../index.php?vista=login');
     exit;
 }
 
-// Autenticar
-$usuario = autenticarUsuario($correo, $contrasena);
+// Obtener y limpiar datos del formulario
+$usuario = isset($_POST['usuario']) ? trim($_POST['usuario']) : '';
+$contrasena = isset($_POST['contrasena']) ? trim($_POST['contrasena']) : '';
 
-if ($usuario) {
-    iniciarSesionSegura($usuario);
-    echo json_encode(['status' => true, 'message' => 'Bienvenido '.$usuario['usuario']['usuario'],'data' => $usuario]);
-} else {
-    http_response_code(401);
-    echo json_encode(['status' => false , 'message' => 'Credenciales incorrectas']);
+// Validaciones
+if (empty($usuario)) {
+    $_SESSION['alerta'] = ['tipo' => 'warning', 'mensaje' => 'Se necesita un nombre de usuario.'];
+    header('Location: ../index.php?vista=login');
+    exit;
 }
+if (empty($contrasena)) {
+    $_SESSION['alerta'] = ['tipo' => 'warning', 'mensaje' => 'Se necesita una contraseña.'];
+    header('Location: ../index.php?vista=login');
+    exit;
+}
+
+
+// Intentar login
+if (login($pdo, $usuario, $contrasena)) {
+    header('Location: ../index.php?vista=dashboard');
+    exit;
+} else {
+    header('Location: ../index.php?vista=login');
+    exit;
+}
+?>

@@ -1,22 +1,3 @@
-<?php
-if (session_status() == PHP_SESSION_NONE) {
-    // Si la sesión no está iniciada, se inicia
-    session_start();
-}
-// Si no hay sesión → redirige a login
-/* if (!isset($_SESSION['usuario'])) {
-    header("Location: ../index.php");
-    exit;
-}
-if (isset($_SESSION['usuario'])) {
-    header("Location: ../admin/index.php");
-    exit;
-} */
-
-require_once '../includes/conexion.php'; // ajusta según tu estructura
-
-?>
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -28,9 +9,11 @@ require_once '../includes/conexion.php'; // ajusta según tu estructura
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
-
-
+<!-- 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+ -->
     <style>
         html,
         body {
@@ -50,7 +33,7 @@ require_once '../includes/conexion.php'; // ajusta según tu estructura
         /* ---------------- SIDEBAR ---------------- */
         .sidebar {
             width: 250px;
-            background-color: #1e293b;
+            /*   background-color: #1e293b; */
             color: #fff;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
             overflow-y: auto;
@@ -109,6 +92,49 @@ require_once '../includes/conexion.php'; // ajusta según tu estructura
             display: none;
         }
 
+        /* ADMINISTRADOR */
+        .sidebar-admin {
+            background-color: #1e293b;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* SECRETARIA */
+        .sidebar-secretaria {
+            background-color: #6c757d;
+            font-family: 'Arial Rounded MT', sans-serif;
+        }
+
+        /* TRIAJE */
+        .sidebar-triaje {
+            background-color: #198754;
+            font-family: 'Verdana', sans-serif;
+        }
+
+        /* LABORATORIO */
+        .sidebar-laboratorio {
+            background-color: #0d6efd;
+            font-family: 'Tahoma', sans-serif;
+        }
+
+        /* URGENCIA */
+        .sidebar-urgencia {
+            background-color: #dc3545;
+            font-family: 'Trebuchet MS', sans-serif;
+        }
+
+        /* Estilos generales que se pueden heredar */
+        .sidebar .nav-link {
+            color: #fff;
+        }
+
+        .sidebar .nav-link:hover {
+            opacity: 0.85;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
         @media (max-width: 767.98px) {
             .sidebar {
                 position: fixed;
@@ -128,17 +154,65 @@ require_once '../includes/conexion.php'; // ajusta según tu estructura
         #content {
             flex-grow: 1;
             overflow-y: auto;
+            
             height: calc(100vh - 80px);
-            margin-top: 60px;
+
             /*  height: 100vh; */
-            margin-left: 250px;
-            padding: 1rem;
+            margin-left: 250px; 
+            margin-top: 80px;
+           /*  padding: 1rem; */
             transition: margin-left 0.3s ease;
-            /*   border: solid 2px #52a552; */
+              /* border: solid 2px #52a552; */
         }
 
         #content.collapsed {
             margin-left: 80px;
+        }
+
+
+
+        .thead {
+            position: sticky;
+            top: 60px;
+            /* navbar height */
+            background-color: rgb(137, 161, 185);
+            z-index: 1040;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            margin-bottom: 60px;
+        }
+
+        /* Contenedor con scroll interno */
+        .tabla-con-scroll {
+            max-height: calc(100vh - 220px);
+            /* ajusta según tu diseño */
+            overflow-y: auto;
+            margin-top: 1rem;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Fijar encabezado de tabla */
+        .sticky-thead th {
+            position: sticky;
+            top: 0;
+            background-color: rgb(142, 148, 155);
+            /* table-dark */
+            color: white;
+            z-index: 1030;
+        }
+
+
+        thead th {
+            vertical-align: middle;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .table th,
+        .table td {
+            border-color: #dee2e6;
+            padding: 0.4rem 0.6rem;
         }
 
 
@@ -177,31 +251,8 @@ require_once '../includes/conexion.php'; // ajusta según tu estructura
         }
 
 
-        .navbar .navbar-brand,
-        .navbar .bi {
-            color: rgb(0, 0, 0) !important;
-        }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: rgb(0, 0, 0) !important;
-        }
 
-        .user-info img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-        }
-
-        .collapse-icon {
-            transition: transform 0.3s ease;
-        }
-
-        .collapsed .collapse-icon {
-            transform: rotate(-90deg);
-        }
 
         #navbar.collapsed {
             left: 80px;
@@ -519,12 +570,6 @@ require_once '../includes/conexion.php'; // ajusta según tu estructura
         .card-title {
             color: #0d6efd;
         }
-.modal-content {
-  border: 1px solid #e0e0e0;
-}
-.form-label {
-  color: #34495e;
-}
 
         /* impresion Factura */
         @media print {
