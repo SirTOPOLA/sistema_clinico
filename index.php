@@ -2,7 +2,7 @@
  if (session_status() == PHP_SESSION_NONE) { 
      session_start();
  }  
- 
+
 require_once 'config/conexion.php';
 require_once 'helpers/permisos.php'; 
 require_once 'helpers/auth.php'; 
