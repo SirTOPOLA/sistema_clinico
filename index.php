@@ -5,6 +5,7 @@
 
 require_once 'config/conexion.php';
 require_once 'helpers/permisos.php'; 
+require_once 'helpers/init.php'; 
 require_once 'helpers/auth.php'; 
 require_once 'components/alerta.php';   
  
