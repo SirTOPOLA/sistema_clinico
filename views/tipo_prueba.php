@@ -19,6 +19,27 @@ $tipos = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     </div>
   </div>
 
+
+
+
+
+  <?php if (isset($_SESSION['success'])): ?>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])): ?>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+<?php endif; ?>
+
+
+
+
   <div class="card border-0 shadow-sm">
     <div class="card-body table-responsive">
       <table id="tablaTipos" class="table table-hover table-bordered table-sm align-middle">
@@ -59,7 +80,7 @@ $tipos = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 <!-- Modal Crear Tipo de Prueba -->
 <div class="modal fade" id="modalCrearTipo" tabindex="-1">
   <div class="modal-dialog">
-    <form action="guardar_tipo_prueba.php" method="POST" class="modal-content">
+    <form action="api/guardar_tipo_prueba.php" method="POST" class="modal-content">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nuevo Tipo de Prueba</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -72,7 +93,7 @@ $tipos = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="col-md-12">
           <label>Precio (€)</label>
-          <input type="number" name="precio" class="form-control" step="0.01" required>
+          <input type="number" name="precio" class="form-control" min="0.01" step="0.01" required>
         </div>
       </div>
       <div class="modal-footer">
@@ -85,7 +106,7 @@ $tipos = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 <!-- Modal Editar Tipo de Prueba -->
 <div class="modal fade" id="modalEditarTipo" tabindex="-1">
   <div class="modal-dialog">
-    <form action="actualizar_tipo_prueba.php" method="POST" class="modal-content">
+    <form action="api/actualizar_tipo_prueba.php" method="POST" class="modal-content">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Tipo de Prueba</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -119,4 +140,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('edit-precio-tipo').value = btn.closest('tr').dataset.precio;
   });
 });
+</script>
+
+
+<script>
+  setTimeout(() => {
+    const alert = document.querySelector('.alert');
+    if (alert) {
+      alert.classList.remove('show');
+      alert.classList.add('fade');
+    }
+  }, 10000); // 10 segundos
 </script>
