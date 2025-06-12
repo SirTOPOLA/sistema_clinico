@@ -30,6 +30,7 @@ function verificarAcceso($vista)
             'pacientes' ,  
             'recetas' ,  
             'consultas' ,  
+            'tipo_prueba' ,  
             'salas' ,  
             'pagos' ,  
             'ingresos' ,  
