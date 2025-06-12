@@ -214,7 +214,7 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
 </div>
 
 <!-- MODAL EDITAR CONSULTA -->
-<div class="modal fade" id="modalEditar" tabindex="-1">
+<div class="modal fade" id="modal-editar" tabindex="-1">
   <div class="modal-dialog modal-xl">
     <form action="api/actualizar_consulta.php" method="POST" class="modal-content">
       <div class="modal-header bg-primary text-white">
@@ -328,6 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         console.log(id);
+
+        
         // Cargar campos de la tabla consultas
         document.getElementById('edit-id').value = data.consulta.id;
         document.getElementById('edit-paciente').value = data.consulta.id_paciente;

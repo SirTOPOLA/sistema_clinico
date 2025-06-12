@@ -11,7 +11,7 @@ if (!$id || !is_numeric($id)) {
 
 try {
   // Obtener datos de la tabla consultas
-  $stmt = $conn->prepare("SELECT * FROM consultas WHERE id = ?");
+  $stmt = $pdo->prepare("SELECT * FROM consultas WHERE id = ?");
   $stmt->execute([$id]);
   $consulta = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -22,7 +22,7 @@ try {
   }
 
   // Obtener datos de la tabla detalle_consulta
-  $stmt2 = $conn->prepare("SELECT * FROM detalle_consulta WHERE id_consulta = ?");
+  $stmt2 = $pdo->prepare("SELECT * FROM detalle_consulta WHERE id_consulta = ?");
   $stmt2->execute([$id]);
   $detalle = $stmt2->fetch(PDO::FETCH_ASSOC) ?: [];
 
