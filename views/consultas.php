@@ -131,7 +131,66 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
             <input type="<?= in_array($name, ['tension_arterial']) ? 'text' : 'number' ?>" step="any" name="<?= $name ?>" class="form-control">
           </div>
         <?php endforeach; ?>
+        <hr class="my-4">
+<h5 class="text-success">Detalles Clínicos</h5>
+
+<div class="col-md-6">
+  <label>Operación</label>
+  <textarea name="operacion" class="form-control" rows="2"></textarea>
+</div>
+
+<div class="col-md-3">
+  <label>Orina</label>
+  <input type="text" name="orina" class="form-control">
+</div>
+
+<div class="col-md-3">
+  <label>Defeca</label>
+  <input type="text" name="defeca" class="form-control">
+</div>
+
+<div class="col-md-3">
+  <label>Días que defeca</label>
+  <input type="number" name="defeca_dias" class="form-control" min="0">
+</div>
+
+<div class="col-md-3">
+  <label>Duerme</label>
+  <input type="text" name="duerme" class="form-control">
+</div>
+
+<div class="col-md-3">
+  <label>Horas que duerme</label>
+  <input type="number" name="duerme_horas" class="form-control" min="0" max="24">
+</div>
+
+<div class="col-md-6">
+  <label>Antecedentes Patológicos</label>
+  <textarea name="antecedentes_patologicos" class="form-control" rows="2"></textarea>
+</div>
+
+<div class="col-md-6">
+  <label>Alergias</label>
+  <textarea name="alergico" class="form-control" rows="2"></textarea>
+</div>
+
+<div class="col-md-6">
+  <label>Antecedentes Familiares</label>
+  <textarea name="antecedentes_familiares" class="form-control" rows="2"></textarea>
+</div>
+
+<div class="col-md-6">
+  <label>Antecedentes del Cónyuge</label>
+  <textarea name="antecedentes_conyuge" class="form-control" rows="2"></textarea>
+</div>
+
+<div class="col-md-12">
+  <label>Control de signos vitales</label>
+  <textarea name="control_signos_vitales" class="form-control" rows="3"></textarea>
+</div>
+
       </div>
+
       <div class="modal-footer">
         <button class="btn btn-success"><i class="bi bi-save me-1"></i> Guardar</button>
       </div>
