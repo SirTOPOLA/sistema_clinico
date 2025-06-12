@@ -459,7 +459,7 @@
             }
         }
 
-        #navContent {}
+      
 
         /*  @media (max-width: 767.98px) {
             .table-responsive table thead {

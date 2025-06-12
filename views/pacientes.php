@@ -26,6 +26,27 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
   </div>
 
+
+
+  <?php
+
+
+if (isset($_SESSION['error'])) {
+    echo '<div id="mensaje" class="alert alert-danger">'.$_SESSION['error'].'</div>';
+    unset($_SESSION['error']);
+}
+if (isset($_SESSION['success'])) {
+    echo '<div id="mensaje" class="alert alert-success">'.$_SESSION['success'].'</div>';
+    unset($_SESSION['success']);
+}
+?>
+
+
+
+
+
+
+
   <div class="card shadow-sm border-0">
     <div class="card-body">
       <div class="table-responsive">
@@ -86,7 +107,7 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <!-- Modal Crear -->
 <div class="modal fade" id="modalCrear" tabindex="-1" aria-labelledby="modalCrearLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
-    <form action="guardar_paciente.php" method="POST" class="modal-content">
+    <form action="api/guardar_paciente.php" method="POST" class="modal-content">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title">Registrar Nuevo Paciente</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -130,7 +151,7 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <!-- Modal Editar -->
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
-    <form action="actualizar_paciente.php" method="POST" class="modal-content">
+    <form action="api/actualizar_paciente.php" method="POST" class="modal-content">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">Editar Paciente</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -192,4 +213,18 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
       });
     });
   });
+</script>
+
+
+
+
+<script>
+  setTimeout(() => {
+    const mensaje = document.getElementById('mensaje');
+    if (mensaje) {
+      mensaje.style.transition = 'opacity 1s ease';
+      mensaje.style.opacity = '0';
+      setTimeout(() => mensaje.remove(), 1000);
+    }
+  }, 10000); // 10 segundos
 </script>
