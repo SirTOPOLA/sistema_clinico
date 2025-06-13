@@ -33,6 +33,7 @@ function verificarAcceso($vista)
             'tipo_prueba' ,  
             'salas' ,  
             'pagos' ,  
+            'analiticas' ,  
             'ingresos' ,  
             'detalles_consultas' ,  
             'empleados' ,  

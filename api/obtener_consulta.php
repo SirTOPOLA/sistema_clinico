@@ -28,6 +28,7 @@ try {
 
   echo json_encode([
     "consulta" => $consulta,
+     "id" => $id,
     "detalle" => $detalle
   ]);
 } catch (Exception $e) {

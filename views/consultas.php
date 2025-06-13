@@ -20,6 +20,11 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
       <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear">
         <i class="bi bi-plus-circle me-1"></i> Nueva Consulta
       </button>
+
+<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear">
+        <i class="bi bi-plus-circle me-1"></i> Analiticas
+      </button>
+
     </div>
     <div class="col-md-4">
       <input type="text" id="buscador" class="form-control" placeholder="Buscar consulta...">
@@ -79,7 +84,7 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
 
 
 <button class="btn btn-sm btn-primary editar-consulta"
-        data-id="<?= $consulta['id'] ?>"
+        data-id="<?= $c['id'] ?>"
         data-bs-toggle="modal"
         data-bs-target="#modal-editar">
   <i class="bi bi-pencil-square"></i>
@@ -111,6 +116,9 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
         <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nueva Consulta</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+
+    
+
       <div class="modal-body row g-3">
         <input type="hidden" name="id_usuario" value="<?= $idUsuario ?>">
         <div class="col-md-6">
@@ -223,11 +231,11 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
       </div>
       <div class="modal-body row g-3">
         <input type="hidden" name="id" id="edit-id">
-        <input type="hidden" name="id_usuario" value="<?= $idUsuario ?>">
+        <input type="hidden" name="id_usuario" value="<?= $idUsuario ?> " >
 
         <div class="col-md-6">
           <label>Paciente</label>
-          <select name="id_paciente" id="edit-paciente" class="form-select" required>
+          <select name="id_paciente" id="edit-paciente" class="form-select" required readonly>
             <option value="">Seleccione</option>
             <?php foreach ($pacientes as $p): ?>
               <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['nombre'] . ' ' . $p['apellidos']) ?></option>
@@ -327,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(`api/obtener_consulta.php?id=${id}`);
         const data = await response.json();
 
-        console.log(id);
+        
 
         
         // Cargar campos de la tabla consultas
@@ -359,6 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (error) {
         console.error('Error cargando datos de la consulta:', error);
         alert('Ocurrió un error al cargar los datos.');
+        console.log(id);
       }
     });
   });
