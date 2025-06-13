@@ -30,6 +30,29 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
     </div>
   </div>
 
+
+
+
+   <?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <?= $_SESSION['success'];
+      unset($_SESSION['success']); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <?php endif; ?>
+
+  <?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <?= $_SESSION['error'];
+      unset($_SESSION['error']); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <?php endif; ?>
+
+
+
+
+
   <div class="card border-0 shadow-sm">
     <div class="card-body table-responsive">
       <table id="tablaAnaliticas" class="table table-hover table-bordered table-sm align-middle">
@@ -39,9 +62,9 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
             <th>Tipo</th>
             <th>Paciente</th>
             <th>Código</th>
-            <th>Estado</th>
+           
             <th>Resultado</th>
-            <th>Pagado</th>
+           
             <th>Fecha</th>
             <th>Acciones</th>
           </tr>
@@ -53,16 +76,16 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
               data-id_tipo_prueba="<?= htmlspecialchars($a['tipo_prueba'], ENT_QUOTES) ?>"
               data-id_paciente="<?= htmlspecialchars($a['paciente'], ENT_QUOTES) ?>"
               data-codigo="<?= htmlspecialchars($a['codigo_paciente'], ENT_QUOTES) ?>"
-              data-estado="<?= htmlspecialchars($a['estado'], ENT_QUOTES) ?>"
+            
               data-resultado="<?= htmlspecialchars($a['resultado'], ENT_QUOTES) ?>"
-              data-pagado="<?= $a['pagado'] ?>">
+              >
             <td><?= $a['id'] ?></td>
             <td><?= htmlspecialchars($a['tipo_prueba']) ?></td>
             <td><?= htmlspecialchars($a['paciente']) ?></td>
             <td><?= htmlspecialchars($a['codigo_paciente']) ?></td>
-            <td><?= htmlspecialchars($a['estado']) ?></td>
+        
             <td><?= nl2br(htmlspecialchars($a['resultado'])) ?></td>
-            <td><?= $a['pagado'] ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-x-circle-fill text-danger"></i>' ?></td>
+            
             <td><?= date('d/m/Y H:i', strtotime($a['fecha_registro'])) ?></td>
             <td class="text-nowrap">
               <button class="btn btn-sm btn-outline-primary btn-editar" data-bs-toggle="modal" data-bs-target="#modalEditar">
@@ -81,42 +104,57 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
   </div>
 </div>
 
+   
+
 
 <!-- Modal Crear -->
 <div class="modal fade" id="modalCrear" tabindex="-1">
   <div class="modal-dialog modal-lg">
-    <form action="guardar_analitica.php" method="POST" class="modal-content">
+   <form action="api/guardar_analitica.php" method="POST" class="modal-content">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nueva Analítica</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body row g-3">
         <input type="hidden" name="id_usuario" value="<?= $idUsuario ?>">
-        <div class="col-md-6">
-          <label>Tipo de Prueba</label>
-          <select name="id_tipo_prueba" class="form-select" required>
-            <option value="">Seleccione</option>
-            <?php foreach ($tipos as $t): ?>
-              <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['nombre']) ?></option>
-            <?php endforeach ?>
-          </select>
+
+
+         <div class="col-md-12">
+          <label>Historia de la Enfermedad Actual</label>
+          <textarea name="historia" class="form-control" rows="2" required></textarea>
         </div>
-        <div class="col-md-6">
-          <label>Paciente</label>
-          <select name="id_paciente" class="form-select" required>
-            <option value="">Seleccione</option>
-            <?php foreach ($pacientes as $p): ?>
-              <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['nombre'] . ' ' . $p['apellidos']) ?></option>
-            <?php endforeach ?>
-          </select>
+
+         <div class="col-md-12">
+          <label>Exproracion Fisica</label>
+          <textarea name="exproracion" class="form-control" rows="2" required></textarea>
         </div>
-        <div class="col-md-6"><label>Código de Paciente</label><input type="text" name="codigo_paciente" class="form-control"></div>
-        <div class="col-md-6"><label>Estado</label><input type="text" name="estado" class="form-control" required></div>
-        <div class="col-md-12"><label>Resultado</label><textarea name="resultado" class="form-control" rows="3" required></textarea></div>
-        <div class="col-md-4 form-check form-switch">
-          <input class="form-check-input" type="checkbox" name="pagado" id="pagadoCrear" value="1">
-          <label class="form-check-label" for="pagadoCrear">Pagado</label>
+
+        <div class="col-md-12">
+          <label>Buscar Consulta por Nombre del Paciente</label>
+          <input type="text" id="buscadorConsulta" class="form-control" placeholder="Escriba el nombre del paciente">
+          <div id="resultadosConsulta" class="mt-2"></div>
+          <div id="consultaSeleccionada" class="mt-2"></div>
         </div>
+
+        <div class="col-md-12">
+          <label>Buscar Tipo de Prueba</label>
+          <input type="text" id="buscadorTipoPrueba" class="form-control" placeholder="Escriba el nombre de la prueba">
+          <div id="resultadosTipoPrueba" class="mt-2"></div>
+          <div id="tiposSeleccionados" class="mt-2"></div>
+        </div>
+
+        <input type="hidden" name="id_consulta" id="inputIdConsulta">
+        <input type="hidden" name="tipos_prueba_seleccionados" id="inputTiposSeleccionados">
+
+        <input type="hidden" name="id_paciente" id="inputIdPaciente">
+
+        <div class="col-md-12">
+          <label>Código de Paciente</label>
+          <input type="text" name="codigo_paciente" id="inputCodigo" class="form-control" readonly required>
+        </div>
+        
+        
+        
       </div>
       <div class="modal-footer">
         <button class="btn btn-success"><i class="bi bi-save me-1"></i> Guardar</button>
@@ -124,6 +162,11 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
     </form>
   </div>
 </div>
+
+
+
+
+
 
 
 <!-- Modal Editar -->
@@ -188,4 +231,86 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('pagadoEditar').checked = btn.dataset.pagado == 1;
   });
 });
+</script>
+
+
+<script>
+const buscadorConsulta = document.getElementById("buscadorConsulta");
+const resultadosConsulta = document.getElementById("resultadosConsulta");
+const consultaSeleccionada = document.getElementById("consultaSeleccionada");
+const inputIdConsulta = document.getElementById("inputIdConsulta");
+const inputIdPaciente = document.getElementById("inputIdPaciente"); 
+const inputCodigo = document.getElementById("inputCodigo"); 
+
+buscadorConsulta.addEventListener("input", async () => {
+  const q = buscadorConsulta.value.trim();
+  if (q.length < 3) {
+    resultadosConsulta.innerHTML = "";
+    return;
+  }
+
+  const res = await fetch(`api/buscar_consulta.php?q=${encodeURIComponent(q)}`);
+  const datos = await res.json();
+
+  resultadosConsulta.innerHTML = datos.map(c => `
+    <div class='form-check'>
+      <input type='radio' name='consulta' id='consulta-${c.id}' class='form-check-input' value='${c.id}' onclick='seleccionarConsulta(${JSON.stringify(c)})'>
+      <label class='form-check-label' for='consulta-${c.id}'>${c.nombre} ${c.apellidos}  || CODIGO: ${c.codigo} || ${c.fecha}</label>
+    </div>`).join("");
+});
+
+function seleccionarConsulta(c) {
+  consultaSeleccionada.innerHTML = `<div class='alert alert-secondary'>Consulta Seleccionada: ${c.nombre} ${c.apellidos} - ${c.fecha}</div>`;
+  inputIdConsulta.value = c.id;
+  inputIdPaciente.value = c.id_paciente;
+  inputCodigo.value=c.codigo;
+  resultadosConsulta.innerHTML = "";
+  buscadorConsulta.value = "";
+}
+
+// Tipos de prueba múltiples
+const buscadorTipo = document.getElementById("buscadorTipoPrueba");
+const resultadosTipo = document.getElementById("resultadosTipoPrueba");
+const tiposSeleccionados = document.getElementById("tiposSeleccionados");
+const inputTipos = document.getElementById("inputTiposSeleccionados");
+
+let tiposElegidos = [];
+
+buscadorTipo.addEventListener("input", async () => {
+  const q = buscadorTipo.value.trim();
+  if (q.length < 2) {
+    resultadosTipo.innerHTML = "";
+    return;
+  }
+
+  const res = await fetch(`api/buscar_tipo_pruebas.php?q=${encodeURIComponent(q)}`);
+  const datos = await res.json();
+
+  resultadosTipo.innerHTML = datos.map(t => `
+    <div class='form-check'>
+      <input type='checkbox' id='tipo-${t.id}' class='form-check-input' onchange='toggleTipo(${JSON.stringify(t)})'>
+      <label class='form-check-label' for='tipo-${t.id}'>${t.nombre}</label>
+    </div>`).join("");
+});
+
+function toggleTipo(t) {
+  const index = tiposElegidos.findIndex(el => el.id === t.id);
+  if (index > -1) {
+    tiposElegidos.splice(index, 1);
+  } else {
+    tiposElegidos.push(t);
+  }
+  actualizarTiposSeleccionados();
+}
+
+function eliminarTipo(id) {
+  tiposElegidos = tiposElegidos.filter(t => t.id !== id);
+  actualizarTiposSeleccionados();
+}
+
+function actualizarTiposSeleccionados() {
+  tiposSeleccionados.innerHTML = tiposElegidos.map(t => `
+    <span class='badge bg-info me-1'>${t.nombre} <button type='button' class='btn-close btn-close-white btn-sm ms-1' onclick='eliminarTipo(${t.id})'></button></span>`).join("");
+  inputTipos.value = tiposElegidos.map(t => t.id).join(',');
+}
 </script>
