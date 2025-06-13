@@ -8,13 +8,13 @@ $sql = "SELECT a.id, a.resultado, a.estado, a.codigo_paciente, a.pagado,
                CONCAT(p.nombre,' ',p.apellidos) AS paciente,
                a.fecha_registro
         FROM analiticas a
-        JOIN tipos_prueba tp ON a.id_tipo_prueba = tp.id
+        JOIN tipo_pruebas tp ON a.id_tipo_prueba = tp.id
         JOIN pacientes p ON a.id_paciente = p.id
         ORDER BY a.fecha_registro DESC";
 $analiticas = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
 // Datos para selects
-$tipos = $pdo->query("SELECT id, nombre FROM tipos_prueba ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
+$tipos = $pdo->query("SELECT id, nombre FROM tipo_pruebas ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="container-fluid" id="content">
