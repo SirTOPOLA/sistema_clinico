@@ -7,24 +7,222 @@
     <title>Dashboard</title>
     <!-- Bootstrap 5.3 CSS -->
     
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+   <!--  <link href="../css/bootstrap.min.css" rel="stylesheet"> -->
     
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-<!-- 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<!-- 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
  -->
     <style>
         html,
-        body {
-            height: 100%;
-            margin: 0;
-            overflow: hidden;
-            background-color: #f8f9fa;
-
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --info-gradient: linear-gradient(135deg, #667db6 0%, #0082c8 100%);
+            --danger-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --warning-gradient: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            
+            --card-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            --card-hover-shadow: 0 15px 35px rgba(0,0,0,0.12);
+            --border-radius: 16px;
         }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+ 
+        .modern-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .modern-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+        }
+
+        .stat-card.primary::before { background: var(--primary-gradient); }
+        .stat-card.success::before { background: var(--success-gradient); }
+        .stat-card.info::before { background: var(--info-gradient); }
+        .stat-card.danger::before { background: var(--danger-gradient); }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card.primary .stat-number { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card.success .stat-number { background: var(--success-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card.info .stat-number { background: var(--info-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card.danger .stat-number { background: var(--danger-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.primary { background: var(--primary-gradient); }
+        .stat-icon.success { background: var(--success-gradient); }
+        .stat-icon.info { background: var(--info-gradient); }
+        .stat-icon.danger { background: var(--danger-gradient); }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-title i {
+            font-size: 1.8rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-select {
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .recent-prescriptions {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .prescription-item {
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .prescription-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .page-header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .grid-2x2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .grid-2x2-equal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2x2,
+            .grid-2x2-equal {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .chart-container {
+                padding: 1rem;
+            }
+        }
+
+        .badge-modern {
+            background: var(--primary-gradient);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+        
 
         .wrapper {
             display: flex;
@@ -101,13 +299,13 @@
         }
 
         /* SECRETARIA */
-        .sidebar-secretaria {
-            background-color: #6c757d;
-            font-family: 'Arial Rounded MT', sans-serif;
-        }
-
-        /* TRIAJE */
-        .sidebar-triaje {
+        .sidebar-doctor {
+        background-color: #6c757d;
+        font-family: 'Arial Rounded MT', sans-serif;
+    }
+    
+    /* TRIAJE */
+            .sidebar-secretaria {
             background-color: #198754;
             font-family: 'Verdana', sans-serif;
         }

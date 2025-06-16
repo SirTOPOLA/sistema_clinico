@@ -1,20 +1,19 @@
 <?php
-$rol = strtolower(trim($_SESSION['usuario']['rol'] ?? 'sin_permiso'));
-$current = $_GET['vista'] ?? 'dashboard';
+$rol = strtolower(trim($_SESSION['usuario']['rol'] ?? ''));
+$current = $_GET['vista'] ?? 'dashboard_administrador';
  
 // Clase CSS adicional según el rol del usuario
 $claseRol = match ($rol) {
     'administrador' => 'sidebar-admin',
-    'secretaria'    => 'sidebar-secretaria',
-    'triaje'        => 'sidebar-triaje',
+    'secretaria'    => 'sidebar-secretaria', 
     'laboratorio'   => 'sidebar-laboratorio',
-    'urgencia'      => 'sidebar-urgencia',
+    'doctor'      => 'sidebar-doctor',
     default         => 'sidebar-generico',
 };
  
 $iconos_por_rol = [
   'administrador' => [
-    'dashboard' => 'bi-speedometer2',
+    'dashboard_administrador' => 'bi-speedometer2',
     'usuarios' => 'bi-person-badge',
     'pacientes' => 'bi-people-fill',
     'pruebas' => 'bi-clipboard-pulse',
@@ -28,17 +27,14 @@ $iconos_por_rol = [
     'empleados' => 'bi-person-workspace',
   ],
   'secretaria' => [
-    'dashboard' => 'bi-clipboard2-heart-fill',
+    'dashboard_secretaria' => 'bi-clipboard2-heart-fill',
   ],
-  'triaje' => [
-    'dashboard' => 'bi-activity',
+  'doctor' => [
+    'dashboard_doctor' => 'bi-activity',
   ],
   'laboratorio' => [
-    'dashboard' => 'bi-eyedropper',
-  ],
-  'urgencia' => [
-    'dashboard' => 'bi-exclamation-triangle-fill',
-  ],
+    'dashboard_laboratorio' => 'bi-eyedropper',
+  ], 
 ];
 
 // Escoge los íconos adecuados según el rol actual
@@ -47,7 +43,7 @@ $iconos = $iconos_por_rol[$rol] ?? [];
 // Menú por rol
 $menu = [
   'administrador' => [
-    'Dashboard' => 'dashboard', 
+    'Dashboard' => 'dashboard_administrador', 
     'Usuarios' => 'usuarios',
     'Pacientes' => 'pacientes',
     'Recetas' => 'recetas',
@@ -59,20 +55,37 @@ $menu = [
     'Consultas' => 'consultas',
     'Detalles_consultas' => 'detalles_consultas',
     'Empleados' => 'empleados',
-   // 'Configuración' => 'configuracion',
+    // 'Configuración' => 'configuracion',
   ],
   'laboratorio' => [
-    'Dashboard' => 'dashboard', 
-  ],
-  'triaje' => [
-    'Dashboard' => 'dashboard', 
+    'Dashboard' => 'dashboard_laboratorio', 
+    'Pruebas' => 'tipo_prueba',
   ],
   'secretaria' => [
-    'Dashboard' => 'dashboard', 
+    'Dashboard' => 'dashboard_secretaria', 
+    'Pacientes' => 'pacientes',
+    'ingresos' => 'ingresos',
+    'Consultas' => 'consultas',
   ],
-  'urgencia' => [
-    'Dashboard' => 'dashboard', 
+  'doctor' => [
+    'Dashboard' => 'dashboard_doctor', 
+    'Recetas' => 'recetas',
+    'Pruebas' => 'tipo_prueba',
+    'ingresos' => 'ingresos',
+    'Consultas' => 'consultas',
   ],
+  /* 'triaje' => [
+    'Dashboard' => 'dashboard_enfermera', 
+    'Pacientes' => 'pacientes',
+    'Consultas' => 'consultas',
+    ], */
+    /* 'urgencia' => [
+      'Dashboard' => 'dashboard_urgencia', 
+      'ingresos' => 'ingresos', 
+    ], */
+    /* 'triaje' => [
+    'Dashboard' => 'dashboard_triaje', 
+  ], */
 ];
 ?>
 <div class="wrapper">

@@ -2,9 +2,35 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+ 
 
 $rol = strtolower(trim($_SESSION['usuario']['rol'] ?? 'sin_permiso'));
 
+// Si no es administrador, redirige al dashboard correspondiente
+if ($rol !== 'administrador') {
+    switch ($rol) {
+        case 'secretaria':
+            header("Location: index.php?vista=dashboard_secretaria");
+            exit;
+        case 'triaje':
+            header("Location: index.php?vista=dashboard_triaje");
+            exit;
+        case 'laboratorio':
+            header("Location: index.php?vista=dashboard_laboratorio");
+            exit;
+        case 'urgencia':
+            header("Location: index.php?vista=dashboard_urgencia");
+            exit;
+        default:
+            $_SESSION['alerta'] = [
+            'tipo' => 'danger',
+            'mensaje' => "Acceso denegado. No tienes permisos para ver esta vista."
+        ];
+        header("Location: index.php");
+            exit;
+    }
+}
+ 
 $resumen = [];
 
 
@@ -48,132 +74,94 @@ function contar($pdo, $sql)
     return (int) $stmt->fetchColumn();
 }
 
-switch ($rol) {
-    case 'administrador':
-        // Solo este rol necesita los datos completos
-        $ingresos_totales = contar($pdo, "SELECT SUM(cantidad) FROM pagos");
-        $ingresos_mes = contar($pdo, "SELECT SUM(cantidad) FROM pagos WHERE MONTH(fecha_registro) = MONTH(CURDATE()) AND YEAR(fecha_registro) = YEAR(CURDATE())");
-        $ingresos_dia = contar($pdo, "SELECT SUM(cantidad) FROM pagos WHERE DATE(fecha_registro) = CURDATE()");
+$ingresos_totales = contar($pdo, "SELECT SUM(cantidad) FROM pagos");
+$ingresos_mes = contar($pdo, "SELECT SUM(cantidad) FROM pagos WHERE MONTH(fecha_registro) = MONTH(CURDATE()) AND YEAR(fecha_registro) = YEAR(CURDATE())");
+$ingresos_dia = contar($pdo, "SELECT SUM(cantidad) FROM pagos WHERE DATE(fecha_registro) = CURDATE()");
 
-        $stmt_ingresos_mensuales = $pdo->query("
-            SELECT DATE_FORMAT(fecha_registro, '%Y-%m') AS mes, SUM(cantidad) AS total 
-            FROM pagos 
-            GROUP BY mes 
-            ORDER BY mes DESC 
-            LIMIT 6
-        ");
-        $datos_grafico = array_reverse($stmt_ingresos_mensuales->fetchAll(PDO::FETCH_ASSOC));
+$stmt_ingresos_mensuales = $pdo->query("
+    SELECT DATE_FORMAT(fecha_registro, '%Y-%m') AS mes, SUM(cantidad) AS total 
+    FROM pagos 
+    GROUP BY mes 
+    ORDER BY mes DESC 
+    LIMIT 6
+");
+$datos_grafico = array_reverse($stmt_ingresos_mensuales->fetchAll(PDO::FETCH_ASSOC));
 
-        $stmt_consultas = $pdo->query("
-            SELECT DATE_FORMAT(fecha_registro, '%Y-%m') AS mes, COUNT(*) AS total 
-            FROM consultas 
-            GROUP BY mes 
-            ORDER BY mes DESC 
-            LIMIT 6
-        ");
-        $datos_consultas = array_reverse($stmt_consultas->fetchAll(PDO::FETCH_ASSOC));
+$stmt_consultas = $pdo->query("
+    SELECT DATE_FORMAT(fecha_registro, '%Y-%m') AS mes, COUNT(*) AS total 
+    FROM consultas 
+    GROUP BY mes 
+    ORDER BY mes DESC 
+    LIMIT 6
+");
+$datos_consultas = array_reverse($stmt_consultas->fetchAll(PDO::FETCH_ASSOC));
 
-        $stmt_pacientes = $pdo->query("
-            SELECT DATE_FORMAT(fecha_registro, '%Y-%m') AS mes, COUNT(*) AS total 
-            FROM pacientes 
-            GROUP BY mes 
-            ORDER BY mes DESC 
-            LIMIT 6
-        ");
-        $datos_pacientes = array_reverse($stmt_pacientes->fetchAll(PDO::FETCH_ASSOC));
+$stmt_pacientes = $pdo->query("
+    SELECT DATE_FORMAT(fecha_registro, '%Y-%m') AS mes, COUNT(*) AS total 
+    FROM pacientes 
+    GROUP BY mes 
+    ORDER BY mes DESC 
+    LIMIT 6
+");
+$datos_pacientes = array_reverse($stmt_pacientes->fetchAll(PDO::FETCH_ASSOC));
 
-        $stmt_analisis = $pdo->query("
-            SELECT tp.nombre AS tipo_analisis, COUNT(*) AS total 
-            FROM analiticas a
-            JOIN tipo_pruebas tp ON a.id_tipo_prueba = tp.id
-            GROUP BY tp.nombre
-            ORDER BY total DESC
-            LIMIT 5
-        ");
-        $datos_analisis = $stmt_analisis->fetchAll(PDO::FETCH_ASSOC);
+$stmt_analisis = $pdo->query("
+    SELECT tp.nombre AS tipo_analisis, COUNT(*) AS total 
+    FROM analiticas a
+    JOIN tipo_pruebas tp ON a.id_tipo_prueba = tp.id
+    GROUP BY tp.nombre
+    ORDER BY total DESC
+    LIMIT 5
+");
+$datos_analisis = $stmt_analisis->fetchAll(PDO::FETCH_ASSOC);
 
-        $stmt_horarios = $pdo->query("
-            SELECT HOUR(fecha_registro) AS hora, COUNT(*) AS total 
-            FROM consultas 
-            GROUP BY hora 
-            ORDER BY hora ASC
-        ");
-        $datos_horarios = $stmt_horarios->fetchAll(PDO::FETCH_ASSOC);
+$stmt_horarios = $pdo->query("
+    SELECT HOUR(fecha_registro) AS hora, COUNT(*) AS total 
+    FROM consultas 
+    GROUP BY hora 
+    ORDER BY hora ASC
+");
+$datos_horarios = $stmt_horarios->fetchAll(PDO::FETCH_ASSOC);
 
-        $stmt_retenidos = $pdo->query("
-            SELECT COUNT(*) AS retenidos 
-            FROM (
-                SELECT id_paciente 
-                FROM consultas 
-                GROUP BY id_paciente 
-                HAVING COUNT(*) >= 2
-            ) AS pacientes_fieles
-        ");
-        $retenidos = $stmt_retenidos->fetchColumn();
+$stmt_retenidos = $pdo->query("
+    SELECT COUNT(*) AS retenidos 
+    FROM (
+        SELECT id_paciente 
+        FROM consultas 
+        GROUP BY id_paciente 
+        HAVING COUNT(*) >= 2
+    ) AS pacientes_fieles
+");
+$retenidos = $stmt_retenidos->fetchColumn();
 
-        $stmt_total = $pdo->query("SELECT COUNT(*) FROM pacientes");
-        $total_pacientes = $stmt_total->fetchColumn();
+$stmt_total = $pdo->query("SELECT COUNT(*) FROM pacientes");
+$total_pacientes = $stmt_total->fetchColumn();
 
-        $tasa_retencion = $total_pacientes > 0 ? round(($retenidos / $total_pacientes) * 100, 2) : 0;
+$tasa_retencion = $total_pacientes > 0 ? round(($retenidos / $total_pacientes) * 100, 2) : 0;
 
-        $stmt_total_consultas = $pdo->query("SELECT COUNT(*) FROM consultas");
-        $total_consultas = $stmt_total_consultas->fetchColumn();
+$stmt_total_consultas = $pdo->query("SELECT COUNT(*) FROM consultas");
+$total_consultas = $stmt_total_consultas->fetchColumn();
 
-        $stmt_con_analisis = $pdo->query("
-            SELECT COUNT(DISTINCT id_consulta) 
-            FROM analiticas 
-            WHERE id_consulta IS NOT NULL
-        ");
-        $consultas_con_analisis = $stmt_con_analisis->fetchColumn();
+$stmt_con_analisis = $pdo->query("
+    SELECT COUNT(DISTINCT id_consulta) 
+    FROM analiticas 
+    WHERE id_consulta IS NOT NULL
+");
+$consultas_con_analisis = $stmt_con_analisis->fetchColumn();
 
-        $porcentaje_analisis = $total_consultas > 0 ? round(($consultas_con_analisis / $total_consultas) * 100, 2) : 0;
+$porcentaje_analisis = $total_consultas > 0 ? round(($consultas_con_analisis / $total_consultas) * 100, 2) : 0;
 
-        $resumen = [
-            'Usuarios' => contar($pdo, "SELECT COUNT(*) FROM usuarios"),
-            'Empleados' => contar($pdo, "SELECT COUNT(*) FROM personal"),
-            'Pacientes' => contar($pdo, "SELECT COUNT(*) FROM pacientes"),
-            'Consultas' => contar($pdo, "SELECT COUNT(*) FROM consultas"),
-            'Analíticas' => contar($pdo, "SELECT COUNT(*) FROM analiticas"),
-            'Roles' => contar($pdo, "SELECT COUNT(*) FROM roles"),
-            'Tasa Retención' => $tasa_retencion . '%',
-            'Porcentaje con Analíticas' => $porcentaje_analisis . '%'
-        ];
-        break;
-
-    case 'secretaria':
-        $resumen = [
-            'Pacientes hoy' => contar($pdo, "SELECT COUNT(*) FROM pacientes WHERE DATE(fecha_registro) = CURDATE()"),
-            'Consultas hoy' => contar($pdo, "SELECT COUNT(*) FROM consultas WHERE DATE(fecha_registro) = CURDATE()"),
-            'Ingresos activos' => contar($pdo, "SELECT COUNT(*) FROM ingresos WHERE fecha_alta IS NULL"),
-        ];
-        break;
-
-    case 'triaje':
-        $resumen = [
-            'Consultas registradas' => contar($pdo, "SELECT COUNT(*) FROM consultas"),
-            'Signos vitales tomados' => contar($pdo, "SELECT COUNT(*) FROM detalle_consulta"),
-        ];
-        break;
-
-    case 'laboratorio':
-        $resumen = [
-            'Analíticas pendientes' => contar($pdo, "SELECT COUNT(*) FROM analiticas WHERE estado = 'pendiente'"),
-            'Analíticas completadas' => contar($pdo, "SELECT COUNT(*) FROM analiticas WHERE estado = 'completado'"),
-        ];
-        break;
-
-    case 'urgencia':
-        $resumen = [
-            'Pacientes ingresados' => contar($pdo, "SELECT COUNT(*) FROM ingresos WHERE fecha_alta IS NULL"),
-            'Salas activas' => contar($pdo, "SELECT COUNT(*) FROM salas_ingreso"),
-        ];
-        break;
-
-    default:
-        $resumen = [
-            'Mensaje' => 'No hay estadísticas disponibles para este rol.'
-        ];
-}
+$resumen = [
+    'Usuarios' => contar($pdo, "SELECT COUNT(*) FROM usuarios"),
+    'Empleados' => contar($pdo, "SELECT COUNT(*) FROM personal"),
+    'Pacientes' => contar($pdo, "SELECT COUNT(*) FROM pacientes"),
+    'Consultas' => contar($pdo, "SELECT COUNT(*) FROM consultas"),
+    'Analíticas' => contar($pdo, "SELECT COUNT(*) FROM analiticas"),
+    'Roles' => contar($pdo, "SELECT COUNT(*) FROM roles"),
+    'Tasa Retención' => $tasa_retencion . '%',
+    'Porcentaje con Analíticas' => $porcentaje_analisis . '%'
+];
+ 
 ?>
 
 <!-- Main Content -->
@@ -204,6 +192,7 @@ switch ($rol) {
         <?php endforeach; ?>
     </div>
 
+  
     <!-- Tasa de retención -->
     <div class="card shadow-sm mt-5 mb-5 border-0 rounded-4">
         <div class="card-body text-center">

@@ -1,71 +1,73 @@
-<?php 
-if (session_status() == PHP_SESSION_NONE) { 
+<?php
+if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-
 function verificarAcceso($vista)
 {
-   
-    
-    // Si no hay sesión → redirige a login
     if (!isset($_SESSION['usuario'])) {
         header("Location: index.php?vista=login");
         exit;
     }
-    // Validar que el usuario esté activo
-  /*   if (isset($_SESSION['usuario']['estado']) && $_SESSION['usuario']['estado'] !== 'activo') {
-        $_SESSION['alerta'] = "Tu cuenta no está activa. Contacta al administrador.";
-        header('Location: index.php?vista=login');
-        exit;
-    } */
-    // Normalizar el rol a minúsculas
+
     $rol = strtolower(trim($_SESSION['usuario']['rol'] ?? ''));
 
-    // Estructura de permisos (todos en minúsculas)
+    // Estructura de permisos por rol
     $permisos = [
         'administrador' => [
-            'dashboard' ,  
-            'usuarios' ,  
-            'pacientes' ,  
-            'recetas' ,  
-            'consultas' ,  
-            'tipo_prueba' ,  
-            'salas' ,  
-            'pagos' ,  
-            'analiticas' ,  
-            'ingresos' ,  
-            'detalles_consultas' ,  
-            'empleados' ,  
+            'dashboard_administrador',
+            'usuarios',
+            'pacientes',
+            'recetas',
+            'consultas',
+            'tipo_prueba',
+            'salas',
+            'pagos',
+            'analiticas',
+            'ingresos',
+            'detalles_consultas',
+            'empleados'
         ],
         'secretaria' => [
-            'dashboard' 
-        ],  
-        'triaje' => [
-            'dashboard'
-        ],
-        'laboratorio' => [
-            'dashboard'
-        ],
-        'urgencias' => [
-            'dashboard'
+            'dashboard_secretaria',
+            'pacientes',
+            'ingresos',
+            'consultas',
         ],
 
+        'laboratorio' => [
+            'dashboard_laboratorio',
+            'tipo_prueba',
+        ],
+
+        'doctor' => [
+            'dashboard_doctor',
+            'recetas',
+            'tipo_prueba',
+            'ingresos',
+            'consultas',
+        ]
     ];
 
+    // Definir el dashboard principal por rol
+    $dashboards = [
+        'administrador' => 'dashboard_administrador',
+        'secretaria' => 'dashboard_secretaria',
+        'laboratorio' => 'dashboard_laboratorio',
+        'doctor' => 'dashboard_doctor'
+    ];
 
-    // Validación del nombre de la vista para prevenir rutas maliciosas
+    // Vista inválida por nombre
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $vista)) {
-   
         $_SESSION['alerta'] = ['tipo' => 'warning', 'mensaje' => 'La vista solicitada no es válida.'];
-        header("Location: index.php?vista=dashboard");
+        header("Location: index.php?vista=" . ($dashboards[$rol] ?? 'login'));
         exit;
     }
-    
-    // Si el rol no tiene permiso para esta vista → redirige a dashboard
-    if (!in_array($vista, $permisos[$rol] ?? [])) { 
+
+    // Validación del permiso según el rol
+    if (!array_key_exists($rol, $permisos) || !in_array($vista, $permisos[$rol])) {
         $_SESSION['alerta'] = ['tipo' => 'warning', 'mensaje' => 'No tienes permiso para acceder a la vista solicitada.'];
-        header("Location: index.php?vista=dashboard");
+        header("Location: index.php?vista=" . ($dashboards[$rol] ?? 'login'));
         exit;
     }
 }
@@ -84,11 +86,11 @@ function ValidarAcceso(array $rolesPermitidos, PDO $pdo)
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
-    
+
     // Validar existencia de sesión de usuario
     if (empty($_SESSION['usuario'])) {
         $_SESSION['alerta'] = ['tipo' => 'warning', 'mensaje' => 'Debes iniciar sesión para continuar.'];
-       
+
         header('Location: index.php?vista=login');
         exit;
     }

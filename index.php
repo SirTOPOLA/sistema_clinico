@@ -13,7 +13,7 @@ require_once 'components/alerta.php';
 
 $publicas = ['login'];  // vistas públicas
 
-$vista = $_GET['vista'] ?? 'dashboard';
+$vista = $_GET['vista'] ?? 'dashboard_administrador';
 
 if (in_array($vista, $publicas)) {
     // --- PÚBLICO ---
