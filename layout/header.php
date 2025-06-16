@@ -312,7 +312,7 @@
 
         /* LABORATORIO */
         .sidebar-laboratorio {
-            background-color: #0d6efd;
+            background-color:  #2c3e50;
             font-family: 'Tahoma', sans-serif;
         }
 
