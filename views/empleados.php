@@ -25,6 +25,24 @@ $personal = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
   </div>
 
+
+
+
+  <?php
+
+
+if (isset($_SESSION['error'])) {
+    echo '<div id="mensaje" class="alert alert-danger">'.$_SESSION['error'].'</div>';
+    unset($_SESSION['error']);
+}
+if (isset($_SESSION['success'])) {
+    echo '<div id="mensaje" class="alert alert-success">'.$_SESSION['success'].'</div>';
+    unset($_SESSION['success']);
+}
+?>
+
+
+
   <div class="card shadow-sm border-0">
     <div class="card-body">
       <div class="table-responsive">
@@ -59,6 +77,8 @@ $personal = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     data-apellidos="<?= htmlspecialchars($p['apellidos']) ?>"
                     data-correo="<?= htmlspecialchars($p['correo']) ?>"
                     data-telefono="<?= htmlspecialchars($p['telefono']) ?>"
+                    data-fecha_nacimiento="<?= htmlspecialchars($p['fecha_nacimiento']) ?>"
+                    data-direccion="<?= htmlspecialchars($p['direccion']) ?>"
                     data-especialidad="<?= htmlspecialchars($p['especialidad']) ?>" title="Editar" data-bs-toggle="modal"
                     data-bs-target="#modalEditar">
                     <i class="bi bi-pencil-square"></i>
@@ -82,7 +102,7 @@ $personal = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="modal fade" id="modalNuevo" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form action="guardar_personal.php" method="POST">
+      <form action="api/guardar_personal.php" method="POST">
         <div class="modal-header">
           <h5 class="modal-title"><i class="bi bi-person-plus-fill me-2"></i>Nuevo Personal</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -105,6 +125,14 @@ $personal = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="col-md-6">
               <label class="form-label">Teléfono</label>
               <input type="text" name="telefono" class="form-control">
+            </div>
+             <div class="col-md-6">
+              <label class="form-label">Fecha de Nacimiento</label>
+              <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Direccion</label>
+              <input type="text" name="direccion" id="direccion" class="form-control">
             </div>
             <div class="col-md-12">
               <label class="form-label">Especialidad</label>
@@ -150,6 +178,14 @@ $personal = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <label class="form-label">Teléfono</label>
               <input type="text" name="telefono" id="editar_telefono" class="form-control">
             </div>
+            <div class="col-md-6">
+              <label class="form-label">Fecha de Nacimiento</label>
+              <input type="date" name="fecha_nacimiento" id="editar_fecha_nacimiento" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Direccion</label>
+              <input type="text" name="direccion" id="editar_direccion" class="form-control">
+            </div>
             <div class="col-md-12">
               <label class="form-label">Especialidad</label>
               <input type="text" name="especialidad" id="editar_especialidad" class="form-control">
@@ -173,7 +209,20 @@ $personal = $stmt->fetchAll(PDO::FETCH_ASSOC);
       document.getElementById('editar_apellidos').value = btn.dataset.apellidos;
       document.getElementById('editar_correo').value = btn.dataset.correo;
       document.getElementById('editar_telefono').value = btn.dataset.telefono;
+      document.getElementById('editar_fecha_nacimiento').value = btn.dataset.fecha_nacimiento;
+      document.getElementById('editar_direccion').value = btn.dataset.direccion;
       document.getElementById('editar_especialidad').value = btn.dataset.especialidad;
     });
   });
+</script>
+
+<script>
+  setTimeout(() => {
+    const mensaje = document.getElementById('mensaje');
+    if (mensaje) {
+      mensaje.style.transition = 'opacity 1s ease';
+      mensaje.style.opacity = '0';
+      setTimeout(() => mensaje.remove(), 1000);
+    }
+  }, 10000); // 10 segundos
 </script>
