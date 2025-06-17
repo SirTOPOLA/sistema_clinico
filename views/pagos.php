@@ -1,29 +1,25 @@
 <?php
+
+
 $idUsuario = $_SESSION['usuario']['id'] ?? 0;
 
-$pagos = [];
-$analiticas = [];
-$tipos = [];
+// Listado de analíticas
+$sql = "SELECT a.id, a.resultado, a.estado, a.codigo_paciente, a.pagado,
+               tp.nombre AS tipo_prueba,
+               CONCAT(p.nombre,' ',p.apellidos) AS paciente,
+               a.fecha_registro
+        FROM analiticas a
+        JOIN tipo_pruebas tp ON a.id_tipo_prueba = tp.id
+        JOIN pacientes p ON a.id_paciente = p.id
+        ORDER BY a.fecha_registro DESC";
+$analiticas = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
-$sqlPagos = "SELECT p.id, p.cantidad, tp.nombre AS tipo_prueba, a.codigo_paciente, 
-               a.estado, a.resultado, p.fecha_registro
-               FROM pagos p
-               JOIN analiticas a ON p.id_analitica = a.id
-               JOIN tipo_pruebas tp ON p.id_tipo_prueba = tp.id
-               ORDER BY p.fecha_registro DESC";
-$pagos = $pdo->query($sqlPagos)->fetchAll(PDO::FETCH_ASSOC);
-
-
-
-$analiticas = $pdo->query("SELECT a.id, a.codigo_paciente, tp.nombre AS tipo_prueba 
-                              FROM analiticas a 
-                              JOIN tipo_pruebas tp ON a.id_tipo_prueba = tp.id")->fetchAll(PDO::FETCH_ASSOC);
-
+// Datos para selects
 $tipos = $pdo->query("SELECT id, nombre FROM tipo_pruebas ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
-
-
-
+$pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
+
 
 
 <div class="container-fluid" id="content">
@@ -32,9 +28,7 @@ $tipos = $pdo->query("SELECT id, nombre FROM tipo_pruebas ORDER BY nombre")->fet
   <div class="row mb-3">
     <div class="col-md-6 d-flex justify-content-between align-items-center mb-4">
       <h3><i class="bi bi-credit-card me-2"></i>Gestión de Pagos</h3>
-      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrearPago">
-        <i class="bi bi-plus-circle me-1"></i>Nuevo Pago
-      </button>
+      
     </div>
     <div class="col-md-4">
       <input type="text" id="buscadorPago" class="form-control" placeholder="Buscar pago...">
@@ -42,38 +36,62 @@ $tipos = $pdo->query("SELECT id, nombre FROM tipo_pruebas ORDER BY nombre")->fet
   </div>
   <div class="card border-0 shadow-sm">
     <div class="card-body table-responsive">
-      <table id="tablaPagos" class="table table-hover table-bordered table-sm align-middle">
+      <table id="tablaAnaliticas" class="table table-hover table-bordered table-sm align-middle">
         <thead class="table-light text-nowrap">
           <tr>
             <th>ID</th>
-            <th>Tipo Prueba</th>
-            <th>Código Paciente</th>
-            <th>Estado</th>
-            <th>Resultado</th>
-            <th>Cantidad</th>
+            <th>Nombre de la Prueba</th>
+            <th>Paciente</th>
+            <th>Código</th>
+
+            <th>Pagos</th>
+
             <th>Fecha</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($pagos as $p): ?>
-            <tr data-id="<?= $p['id'] ?>" data-tipo="<?= $p['tipo_prueba'] ?>" data-codigo="<?= $p['codigo_paciente'] ?>"
-              data-estado="<?= $p['estado'] ?>" data-resultado="<?= $p['resultado'] ?>"
-              data-cantidad="<?= $p['cantidad'] ?>">
-              <td><?= $p['id'] ?></td>
-              <td><?= htmlspecialchars($p['tipo_prueba']) ?></td>
-              <td><?= htmlspecialchars($p['codigo_paciente']) ?></td>
-              <td><?= htmlspecialchars($p['estado']) ?></td>
-              <td><?= nl2br(htmlspecialchars($p['resultado'])) ?></td>
-              <td><?= number_format($p['cantidad'], 2) ?> €</td>
-              <td><?= date('d/m/Y H:i', strtotime($p['fecha_registro'])) ?></td>
+          <?php foreach ($analiticas as $a): ?>
+            <tr data-id="<?= $a['id'] ?>"
+              data-tipo="<?= $a['tipo_prueba'] ?>"
+              data-id_tipo_prueba="<?= htmlspecialchars($a['tipo_prueba'], ENT_QUOTES) ?>"
+              data-id_paciente="<?= htmlspecialchars($a['paciente'], ENT_QUOTES) ?>"
+              data-codigo="<?= htmlspecialchars($a['codigo_paciente'], ENT_QUOTES) ?>"
+
+              data-resultado="<?= htmlspecialchars($a['resultado'], ENT_QUOTES) ?>">
+              <td><?= $a['id'] ?></td>
+              <td><?= htmlspecialchars($a['tipo_prueba']) ?></td>
+              <td><?= htmlspecialchars($a['paciente']) ?></td>
+              <td><?= htmlspecialchars($a['codigo_paciente']) ?></td>
+
+              <td>
+                <?php if ($a['pagado']!=0): ?>
+                  <span class="badge bg-primary">Pagado</span>
+                  <br>
+
+                <?php else: ?>
+                  <span class="badge bg-danger">Pendienete</span>
+                <?php endif; ?>
+              </td>
+
+              <td><?= date('d/m/Y H:i', strtotime($a['fecha_registro'])) ?></td>
               <td class="text-nowrap">
-                <button class="btn btn-sm btn-outline-primary btn-editar-pago" data-bs-toggle="modal"
-                  data-bs-target="#modalEditarPago">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-                <a href="eliminar_pago.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-danger"
-                  onclick="return confirm('¿Eliminar este pago?')">
+
+               
+
+                <?php if ($a['pagado']==0): ?>
+                  <button
+                    class="btn btn-sm btn-outline-success btn-editar"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalEditar"
+                    id="<?= $a['id'] ?>"
+                    title="Añadir Resultado">
+                    <i class="bi bi-pencil-square me-1"></i> Pagar
+                  </button>
+                <?php endif; ?>
+
+                <a href="eliminar_analitica.php?id=<?= $a['id'] ?>" class="btn btn-sm btn-outline-danger"
+                  onclick="return confirm('¿Eliminar esta analítica?')">
                   <i class="bi bi-trash"></i>
                 </a>
               </td>
