@@ -56,6 +56,7 @@ if (isset($_SESSION['success'])) {
               <th>ID</th>
               <th>Paciente</th>
               <th>DIP</th>
+              <th>CODIGO</th>
               <th>Sexo</th>
               <th>Teléfono</th>
               <th>Email</th>
@@ -80,6 +81,7 @@ if (isset($_SESSION['success'])) {
                 <td><?= $p['id'] ?></td>
                 <td><?= htmlspecialchars($p['nombre'] . ' ' . $p['apellidos']) ?></td>
                 <td><?= htmlspecialchars($p['dip']) ?></td>
+                  <td><?= htmlspecialchars($p['codigo']) ?></td>
                 <td><?= htmlspecialchars($p['sexo']) ?></td>
                 <td><?= htmlspecialchars($p['telefono']) ?></td>
                 <td><?= htmlspecialchars($p['email']) ?></td>

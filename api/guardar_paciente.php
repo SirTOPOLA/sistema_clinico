@@ -64,10 +64,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Generar código único del paciente
-        $fecha = str_replace('-', '', $fecha_nacimiento);
-        $base = strtoupper(substr($nombre, 0, 1) . substr($apellidos, 0, 1));
-        $codigo_paciente = $base . $fecha . str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT);
+      
+        
+        // Obtener las iniciales del nombre y apellidos (2 caracteres)
+$base = strtoupper(substr($nombre, 0, 1) . substr($apellidos, 0, 1));
+
+// Extraer números de la fecha (YYYYMMDD) pero solo usar parte para acortar (ejemplo: último día y mes)
+$fechaPart = date('md', strtotime($fecha_nacimiento)); // mes y día, 4 dígitos
+
+// Generar un número aleatorio de 2 dígitos
+$aleatorio = str_pad(rand(0, 99), 2, '0', STR_PAD_LEFT);
+
+// Concatenar y limitar a 8 caracteres
+$codigo_paciente = $base . $fechaPart . $aleatorio; // Total 2 + 4 + 2 = 8 caracteres
 
 
 
