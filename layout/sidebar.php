@@ -73,6 +73,7 @@ $menu = [
     'Pruebas' => 'tipo_prueba',
     'ingresos' => 'ingresos',
     'Consultas' => 'consultas',
+    'analiticas' => 'analiticas', 
   ],
   /* 'triaje' => [
     'Dashboard' => 'dashboard_enfermera', 
