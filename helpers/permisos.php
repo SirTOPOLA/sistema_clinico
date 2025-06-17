@@ -40,12 +40,13 @@ function verificarAcceso($vista)
             'analiticas',
             
         ],
-
+        
         'doctor' => [
             'dashboard_doctor',
             'recetas',
             'tipo_prueba',
             'ingresos',
+            'analiticas',
             'consultas',
         ]
     ];
