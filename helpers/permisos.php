@@ -34,10 +34,11 @@ function verificarAcceso($vista)
             'ingresos',
             'consultas',
         ],
-
+        
         'laboratorio' => [
             'dashboard_laboratorio',
-            'tipo_prueba',
+            'analiticas',
+            
         ],
 
         'doctor' => [

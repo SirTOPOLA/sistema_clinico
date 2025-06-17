@@ -59,7 +59,7 @@ $menu = [
   ],
   'laboratorio' => [
     'Dashboard' => 'dashboard_laboratorio', 
-    'Pruebas' => 'tipo_prueba',
+    'analiticas' => 'analiticas', 
   ],
   'secretaria' => [
     'Dashboard' => 'dashboard_secretaria', 
