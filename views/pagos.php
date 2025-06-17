@@ -1,22 +1,44 @@
 <?php
 
 
-$idUsuario = $_SESSION['usuario']['id'] ?? 0;
+// Consulta modificada con fecha_solo
+$sql = "SELECT 
+    a.id, 
+    a.resultado, 
+    a.estado, 
+    a.codigo_paciente, 
+    a.pagado,
+    tp.nombre AS tipo_prueba,
+    CONCAT(p.nombre,' ',p.apellidos) AS paciente,
+    a.fecha_registro,
+    DATE(a.fecha_registro) AS fecha_solo
+FROM analiticas a
+JOIN tipo_pruebas tp ON a.id_tipo_prueba = tp.id
+JOIN pacientes p ON a.id_paciente = p.id
+ORDER BY a.fecha_registro DESC";
 
-// Listado de analíticas
-$sql = "SELECT a.id, a.resultado, a.estado, a.codigo_paciente, a.pagado,
-               tp.nombre AS tipo_prueba,
-               CONCAT(p.nombre,' ',p.apellidos) AS paciente,
-               a.fecha_registro
-        FROM analiticas a
-        JOIN tipo_pruebas tp ON a.id_tipo_prueba = tp.id
-        JOIN pacientes p ON a.id_paciente = p.id
-        ORDER BY a.fecha_registro DESC";
-$analiticas = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $pdo->query($sql);
+$analiticas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Datos para selects
-$tipos = $pdo->query("SELECT id, nombre FROM tipo_pruebas ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
-$pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
+// Agrupar por paciente y fecha
+$grupos = [];
+foreach ($analiticas as $a) {
+  $clave = $a['paciente'] . '_' . $a['fecha_solo'];
+
+  if (!isset($grupos[$clave])) {
+    $grupos[$clave] = [
+      'tipo' => $a['tipo_prueba'],
+      'paciente' => $a['paciente'],
+      'codigo' => $a['codigo_paciente'],
+      'fecha' => $a['fecha_solo'],
+      'registros' => [],
+      'pagos' => [],
+    ];
+  }
+
+  $grupos[$clave]['registros'][] = $a;
+  $grupos[$clave]['pagos'][] = $a['pagado'];
+}
 ?>
 
 
@@ -28,7 +50,7 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
   <div class="row mb-3">
     <div class="col-md-6 d-flex justify-content-between align-items-center mb-4">
       <h3><i class="bi bi-credit-card me-2"></i>Gestión de Pagos</h3>
-      
+
     </div>
     <div class="col-md-4">
       <input type="text" id="buscadorPago" class="form-control" placeholder="Buscar pago...">
@@ -51,53 +73,50 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($analiticas as $a): ?>
-            <tr data-id="<?= $a['id'] ?>"
-              data-tipo="<?= $a['tipo_prueba'] ?>"
-              data-id_tipo_prueba="<?= htmlspecialchars($a['tipo_prueba'], ENT_QUOTES) ?>"
-              data-id_paciente="<?= htmlspecialchars($a['paciente'], ENT_QUOTES) ?>"
-              data-codigo="<?= htmlspecialchars($a['codigo_paciente'], ENT_QUOTES) ?>"
-
-              data-resultado="<?= htmlspecialchars($a['resultado'], ENT_QUOTES) ?>">
-              <td><?= $a['id'] ?></td>
-              <td><?= htmlspecialchars($a['tipo_prueba']) ?></td>
-              <td><?= htmlspecialchars($a['paciente']) ?></td>
-              <td><?= htmlspecialchars($a['codigo_paciente']) ?></td>
-
+          <?php foreach ($grupos as $grupo): ?>
+            <tr>
+              <td><?= htmlspecialchars($grupo['id']) ?></td>
+              <td><?= htmlspecialchars($grupo['paciente']) ?></td>
+              <td><?= htmlspecialchars($grupo['codigo']) ?></td>
               <td>
-                <?php if ($a['pagado']!=0): ?>
-                  <span class="badge bg-primary">Pagado</span>
-                  <br>
-
+                <ul class="mb-0">
+                  <?php foreach ($grupo['registros'] as $r): ?>
+                    <li><?= htmlspecialchars($r['tipo_prueba']) ?></li>
+                  <?php endforeach ?>
+                </ul>
+              </td>
+              <td>
+                <?php
+                $todosConResultado = true;
+                foreach ($grupo['registros'] as $r) {
+                  if (empty($r['resultado'])) {
+                    $todosConResultado = false;
+                    break;
+                  }
+                }
+                ?>
+                <?php if ($todosConResultado): ?>
+                  <span class="badge bg-primary">Resultado</span>
                 <?php else: ?>
-                  <span class="badge bg-danger">Pendienete</span>
+                  <span class="badge bg-danger">Sin Resultado</span>
                 <?php endif; ?>
               </td>
-
-              <td><?= date('d/m/Y H:i', strtotime($a['fecha_registro'])) ?></td>
-              <td class="text-nowrap">
-
-               
-
-                <?php if ($a['pagado']==0): ?>
-                  <button
-                    class="btn btn-sm btn-outline-success btn-editar"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalEditar"
-                    id="<?= $a['id'] ?>"
-                    title="Añadir Resultado">
-                    <i class="bi bi-pencil-square me-1"></i> Pagar
-                  </button>
+              <td><?= date('d/m/Y', strtotime($grupo['fecha'])) ?></td>
+              <td>
+                <?php if (!in_array(0, $grupo['pagos'])): ?>
+                  <span class="badge bg-success">Pagado</span>
+                <?php else: ?>
+                  <span class="badge bg-warning text-dark">Pendiente</span>
                 <?php endif; ?>
-
-                <a href="eliminar_analitica.php?id=<?= $a['id'] ?>" class="btn btn-sm btn-outline-danger"
-                  onclick="return confirm('¿Eliminar esta analítica?')">
-                  <i class="bi bi-trash"></i>
-                </a>
+              </td>
+              <td>
+                <!-- Aquí podrías poner acciones agrupadas si lo deseas -->
+                <a href="#" class="btn btn-sm btn-outline-info">Ver Detalles</a>
               </td>
             </tr>
           <?php endforeach ?>
         </tbody>
+
       </table>
     </div>
   </div>
