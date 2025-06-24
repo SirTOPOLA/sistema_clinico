@@ -21,9 +21,6 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
         <i class="bi bi-plus-circle me-1"></i> Nueva Consulta
       </button>
 
-<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear">
-        <i class="bi bi-plus-circle me-1"></i> Analiticas
-      </button>
 
     </div>
     <div class="col-md-4">
@@ -80,15 +77,18 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
                 <td><?= $c['imc'] ?></td>
                 <td><?= date('d/m/Y H:i', strtotime($c['fecha_registro'])) ?></td>
                 <td class="text-nowrap">
-              
 
 
-<button class="btn btn-sm btn-primary editar-consulta"
-        data-id="<?= $c['id'] ?>"
-        data-bs-toggle="modal"
-        data-bs-target="#modal-editar">
-  <i class="bi bi-pencil-square"></i>
-</button>
+
+                  <button class="btn btn-sm btn-primary editar-consulta" data-id="<?= $c['id'] ?>" data-bs-toggle="modal"
+                    data-bs-target="#modal-editar">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <!-- BOTÓN DETALLES CONSULTA -->
+                  <button class="btn btn-sm btn-info ver-detalles-consulta" data-id="<?= $c['id'] ?>"
+                    data-bs-toggle="modal" data-bs-target="#modalDetallesConsulta">
+                    <i class="bi bi-eye-fill"></i>
+                  </button>
 
 
                   <a href="eliminar_consulta.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger"
@@ -108,118 +108,13 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
 
 
 
-<!-- MODAL CREAR CONSULTA -->
-<div class="modal fade" id="modalCrear" tabindex="-1">
-  <div class="modal-dialog modal-xl">
-    <form action="api/guardar_consulta.php" method="POST" class="modal-content">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nueva Consulta</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
 
-    
 
-      <div class="modal-body row g-3">
-        <input type="hidden" name="id_usuario" value="<?= $idUsuario ?>">
-        <div class="col-md-6">
-          <label>Paciente</label>
-          <select name="id_paciente" class="form-select" required>
-            <option value="">Seleccione</option>
-            <?php foreach ($pacientes as $p): ?>
-              <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['nombre'] . ' ' . $p['apellidos']) ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="col-md-6">
-          <label>Motivo de consulta</label>
-          <textarea name="motivo_consulta" class="form-control" rows="2" required></textarea>
-        </div>
-        <?php
-        $campos = [
-          "temperatura" => "Temperatura (°C)",
-          "control_cada_horas" => "Control cada (horas)",
-          "frecuencia_cardiaca" => "Frecuencia cardíaca",
-          "frecuencia_respiratoria" => "Frecuencia respiratoria",
-          "tension_arterial" => "Tensión arterial",
-          "pulso" => "Pulso",
-          "saturacion_oxigeno" => "Saturación O₂ (%)",
-          "peso_anterior" => "Peso anterior (kg)",
-          "peso_actual" => "Peso actual (kg)",
-          "peso_ideal" => "Peso ideal (kg)",
-          "imc" => "IMC"
-        ];
-        foreach ($campos as $name => $label): ?>
-          <div class="col-md-4">
-            <label><?= $label ?></label>
-            <input type="<?= in_array($name, ['tension_arterial']) ? 'text' : 'number' ?>" step="any" name="<?= $name ?>" class="form-control">
-          </div>
-        <?php endforeach; ?>
-        <hr class="my-4">
-        <h5 class="text-success">Detalles Clínicos</h5>
 
-        <div class="col-md-6">
-          <label>Operación</label>
-          <textarea name="operacion" class="form-control" rows="2"></textarea>
-        </div>
 
-        <div class="col-md-3">
-          <label>Orina</label>
-          <input type="text" name="orina" class="form-control">
-        </div>
 
-        <div class="col-md-3">
-          <label>Defeca</label>
-          <input type="text" name="defeca" class="form-control">
-        </div>
 
-        <div class="col-md-3">
-          <label>Días que defeca</label>
-          <input type="number" name="defeca_dias" class="form-control" min="0">
-        </div>
 
-        <div class="col-md-3">
-          <label>Duerme</label>
-          <input type="text" name="duerme" class="form-control">
-        </div>
-
-        <div class="col-md-3">
-          <label>Horas que duerme</label>
-          <input type="number" name="duerme_horas" class="form-control" min="0" max="24">
-        </div>
-
-        <div class="col-md-6">
-          <label>Antecedentes Patológicos</label>
-          <textarea name="antecedentes_patologicos" class="form-control" rows="2"></textarea>
-        </div>
-
-        <div class="col-md-6">
-          <label>Alergias</label>
-          <textarea name="alergico" class="form-control" rows="2"></textarea>
-        </div>
-
-        <div class="col-md-6">
-          <label>Antecedentes Familiares</label>
-          <textarea name="antecedentes_familiares" class="form-control" rows="2"></textarea>
-        </div>
-
-        <div class="col-md-6">
-          <label>Antecedentes del Cónyuge</label>
-          <textarea name="antecedentes_conyuge" class="form-control" rows="2"></textarea>
-        </div>
-
-        <div class="col-md-12">
-          <label>Control de signos vitales</label>
-          <textarea name="control_signos_vitales" class="form-control" rows="3"></textarea>
-        </div>
-
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-success"><i class="bi bi-save me-1"></i> Guardar</button>
-      </div>
-    </form>
-  </div>
-</div>
 
 <!-- MODAL EDITAR CONSULTA -->
 <div class="modal fade" id="modal-editar" tabindex="-1">
@@ -231,9 +126,9 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
       </div>
       <div class="modal-body row g-3">
         <input type="hidden" name="id" id="edit-id">
-        <input type="hidden" name="id_usuario" value="<?= $idUsuario ?> " >
+        <input type="hidden" name="id_usuario" value="<?= $idUsuario ?> ">
 
-        <div class="col-md-6">
+        <div class="col-md-12">
           <label>Paciente</label>
           <select name="id_paciente" id="edit-paciente" class="form-select" required readonly>
             <option value="">Seleccione</option>
@@ -243,7 +138,7 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
           </select>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-12">
           <label>Motivo de consulta</label>
           <textarea name="motivo_consulta" id="edit-motivo" class="form-control" rows="2" required></textarea>
         </div>
@@ -252,7 +147,8 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
         foreach ($campos as $name => $label): ?>
           <div class="col-md-4">
             <label><?= $label ?></label>
-            <input type="<?= in_array($name, ['tension_arterial']) ? 'text' : 'number' ?>" step="any" name="<?= $name ?>" id="edit-<?= $name ?>" class="form-control">
+            <input type="<?= in_array($name, ['tension_arterial']) ? 'text' : 'number' ?>" step="any" name="<?= $name ?>"
+              id="edit-<?= $name ?>" class="form-control">
           </div>
         <?php endforeach; ?>
 
@@ -261,7 +157,7 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
 
         <div class="col-md-6">
           <label>Operación</label>
-          <textarea name="operacion" id="edit-operacion" class="form-control" rows="2"></textarea>
+          <input type="text" name="operacion" id="edit-operacion" class="form-control">
         </div>
 
         <div class="col-md-3">
@@ -291,27 +187,27 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
 
         <div class="col-md-6">
           <label>Antecedentes Patológicos</label>
-          <textarea name="antecedentes_patologicos" id="edit-antecedentes_patologicos" class="form-control" rows="2"></textarea>
+          <input type="text" name="antecedentes_patologicos" id="edit-antecedentes_patologicos" class="form-control">
         </div>
 
-        <div class="col-md-6">
-          <label>Alergias</label>
-          <textarea name="alergico" id="edit-alergico" class="form-control" rows="2"></textarea>
-        </div>
 
         <div class="col-md-6">
           <label>Antecedentes Familiares</label>
-          <textarea name="antecedentes_familiares" id="edit-antecedentes_familiares" class="form-control" rows="2"></textarea>
+          <input type="text" name="antecedentes_familiares" id="edit-antecedentes_familiares" class="form-control">
         </div>
 
         <div class="col-md-6">
           <label>Antecedentes del Cónyuge</label>
-          <textarea name="antecedentes_conyuge" id="edit-antecedentes_conyuge" class="form-control" rows="2"></textarea>
+          <input type="text" name="antecedentes_conyuge" id="edit-antecedentes_conyuge" class="form-control">
         </div>
 
-        <div class="col-md-12">
+        <div class="col-md-6">
           <label>Control de signos vitales</label>
-          <textarea name="control_signos_vitales" id="edit-control_signos_vitales" class="form-control" rows="3"></textarea>
+          <input type="text" name="control_signos_vitales" id="edit-control_signos_vitales" class="form-control">
+        </div>
+        <div class="col-md-12">
+          <label>Alergias</label>
+          <textarea name="alergico" id="edit-alergico" class="form-control" rows="2"></textarea>
         </div>
       </div>
 
@@ -323,55 +219,271 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
   </div>
 </div>
 
+
+
+
+<!-- MODAL NUEVA CONSULTA (Modernizado) -->
+<div class="modal fade" id="modalCrear" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <form action="api/guardar_consulta.php" method="POST" class="modal-content shadow-lg border-0 rounded-4">
+      <div class="modal-header bg-success text-white rounded-top-4">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-plus-circle me-2"></i> Nueva Consulta Clínica
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <input type="hidden" name="id_usuario" value="<?= $idUsuario ?>">
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold"><i class="bi bi-person-badge-fill me-2"></i>Paciente <span
+              class="text-danger">*</span></label>
+          <input type="text" id="buscador-paciente" class="form-control" placeholder="Buscar por nombre...">
+          <div id="resultado-paciente" class="mt-2 border rounded bg-white p-2 overflow-auto"
+            style="max-height: 200px;"></div>
+          <input type="hidden" name="id_paciente" id="input-id-paciente" required>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold"><i class="bi bi-chat-text-fill me-2"></i>Motivo de Consulta</label>
+          <textarea name="motivo_consulta" class="form-control" rows="2" required></textarea>
+        </div>
+
+        <div class="row g-3">
+          <?php
+          $campos = [
+            "temperatura" => "Temperatura (°C)",
+            "control_cada_horas" => "Control cada (horas)",
+            "frecuencia_cardiaca" => "Frecuencia cardíaca",
+            "frecuencia_respiratoria" => "Frecuencia respiratoria",
+            "tension_arterial" => "Tensión arterial",
+            "pulso" => "Pulso",
+            "saturacion_oxigeno" => "Saturación O₂ (%)",
+            "peso_anterior" => "Peso anterior (kg)",
+            "peso_actual" => "Peso actual (kg)",
+            "peso_ideal" => "Peso ideal (kg)",
+            "imc" => "IMC"
+          ];
+          foreach ($campos as $name => $label): ?>
+            <div class="col-md-3">
+              <label class="form-label fw-medium"><i class="bi bi-clipboard-pulse me-1"></i><?= $label ?></label>
+              <input type="<?= in_array($name, ['tension_arterial']) ? 'text' : 'number' ?>" step="any"
+                name="<?= $name ?>" class="form-control">
+            </div>
+          <?php endforeach; ?>
+        </div>
+
+        <hr class="my-4">
+        <h5 class="text-success"><i class="bi bi-file-medical me-2"></i>Detalles Clínicos</h5>
+
+        <div class="row g-3 mt-2">
+          <div class="col-md-3">
+            <label class="form-label">Operación</label>
+            <input type="text" name="operacion" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Orina</label>
+            <input type="text" name="orina" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Defeca</label>
+            <input type="text" name="defeca" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Días que defeca</label>
+            <input type="number" name="defeca_dias" class="form-control" min="0">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Duerme</label>
+            <input type="text" name="duerme" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Horas que duerme</label>
+            <input type="number" name="duerme_horas" class="form-control" min="0" max="24">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Antecedentes Patológicos</label>
+            <input type="text" name="antecedentes_patologicos" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Antecedentes Familiares</label>
+            <input type="text" name="antecedentes_familiares" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Antecedentes del Cónyuge</label>
+            <input type="text" name="antecedentes_conyuge" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Control de signos vitales</label>
+            <input type="text" name="control_signos_vitales" class="form-control">
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Alergias</label>
+            <textarea name="alergico" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer bg-light rounded-bottom-4 px-4 py-3">
+        <button class="btn btn-success px-4"><i class="bi bi-save me-1"></i> Guardar Consulta</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- MODAL DETALLES CONSULTA COMPLETA -->
+<div class="modal fade" id="modalDetallesConsulta" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title"><i class="bi bi-info-circle-fill me-2"></i>Detalles de la Consulta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div id="contenido-detalles-consulta" class="p-2 text-center">
+          <div class="spinner-border text-info" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i> Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPT para Buscador de Pacientes (AJAX o JS con fetch) -->
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const botones = document.querySelectorAll('.editar-consulta');
+  document.addEventListener("DOMContentLoaded", () => {
+    const botonesDetalles = document.querySelectorAll(".ver-detalles-consulta");
+    const contenedor = document.getElementById("contenido-detalles-consulta");
 
-  botones.forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const id = btn.dataset.id;
+    botonesDetalles.forEach(boton => {
+      boton.addEventListener("click", () => {
+        const id = boton.dataset.id;
 
-      try {
-        const response = await fetch(`api/obtener_consulta.php?id=${id}`);
-        const data = await response.json();
+        // Muestra spinner mientras se carga
+        contenedor.innerHTML = `
+        <div class="text-center my-4">
+          <div class="spinner-border text-info" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>`;
 
-        
-
-        
-        // Cargar campos de la tabla consultas
-        document.getElementById('edit-id').value = data.consulta.id;
-        document.getElementById('edit-paciente').value = data.consulta.id_paciente;
-        document.getElementById('edit-motivo').value = data.consulta.motivo_consulta;
-
-        const campos = [
-          'temperatura', 'control_cada_horas', 'frecuencia_cardiaca', 'frecuencia_respiratoria',
-          'tension_arterial', 'pulso', 'saturacion_oxigeno', 'peso_anterior',
-          'peso_actual', 'peso_ideal', 'imc'
-        ];
-        campos.forEach(campo => {
-          const input = document.getElementById('edit-' + campo);
-          if (input) input.value = data.consulta[campo] ?? '';
-        });
-
-        // Cargar campos de la tabla detalle_consulta
-        const detalleCampos = [
-          'operacion', 'orina', 'defeca', 'defeca_dias', 'duerme', 'duerme_horas',
-          'antecedentes_patologicos', 'alergico', 'antecedentes_familiares',
-          'antecedentes_conyuge', 'control_signos_vitales'
-        ];
-        detalleCampos.forEach(campo => {
-          const input = document.getElementById('edit-' + campo);
-          if (input) input.value = data.detalle[campo] ?? '';
-        });
-
-      } catch (error) {
-        console.error('Error cargando datos de la consulta:', error);
-        alert('Ocurrió un error al cargar los datos.');
-        console.log(id);
-      }
+        // Realiza la petición
+        fetch("api/detalles_consulta.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ id })
+        })
+          .then(response => response.text())
+          .then(html => {
+            contenedor.innerHTML = html;
+          })
+          .catch(err => {
+            console.error(err);
+            contenedor.innerHTML = `<div class="alert alert-danger">Ocurrió un error al cargar los detalles.</div>`;
+          });
+      });
     });
   });
-});
+
+
+
+  const buscadorPaciente = document.getElementById('buscador-paciente');
+  const resultadoPaciente = document.getElementById('resultado-paciente');
+  const inputPacienteId = document.getElementById('input-id-paciente');
+
+  buscadorPaciente.addEventListener('input', async () => {
+    const query = buscadorPaciente.value.trim();
+    if (query.length < 2) {
+      resultadoPaciente.innerHTML = '';
+      return;
+    }
+
+    try {
+      const res = await fetch(`api/buscar_pacientes.php?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      resultadoPaciente.innerHTML = '';
+      data.forEach(paciente => {
+        const div = document.createElement('div');
+        div.className = 'd-flex align-items-center justify-content-between border-bottom py-2';
+        div.innerHTML = `
+          <span><i class="bi bi-person-circle me-1"></i> ${paciente.nombre} ${paciente.apellidos}</span>
+          <button class="btn btn-sm btn-outline-success seleccionar-paciente" data-id="${paciente.id}">
+            <i class="bi bi-check-circle"></i>
+          </button>`;
+        resultadoPaciente.appendChild(div);
+      });
+
+      document.querySelectorAll('.seleccionar-paciente').forEach(btn => {
+        btn.addEventListener('click', () => {
+          inputPacienteId.value = btn.getAttribute('data-id');
+          buscadorPaciente.value = btn.previousElementSibling.textContent.trim();
+          resultadoPaciente.innerHTML = '';
+        });
+      });
+
+    } catch (err) {
+      resultadoPaciente.innerHTML = '<div class="text-danger">Error al buscar pacientes.</div>';
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const botones = document.querySelectorAll('.editar-consulta');
+
+    botones.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+
+        try {
+          const response = await fetch(`api/obtener_consulta.php?id=${id}`);
+          const data = await response.json();
+
+
+
+
+          // Cargar campos de la tabla consultas
+          document.getElementById('edit-id').value = data.consulta.id;
+          document.getElementById('edit-paciente').value = data.consulta.id_paciente;
+          document.getElementById('edit-motivo').value = data.consulta.motivo_consulta;
+
+          const campos = [
+            'temperatura', 'control_cada_horas', 'frecuencia_cardiaca', 'frecuencia_respiratoria',
+            'tension_arterial', 'pulso', 'saturacion_oxigeno', 'peso_anterior',
+            'peso_actual', 'peso_ideal', 'imc'
+          ];
+          campos.forEach(campo => {
+            const input = document.getElementById('edit-' + campo);
+            if (input) input.value = data.consulta[campo] ?? '';
+          });
+
+          // Cargar campos de la tabla detalle_consulta
+          const detalleCampos = [
+            'operacion', 'orina', 'defeca', 'defeca_dias', 'duerme', 'duerme_horas',
+            'antecedentes_patologicos', 'alergico', 'antecedentes_familiares',
+            'antecedentes_conyuge', 'control_signos_vitales'
+          ];
+          detalleCampos.forEach(campo => {
+            const input = document.getElementById('edit-' + campo);
+            if (input) input.value = data.detalle[campo] ?? '';
+          });
+
+        } catch (error) {
+          console.error('Error cargando datos de la consulta:', error);
+          alert('Ocurrió un error al cargar los datos.');
+          console.log(id);
+        }
+      });
+    });
+  });
 </script>
 
 
