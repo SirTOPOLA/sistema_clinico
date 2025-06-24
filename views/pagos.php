@@ -8,7 +8,9 @@ $sql = "SELECT
     a.estado, 
     a.codigo_paciente, 
     a.pagado,
+    tp.id AS id_tipo_prueba,           -- ID de tipo de prueba
     tp.nombre AS tipo_prueba,
+    tp.precio,
     CONCAT(p.nombre,' ',p.apellidos) AS paciente,
     a.fecha_registro,
     DATE(a.fecha_registro) AS fecha_solo
@@ -56,26 +58,50 @@ foreach ($analiticas as $a) {
       <input type="text" id="buscadorPago" class="form-control" placeholder="Buscar pago...">
     </div>
   </div>
+
+
+
+  <?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <?= $_SESSION['success'];
+      unset($_SESSION['success']); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <?php endif; ?>
+
+  <?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <?= $_SESSION['error'];
+      unset($_SESSION['error']); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <?php endif; ?>
+
+
+
+
+
   <div class="card border-0 shadow-sm">
     <div class="card-body table-responsive">
       <table id="tablaAnaliticas" class="table table-hover table-bordered table-sm align-middle">
         <thead class="table-light text-nowrap">
           <tr>
             <th>ID</th>
-            <th>Nombre de la Prueba</th>
-            <th>Paciente</th>
-            <th>Código</th>
+            <th>Nombre del Paciente</th>
+            <th>Codigo</th>
+            <th>Pruebas</th>
 
-            <th>Pagos</th>
+            <th>Resultados</th>
 
             <th>Fecha</th>
+            <th>Pagos</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           <?php foreach ($grupos as $grupo): ?>
             <tr>
-              <td><?= htmlspecialchars($grupo['id']) ?></td>
+              <td><?= htmlspecialchars($grupo['registros'][0]['id']) ?></td>
               <td><?= htmlspecialchars($grupo['paciente']) ?></td>
               <td><?= htmlspecialchars($grupo['codigo']) ?></td>
               <td>
@@ -110,8 +136,31 @@ foreach ($analiticas as $a) {
                 <?php endif; ?>
               </td>
               <td>
-                <!-- Aquí podrías poner acciones agrupadas si lo deseas -->
-                <a href="#" class="btn btn-sm btn-outline-info">Ver Detalles</a>
+
+
+                <?php if (in_array(0, $grupo['pagos'])): ?>
+                  <button
+                    class="btn btn-sm btn-outline-success btn-pagar"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalPagar"
+                    data-grupo='<?= json_encode(array_filter($grupo['registros'], fn($r) => $r['pagado'] == 0)) ?>'
+                    data-paciente="<?= htmlspecialchars($grupo['paciente']) ?>"
+                    data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>"
+                    title="Pagar pruebas">
+                    <i class="bi bi-cash-coin me-1"></i> Pagar
+                  </button>
+                <?php else: ?>
+                  <a href="fpdf/generar_factura.php?id=<?= $grupo['registros'][0]['id'] ?>&fecha=<?= $grupo['fecha'] ?>"
+                    target="_blank"
+                    class="btn btn-outline-secondary btn-sm"
+                    title="Imprimir Factura">
+                    <i class="bi bi-printer"></i> Imprimir Factura
+                  </a>
+                <?php endif; ?>
+
+
+
+
               </td>
             </tr>
           <?php endforeach ?>
@@ -123,6 +172,56 @@ foreach ($analiticas as $a) {
 
 
 </div>
+
+
+
+
+
+
+<div class="modal fade" id="modalPagar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form action="api/guardar_pago.php" method="POST" class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title"><i class="bi bi-cash-stack me-2"></i>Pagar Pruebas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" name="id_usuario" value="<?= $_SESSION['usuario']['id'] ?? '' ?>">
+        <input type="hidden" name="ids_seleccionados" id="idsSeleccionadosPago">
+
+        <div class="mb-3">
+          <strong>Paciente:</strong> <span id="nombrePacientePago"></span><br>
+          <strong>Fecha:</strong> <span id="fechaPacientePago"></span>
+        </div>
+
+        <table class="table table-sm table-bordered align-middle">
+          <thead>
+            <tr>
+              <th>Seleccionar</th>
+              <th>Tipo de Prueba</th>
+              <th>Precio</th>
+            </tr>
+          </thead>
+          <tbody id="tablaPruebasPago">
+            <!-- Se llena con JavaScript -->
+          </tbody>
+        </table>
+
+        <div class="text-end">
+          <strong>Total a Pagar: </strong><span id="totalPago" class="fs-5">0 FCFA</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success"><i class="bi bi-wallet2 me-1"></i> Confirmar Pago</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
 
 
 
@@ -228,4 +327,70 @@ foreach ($analiticas as $a) {
       // document.getElementById('edit-id_analitica').value = btn.dataset.id_analitica;
     });
   });
+</script>
+
+<script>
+  document.querySelectorAll('.btn-pagar').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const grupo = JSON.parse(btn.dataset.grupo);
+      const paciente = btn.dataset.paciente;
+      const fecha = btn.dataset.fecha;
+
+      document.getElementById('nombrePacientePago').textContent = paciente;
+      document.getElementById('fechaPacientePago').textContent = fecha;
+
+      const tabla = document.getElementById('tablaPruebasPago');
+      tabla.innerHTML = '';
+
+      let total = 0;
+
+      grupo.forEach((prueba, index) => {
+        const id = prueba.id;
+        const tipo = prueba.tipo_prueba;
+        const precio = parseFloat(prueba.precio || 0); // precio real
+        const id_tipo_prueba = prueba.id_tipo_prueba;
+
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+        <td>
+          <input type="checkbox" name="pagos[${id}][seleccionado]" value="1" class="form-check-input pagar-checkbox" checked>
+          <input type="hidden" name="pagos[${id}][precio]" value="${precio}">
+          <input type="hidden" name="pagos[${id}][id_tipo_prueba]" value="${id_tipo_prueba}">
+        </td>
+        <td>${tipo}</td>
+        <td>${precio.toFixed(0)} FCFA</td>
+      `;
+
+        tabla.appendChild(row);
+        total += precio;
+      });
+
+      document.getElementById('totalPago').textContent = total + ' FCFA';
+
+      // Actualizar total dinámicamente
+      tabla.querySelectorAll('.pagar-checkbox').forEach(check => {
+        check.addEventListener('change', () => {
+          let nuevoTotal = 0;
+          tabla.querySelectorAll('.pagar-checkbox').forEach(c => {
+            if (c.checked) {
+              const precioInput = c.parentElement.querySelector('input[name$="[precio]"]');
+              nuevoTotal += parseFloat(precioInput.value);
+            }
+          });
+          document.getElementById('totalPago').textContent = nuevoTotal + ' FCFA';
+        });
+      });
+    });
+  });
+</script>
+
+<script>
+  setTimeout(() => {
+    const alert = document.querySelector('.alert');
+    if (alert) {
+      alert.classList.remove('show');
+      alert.classList.add('fade');
+    }
+  }, 10000); // 10 segundos
 </script>
