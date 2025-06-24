@@ -89,6 +89,10 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
                     data-bs-toggle="modal" data-bs-target="#modalDetallesConsulta">
                     <i class="bi bi-eye-fill"></i>
                   </button>
+                  <button class="btn btn-sm btn-secondary ver-detalles-consulta" data-id="<?= $c['id'] ?>"
+                    data-bs-toggle="modal" data-bs-target="#modalPagoConsulta">
+                   <i class="bi bi-credit-card-2-front-fill me-2"></i>
+                  </button>
 
 
                   <a href="eliminar_consulta.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger"
@@ -104,15 +108,6 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
-
-
 
 
 
@@ -356,8 +351,70 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
   </div>
 </div>
 
+
+<!-- Modal de Pago de Consulta -->
+<div class="modal fade" id="modalPagoConsulta" tabindex="-1" aria-labelledby="modalPagoConsultaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalPagoConsultaLabel"><i class="bi bi-credit-card-2-front-fill me-2"></i>Pago de Consulta</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="formPagoConsulta">
+        <div class="modal-body">
+          <input type="hidden" id="consulta_id" name="consulta_id">
+
+          <div class="mb-3">
+            <label for="monto" class="form-label">Monto a pagar</label>
+            <input type="number" class="form-control" id="monto" name="monto" min="0" step="0.01" required>
+          </div> 
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-1"></i>Pagar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- SCRIPT para Buscador de Pacientes (AJAX o JS con fetch) -->
-<script>
+ <script>
+  // Detectar clic en botón de pago
+  document.querySelectorAll('.ver-detalles-consulta').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const idConsulta = this.getAttribute('data-id');
+      document.getElementById('consulta_id').value = idConsulta;
+    });
+  });
+
+  // Envío del formulario de pago
+  document.getElementById('formPagoConsulta').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const datos = new FormData(this);
+
+    fetch('api/pagar_consulta.php', {
+      method: 'POST',
+      body: datos
+    })
+    .then(res => res.json())
+    .then(respuesta => {
+      if (respuesta.success) {
+        alert('Pago realizado correctamente.');
+        // Aquí puedes cerrar el modal y actualizar la tabla si lo deseas
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalPagoConsulta'));
+        modal.hide();
+      } else {
+        alert('Error: ' + respuesta.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error en el pago:', error);
+    });
+  });
+ 
   document.addEventListener("DOMContentLoaded", () => {
     const botonesDetalles = document.querySelectorAll(".ver-detalles-consulta");
     const contenedor = document.getElementById("contenido-detalles-consulta");
