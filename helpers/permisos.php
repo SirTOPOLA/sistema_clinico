@@ -25,7 +25,7 @@ function verificarAcceso($vista)
             'pagos',
             'analiticas',
             'ingresos',
-            'detalles_consultas',
+         /*    'detalles_consultas', */
             'empleados'
         ],
         'secretaria' => [

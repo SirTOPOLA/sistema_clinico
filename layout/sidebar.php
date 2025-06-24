@@ -53,7 +53,7 @@ $menu = [
     'analiticas' => 'analiticas',
     'pagos de Pruebas' => 'pagos',
     'Consultas' => 'consultas',
-    'Detalles_consultas' => 'detalles_consultas',
+    /* 'Detalles_consultas' => 'detalles_consultas', */
     'Empleados' => 'empleados',
     // 'Configuración' => 'configuracion',
   ],
