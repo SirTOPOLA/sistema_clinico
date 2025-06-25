@@ -33,7 +33,7 @@ foreach ($analiticas as $a) {
       'tipo' => $a['tipo_prueba'],
       'paciente' => $a['paciente'],
       'codigo' => $a['codigo_paciente'],
-       'id_paciente' => $a['id_paciente'], // ✅ Aquí lo guardas
+      'id_paciente' => $a['id_paciente'], // ✅ Aquí lo guardas
       'fecha' => $a['fecha_solo'],
       'registros' => [],
       'pagos' => [],
@@ -139,30 +139,23 @@ foreach ($analiticas as $a) {
               </td>
               <td>
                 <?php if (in_array(0, $grupo['pagos'])): ?>
-                  <button
-                    class="btn btn-sm btn-outline-success btn-pagar"
-                    data-bs-toggle="modal"
+                  <button class="btn btn-sm btn-outline-success btn-pagar" data-bs-toggle="modal"
                     data-bs-target="#modalPagar"
                     data-grupo='<?= json_encode(array_filter($grupo['registros'], fn($r) => $r['pagado'] == 0)) ?>'
                     data-paciente="<?= htmlspecialchars($grupo['paciente']) ?>"
-                    data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>"
-                    title="Pagar pruebas">
+                    data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>" title="Pagar pruebas">
                     <i class="bi bi-cash-coin me-1"></i> Pagar
                   </button>
                 <?php else: ?>
                   <a href="fpdf/generar_factura.php?id=<?= $grupo['registros'][0]['id'] ?>&fecha=<?= $grupo['fecha'] ?>"
-                    target="_blank"
-                    class="btn btn-outline-secondary btn-sm"
-                    title="Imprimir Factura">
+                    target="_blank" class="btn btn-outline-secondary btn-sm" title="Imprimir Factura">
                     <i class="bi bi-printer"></i> Imprimir Factura
                   </a>
                 <?php endif; ?>
 
                 <!-- Botón para imprimir las pruebas médicas (siempre visible) -->
                 <a href="fpdf/imprimir_pruebas.php?id=<?= $grupo['id_paciente'] ?>&fecha=<?= $grupo['fecha'] ?>"
-                  target="_blank"
-                  class="btn btn-outline-primary btn-sm mt-1"
-                  title="Imprimir Pruebas Médicas">
+                  target="_blank" class="btn btn-outline-primary btn-sm mt-1" title="Imprimir Pruebas Médicas">
                   <i class="bi bi-file-earmark-medical"></i> Ver Pruebas
                 </a>
               </td>
