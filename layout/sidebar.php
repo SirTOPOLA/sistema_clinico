@@ -16,25 +16,35 @@ $iconos_por_rol = [
     'dashboard_administrador' => 'bi-speedometer2',
     'usuarios' => 'bi-person-badge',
     'pacientes' => 'bi-people-fill',
-    'pruebas' => 'bi-clipboard-pulse',
+    'tipo_prueba' => 'bi-activity',
     'analiticas' => 'bi-clipboard-pulse',
     'recetas' => 'bi-journal-text',
     'salas' => 'bi-hospital',
     'ingresos' => 'bi-door-open',
-    'pagos' => 'bi-cash-coin',  
+    'pagos' => 'bi-cash-coin',
     'consultas' => 'bi-clipboard-check',
+    'reportes' => 'bi-bar-chart-line',
     'detalles_consultas' => 'bi-file-earmark-medical',
     'empleados' => 'bi-person-workspace',
   ],
   'secretaria' => [
     'dashboard_secretaria' => 'bi-clipboard2-heart-fill',
+    'pacientes' => 'bi-people-fill',
+    'ingresos' => 'bi-door-open',
+    'consultas' => 'bi-clipboard-check',
   ],
   'doctor' => [
     'dashboard_doctor' => 'bi-activity',
+    'recetas' => 'bi-journal-text',
+    'tipo_prueba' => 'bi-beaker',
+    'ingresos' => 'bi-door-open',
+    'consultas' => 'bi-clipboard-check',
+    'analiticas' => 'bi-clipboard-pulse',
   ],
   'laboratorio' => [
     'dashboard_laboratorio' => 'bi-eyedropper',
-  ], 
+    'analiticas' => 'bi-clipboard-pulse',
+  ],
 ];
 
 // Escoge los íconos adecuados según el rol actual
