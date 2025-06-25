@@ -102,7 +102,7 @@ $recetas = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
                 </td>
               </tr>
             <?php endforeach; ?>
-          </tbody>
+          </tbody> 
         </table>
       </div>
     </div>

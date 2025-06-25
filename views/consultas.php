@@ -65,44 +65,47 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
               <th>Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            <?php foreach ($consultas as $c): ?>
-              <tr>
-                <td><?= $c['id'] ?></td>
-                <td><?= htmlspecialchars($c['nombre'] . ' ' . $c['apellidos']) ?></td>
-                <td><?= nl2br(htmlspecialchars($c['motivo_consulta'])) ?></td>
-                <td><?= $c['temperatura'] ?> °C</td>
-                <td><?= $c['pulso'] ?> bpm</td>
-                <td><?= $c['peso_actual'] ?> kg</td>
-                <td><?= $c['imc'] ?></td>
-                <td><?= date('d/m/Y H:i', strtotime($c['fecha_registro'])) ?></td>
-                <td class="text-nowrap">
+         <tbody>
+  <?php foreach ($consultas as $c): ?>
+    <tr id="consultaFila-<?= $c['id'] ?>">
+      <td><?= $c['id'] ?></td>
+      <td><?= htmlspecialchars($c['nombre'] . ' ' . $c['apellidos']) ?></td>
+      <td><?= nl2br(htmlspecialchars($c['motivo_consulta'])) ?></td>
+      <td><?= $c['temperatura'] ?> °C</td>
+      <td><?= $c['pulso'] ?> bpm</td>
+      <td><?= $c['peso_actual'] ?> kg</td>
+      <td><?= $c['imc'] ?></td>
+      <td><?= date('d/m/Y H:i', strtotime($c['fecha_registro'])) ?></td>
+      <td class="text-nowrap">
+        <button class="btn btn-sm btn-primary editar-consulta" data-id="<?= $c['id'] ?>" data-bs-toggle="modal"
+          data-bs-target="#modal-editar">
+          <i class="bi bi-pencil-square"></i>
+        </button>
 
+        <button class="btn btn-sm btn-info ver-detalles-consulta" data-id="<?= $c['id'] ?>"
+          data-bs-toggle="modal" data-bs-target="#modalDetallesConsulta">
+          <i class="bi bi-eye-fill"></i>
+        </button>
 
+        <?php if ($c['pagado'] == 0): ?>
+          <button class="btn btn-sm btn-secondary ver-detalles-consulta btn-pago"
+            data-id="<?= $c['id'] ?>"
+            id="btnPagar-<?= $c['id'] ?>"
+            data-bs-toggle="modal"
+            data-bs-target="#modalPagoConsulta">
+            <i class="bi bi-credit-card-2-front-fill me-2"></i>
+          </button>
+        <?php endif; ?>
 
-                  <button class="btn btn-sm btn-primary editar-consulta" data-id="<?= $c['id'] ?>" data-bs-toggle="modal"
-                    data-bs-target="#modal-editar">
-                    <i class="bi bi-pencil-square"></i>
-                  </button>
-                  <!-- BOTÓN DETALLES CONSULTA -->
-                  <button class="btn btn-sm btn-info ver-detalles-consulta" data-id="<?= $c['id'] ?>"
-                    data-bs-toggle="modal" data-bs-target="#modalDetallesConsulta">
-                    <i class="bi bi-eye-fill"></i>
-                  </button>
-                  <button class="btn btn-sm btn-secondary ver-detalles-consulta" data-id="<?= $c['id'] ?>"
-                    data-bs-toggle="modal" data-bs-target="#modalPagoConsulta">
-                   <i class="bi bi-credit-card-2-front-fill me-2"></i>
-                  </button>
+        <a href="eliminar_consulta.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger"
+          onclick="return confirm('¿Eliminar esta consulta?')">
+          <i class="bi bi-trash"></i>
+        </a>
+      </td>
+    </tr>
+  <?php endforeach; ?>
+</tbody>
 
-
-                  <a href="eliminar_consulta.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger"
-                    onclick="return confirm('¿Eliminar esta consulta?')">
-                    <i class="bi bi-trash"></i>
-                  </a>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
         </table>
       </div>
     </div>
@@ -366,8 +369,8 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
 
           <div class="mb-3">
             <label for="monto" class="form-label">Monto a pagar</label>
-            <input type="number" class="form-control" id="monto" name="monto" min="0" step="0.01" required>
-          </div> 
+            <input type="number" class="form-control" id="monto" name="monto" min="500" step="0.01" required>
+          </div>
         </div>
 
         <div class="modal-footer">
@@ -380,41 +383,57 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
 </div>
 
 <!-- SCRIPT para Buscador de Pacientes (AJAX o JS con fetch) -->
- <script>
+<script>
   // Detectar clic en botón de pago
   document.querySelectorAll('.ver-detalles-consulta').forEach(btn => {
-    btn.addEventListener('click', function () {
+    btn.addEventListener('click', function() {
       const idConsulta = this.getAttribute('data-id');
       document.getElementById('consulta_id').value = idConsulta;
     });
   });
 
   // Envío del formulario de pago
-  document.getElementById('formPagoConsulta').addEventListener('submit', function (e) {
-    e.preventDefault();
+  
+  document.getElementById('formPagoConsulta').addEventListener('submit', function(e) {
+  e.preventDefault();
 
-    const datos = new FormData(this);
+  const datos = new FormData(this);
 
-    fetch('api/pagar_consulta.php', {
-      method: 'POST',
-      body: datos
-    })
-    .then(res => res.json())
-    .then(respuesta => {
-      if (respuesta.success) {
-        alert('Pago realizado correctamente.');
-        // Aquí puedes cerrar el modal y actualizar la tabla si lo deseas
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalPagoConsulta'));
-        modal.hide();
-      } else {
-        alert('Error: ' + respuesta.message);
-      }
-    })
-    .catch(error => {
-      console.error('Error en el pago:', error);
-    });
+  fetch('api/actualizar_pago.php', {
+    method: 'POST',
+    body: datos
+  })
+  .then(res => res.json())
+  .then(respuesta => {
+    if (respuesta.success) {
+      // Cierra el modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('modalPagoConsulta'));
+      modal.hide();
+
+      // Opcional: pequeño retraso antes de recargar
+      setTimeout(() => {
+        location.reload(); // 🔁 Recarga la página
+      }, 500);
+    } else {
+      alert('Error: ' + respuesta.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error en el pago:', error);
   });
- 
+});
+
+
+
+
+
+
+
+
+
+
+
+
   document.addEventListener("DOMContentLoaded", () => {
     const botonesDetalles = document.querySelectorAll(".ver-detalles-consulta");
     const contenedor = document.getElementById("contenido-detalles-consulta");
@@ -433,10 +452,14 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
 
         // Realiza la petición
         fetch("api/detalles_consulta.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ id })
-        })
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+              id
+            })
+          })
           .then(response => response.text())
           .then(html => {
             contenedor.innerHTML = html;

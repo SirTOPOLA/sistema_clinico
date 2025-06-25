@@ -8,9 +8,10 @@ $sql = "SELECT
     a.estado, 
     a.codigo_paciente, 
     a.pagado,
-    tp.id AS id_tipo_prueba,           -- ID de tipo de prueba
+    tp.id AS id_tipo_prueba,           
     tp.nombre AS tipo_prueba,
     tp.precio,
+    p.id AS id_paciente,               -- <- Alias para el id del paciente
     CONCAT(p.nombre,' ',p.apellidos) AS paciente,
     a.fecha_registro,
     DATE(a.fecha_registro) AS fecha_solo
@@ -32,6 +33,7 @@ foreach ($analiticas as $a) {
       'tipo' => $a['tipo_prueba'],
       'paciente' => $a['paciente'],
       'codigo' => $a['codigo_paciente'],
+       'id_paciente' => $a['id_paciente'], // ✅ Aquí lo guardas
       'fecha' => $a['fecha_solo'],
       'registros' => [],
       'pagos' => [],
@@ -136,8 +138,6 @@ foreach ($analiticas as $a) {
                 <?php endif; ?>
               </td>
               <td>
-
-
                 <?php if (in_array(0, $grupo['pagos'])): ?>
                   <button
                     class="btn btn-sm btn-outline-success btn-pagar"
@@ -158,10 +158,15 @@ foreach ($analiticas as $a) {
                   </a>
                 <?php endif; ?>
 
-
-
-
+                <!-- Botón para imprimir las pruebas médicas (siempre visible) -->
+                <a href="fpdf/imprimir_pruebas.php?id=<?= $grupo['id_paciente'] ?>&fecha=<?= $grupo['fecha'] ?>"
+                  target="_blank"
+                  class="btn btn-outline-primary btn-sm mt-1"
+                  title="Imprimir Pruebas Médicas">
+                  <i class="bi bi-file-earmark-medical"></i> Ver Pruebas
+                </a>
               </td>
+
             </tr>
           <?php endforeach ?>
         </tbody>
