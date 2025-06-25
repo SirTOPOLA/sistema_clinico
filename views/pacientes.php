@@ -31,15 +31,15 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <?php
 
 
-if (isset($_SESSION['error'])) {
-    echo '<div id="mensaje" class="alert alert-danger">'.$_SESSION['error'].'</div>';
+  if (isset($_SESSION['error'])) {
+    echo '<div id="mensaje" class="alert alert-danger">' . $_SESSION['error'] . '</div>';
     unset($_SESSION['error']);
-}
-if (isset($_SESSION['success'])) {
-    echo '<div id="mensaje" class="alert alert-success">'.$_SESSION['success'].'</div>';
+  }
+  if (isset($_SESSION['success'])) {
+    echo '<div id="mensaje" class="alert alert-success">' . $_SESSION['success'] . '</div>';
     unset($_SESSION['success']);
-}
-?>
+  }
+  ?>
 
 
 
@@ -81,7 +81,7 @@ if (isset($_SESSION['success'])) {
                 <td><?= $p['id'] ?></td>
                 <td><?= htmlspecialchars($p['nombre'] . ' ' . $p['apellidos']) ?></td>
                 <td><?= htmlspecialchars($p['dip']) ?></td>
-                  <td><?= htmlspecialchars($p['codigo']) ?></td>
+                <td><?= htmlspecialchars($p['codigo']) ?></td>
                 <td><?= htmlspecialchars($p['sexo']) ?></td>
                 <td><?= htmlspecialchars($p['telefono']) ?></td>
                 <td><?= htmlspecialchars($p['email']) ?></td>
@@ -91,6 +91,12 @@ if (isset($_SESSION['success'])) {
                     data-bs-target="#modalEditar">
                     <i class="bi bi-pencil-square"></i>
                   </button>
+                  <!-- Botón dentro del listado de pacientes -->
+                  <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalHistorial"
+                    onclick="cargarHistorialMedico(<?= $p['id'] ?>)">
+                    <i class="bi bi-journal-text"></i> Historial
+                  </button>
+
                   <a href="eliminar_paciente.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-danger"
                     onclick="return confirm('¿Deseas eliminar este paciente?')">
                     <i class="bi bi-trash"></i>
@@ -199,34 +205,158 @@ if (isset($_SESSION['success'])) {
   </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="modalHistorial" tabindex="-1" aria-labelledby="modalHistorialLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content shadow rounded-4">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalHistorialLabel"><i class="bi bi-folder2-open"></i> Historial Médico</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Filtros -->
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">
+            <label>Desde</label>
+            <input type="date" id="fecha_inicio" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label>Hasta</label>
+            <input type="date" id="fecha_fin" class="form-control">
+          </div>
+          <div class="col-md-4 d-flex align-items-end justify-content-between">
+            <button onclick="filtrarHistorial()" class="btn btn-success"><i class="bi bi-search"></i> Buscar</button>
+            <button onclick="generarPDF()" class="btn btn-danger"><i class="bi bi-file-earmark-pdf-fill"></i> PDF</button>
+            <button onclick="window.print()" class="btn btn-secondary"><i class="bi bi-printer"></i> Imprimir</button>
+          </div>
+        </div>
+
+        <!-- Contenedor del historial -->
+        <div id="historialContenido" class="border p-3 bg-light rounded-3" style="font-size: 14px;">
+          <!-- Datos cargados por JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.btn-editar').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tr = btn.closest('tr');
-        const fields = ['id', 'nombre', 'apellidos', 'fecha_nacimiento', 'dip', 'sexo', 'email',
-          'telefono', 'profesion', 'ocupacion', 'tutor_nombre', 'telefono_tutor', 'direccion'];
-        fields.forEach(f => {
-          const el = document.getElementById('edit_' + f);
-          if (el) el.value = tr.dataset[f];
-        });
+let id_paciente = 0;
+
+function cargarHistorialMedico(id) {
+  if (!id || isNaN(id)) {
+    console.warn("ID de paciente inválido");
+    return;
+  }
+
+  id_paciente = id;
+  const contenedor = document.getElementById('historialContenido');
+  if (!contenedor) return;
+
+  contenedor.innerHTML = '<p class="text-center text-muted">Cargando historial...</p>';
+
+  fetch(`api/obtener_historial.php?id_paciente=${id}`)
+    .then(response => {
+      if (!response.ok) throw new Error('Respuesta inválida del servidor');
+      return response.text();
+    })
+    .then(html => {
+      contenedor.innerHTML = html || '<div class="alert alert-info">No se encontró historial.</div>';
+    })
+    .catch(error => {
+      contenedor.innerHTML = `<div class="alert alert-danger">Error al cargar historial</div>`;
+      console.error('Error al cargar historial:', error);
+    });
+}
+
+function filtrarHistorial() {
+  const inicioEl = document.getElementById('fecha_inicio');
+  const finEl = document.getElementById('fecha_fin');
+  const contenedor = document.getElementById('historialContenido');
+
+  if (!inicioEl || !finEl || !contenedor) return;
+
+  const inicio = inicioEl.value;
+  const fin = finEl.value;
+
+  if (!id_paciente || isNaN(id_paciente)) {
+    alert("Seleccione un paciente antes de filtrar.");
+    return;
+  }
+
+  if (!inicio || !fin) {
+    alert("Debe seleccionar un rango de fechas válido.");
+    return;
+  }
+
+  if (new Date(inicio) > new Date(fin)) {
+    alert("La fecha de inicio no puede ser mayor que la fecha de fin.");
+    return;
+  }
+
+  contenedor.innerHTML = '<p class="text-center text-muted">Filtrando...</p>';
+
+  const params = new URLSearchParams({ id_paciente, inicio, fin });
+
+  fetch(`api/obtener_historial.php?${params.toString()}`)
+    .then(res => {
+      if (!res.ok) throw new Error('Respuesta inválida del servidor');
+      return res.text();
+    })
+    .then(html => {
+      contenedor.innerHTML = html || '<div class="alert alert-info">No se encontraron registros.</div>';
+    })
+    .catch(err => {
+      contenedor.innerHTML = `<div class="alert alert-danger">Error al filtrar historial</div>`;
+      console.error('Error al filtrar:', err);
+    });
+}
+
+function generarPDF() {
+  const inicio = document.getElementById('fecha_inicio')?.value;
+  const fin = document.getElementById('fecha_fin')?.value;
+
+  if (!id_paciente || isNaN(id_paciente)) {
+    alert("Seleccione un paciente antes de generar el PDF.");
+    return;
+  }
+
+  if (!inicio || !fin) {
+    alert("Debe seleccionar un rango de fechas para generar el PDF.");
+    return;
+  }
+
+  const url = `api/generar_pdf.php?id_paciente=${id_paciente}&inicio=${inicio}&fin=${fin}`;
+  window.open(url, '_blank');
+}
+
+// Eventos DOM
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.btn-editar').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tr = btn.closest('tr');
+      const fields = ['id', 'nombre', 'apellidos', 'fecha_nacimiento', 'dip', 'sexo', 'email',
+        'telefono', 'profesion', 'ocupacion', 'tutor_nombre', 'telefono_tutor', 'direccion'];
+
+      fields.forEach(f => {
+        const el = document.getElementById('edit_' + f);
+        if (el && tr.dataset[f]) {
+          el.value = tr.dataset[f];
+        }
       });
     });
   });
-</script>
+});
 
-
-
-
-<script>
-  setTimeout(() => {
-    const mensaje = document.getElementById('mensaje');
-    if (mensaje) {
-      mensaje.style.transition = 'opacity 1s ease';
-      mensaje.style.opacity = '0';
-      setTimeout(() => mensaje.remove(), 1000);
-    }
-  }, 10000); // 10 segundos
+// Ocultar mensajes de éxito/error después de 10s
+setTimeout(() => {
+  const mensaje = document.getElementById('mensaje');
+  if (mensaje) {
+    mensaje.style.transition = 'opacity 1s ease';
+    mensaje.style.opacity = '0';
+    setTimeout(() => mensaje.remove(), 1000);
+  }
+}, 10000);
 </script>
