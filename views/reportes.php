@@ -1,451 +1,617 @@
  <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa; /* Light background for the page */
+ h1, h2 {
+            color: #343a40; /* Color de texto oscuro */
+            margin-bottom: 25px;
         }
-        .container-fluid {
-            padding: 20px;
+        /* Estilos para etiquetas de formulario */
+        .form-label {
+            font-weight: bold; /* Texto en negrita */
+            color: #495057; /* Color de texto para etiquetas */
         }
-        .card {
-            border-radius: 0.75rem; /* More rounded corners */
-            overflow: hidden; /* Ensures shadow and border-radius apply correctly */
+        /* Estilos base para todos los botones de reporte */
+        .btn-primary, .btn-info, .btn-warning, .btn-success, .btn-danger, .btn-dark {
+            border-radius: 8px; /* Bordes redondeados */
+            padding: 10px 20px;
+            font-weight: bold; /* Texto en negrita */
+            transition: all 0.3s ease; /* Transición suave para efectos hover */
+            margin-bottom: 10px; /* Margen inferior para un mejor espaciado en pantallas pequeñas */
         }
-        .custom-shadow {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05); /* Lighter, modern shadow */
+        /* Colores específicos para botones primarios */
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
         }
-        .table-responsive {
-            border-radius: 0.75rem; /* Match card border-radius */
-            overflow-x: auto; /* Ensure horizontal scrolling for tables */
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+            transform: translateY(-2px); /* Pequeño efecto de elevación al pasar el ratón */
         }
-        /* Custom scrollbar for better appearance */
-        .table-responsive::-webkit-scrollbar {
-            height: 8px;
+        /* Colores específicos para botones de información */
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
         }
-        .table-responsive::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+        .btn-info:hover {
+            background-color: #117a8b;
+            border-color: #0c5460;
+            transform: translateY(-2px);
         }
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: #adb5bd; /* Bootstrap's gray */
-            border-radius: 10px;
+        /* Colores específicos para botones de advertencia */
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #212529; /* Color de texto oscuro para contraste */
         }
-        .table-responsive::-webkit-scrollbar-thumb:hover {
-            background: #6c757d;
+        .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #c69500;
+            transform: translateY(-2px);
+        }
+        /* Colores específicos para botones de éxito */
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #1e7e34;
+            border-color: #1c7430;
+            transform: translateY(-2px);
+        }
+         /* Colores específicos para botones de peligro (rojo) */
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+            transform: translateY(-2px);
+        }
+        /* Nuevo estilo para botón de PDF */
+        .btn-dark {
+            background-color: #343a40;
+            border-color: #343a40;
+            color: #ffffff;
+        }
+        .btn-dark:hover {
+            background-color: #1d2124;
+            border-color: #171a1d;
+            transform: translateY(-2px);
         }
 
-        .badge {
-            padding: 0.4em 0.8em;
-            border-radius: 0.5rem;
-            font-weight: 600;
+        /* Sección donde se mostrarán los resultados del reporte */
+        .report-section {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #e9ecef; /* Fondo ligeramente gris */
+            border-radius: 10px;
+            border: 1px solid #dee2e6; /* Borde sutil */
         }
-        .btn-pay {
-            background-color: #28a745; /* Bootstrap success green */
-            border-color: #28a745;
-            color: white;
-            transition: all 0.2s ease-in-out;
+        .report-section h3 {
+            color: #007bff; /* Color de título para la sección de resultados */
+            margin-bottom: 20px;
         }
-        .btn-pay:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+        /* Estilos para tablas responsivas */
+        .table-responsive {
+            margin-top: 20px;
         }
-        .btn-print-invoice {
-            background-color: #6c757d; /* Bootstrap secondary gray */
-            border-color: #6c757d;
-            color: white;
-            transition: all 0.2s ease-in-out;
+        .table {
+            background-color: #ffffff; /* Fondo blanco para las tablas */
+            border-radius: 10px;
+            overflow: hidden; /* Asegura que los bordes redondeados se apliquen al contenido */
         }
-        .btn-print-invoice:hover {
-            background-color: #5a6268;
-            border-color: #545b62;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(108, 117, 125, 0.2);
+        /* Encabezado de la tabla */
+        .table thead {
+            background-color: #007bff; /* Fondo azul para el encabezado */
+            color: #ffffff; /* Texto blanco en el encabezado */
         }
-        .btn-view-tests {
-            background-color: #007bff; /* Bootstrap primary blue */
-            border-color: #007bff;
-            color: white;
-            transition: all 0.2s ease-in-out;
+        .table th, .table td {
+            vertical-align: middle; /* Alineación vertical de celdas */
+            padding: 12px;
         }
-        .btn-view-tests:hover {
-            background-color: #0069d9;
-            border-color: #0062cc;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+        /* Spinner de carga */
+        .loading-spinner {
+            display: none; /* Oculto por defecto */
+            text-align: center;
+            margin-top: 20px;
         }
-        /* Custom message box styling */
-        .message-box {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 1050; /* Above modals */
-            min-width: 250px;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        .loading-spinner .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        /* Mensajes de alerta */
+        .alert-message {
+            margin-top: 20px;
+        }
+        /* Estilos para el contenedor del gráfico */
+        .chart-container {
+            width: 100%;
+            max-width: 800px; /* Ancho máximo para el gráfico */
+            margin: 20px auto; /* Centra el gráfico */
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: none; /* Oculto por defecto */
+        }
+        /* Media queries para responsividad en pantallas pequeñas */
+        @media (max-width: 768px) {
+            .d-md-flex {
+                flex-direction: column; /* Apila los botones en pantallas pequeñas */
+                gap: 10px; /* Espaciado entre botones */
+            }
+            .container {
+                padding: 15px; /* Reduce el padding en el contenedor */
+            }
         }
     </style>
  
+<div id="content" class="container-fluid">
+        <h1 class="text-center mb-4">Reportes Financieros</h1>
 
-<div class="container-fluid" id="content">
-
-    <!-- Header Section -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-3 mb-md-0 text-gray-900">
-            <i class="fas fa-file-invoice-dollar me-3 text-primary"></i>Gestión de Reportes Financieros
-        </h1>
-        <div class="w-100 w-md-auto d-flex justify-content-end">
-            <div class="input-group" style="max-width: 400px;">
-                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                <input type="text" id="buscadorPago" class="form-control border-start-0 rounded-end shadow-sm" placeholder="Buscar paciente, código, prueba o fecha...">
+        <!-- Sección de selección de fechas -->
+        <div class="row d-flex justify-content-center mb-3">
+            <div class="col-md-2">
+                <label for="startDate" class="form-label">Fecha de Inicio:</label>
+                <input type="date" class="form-control" id="startDate">
             </div>
+            <div class="col-md-2">
+                <label for="endDate" class="form-label">Fecha de Fin:</label>
+                <input type="date" class="form-control" id="endDate">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-dark w-100" id="btnGeneratePdf" style="display: none;">
+                    <i class="bi bi-file-earmark-pdf-fill"></i> Generar PDF
+                </button>
+            </div>
+        </div>
+        <hr>
+
+
+        <!-- Grupo de botones para los diferentes tipos de reportes -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-5">
+            <button class="btn btn-primary" id="btnTotalIncome">
+                <i class="bi bi-cash-stack"></i> Ingresos Totales por Período
+            </button>
+            <button class="btn btn-info" id="btnIncomeByType">
+                <i class="bi bi-pie-chart"></i> Ingresos por Tipo de Servicio
+            </button>
+            <button class="btn btn-warning" id="btnIncomeByPatient">
+                <i class="bi bi-person-fill"></i> Ingresos por Paciente
+            </button>
+            <button class="btn btn-success" id="btnOutstandingConsultations">
+                <i class="bi bi-clipboard-check"></i> Consultas Pendientes de Pago
+            </button>
+            <button class="btn btn-danger" id="btnOutstandingAnalytics">
+                <i class="bi bi-bar-chart"></i> Analíticas Pendientes de Pago
+            </button>
+        </div>
+
+        <!-- Spinner de carga que se muestra mientras se carga el reporte -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando reporte...</p>
+        </div>
+
+        <!-- Contenedor para el gráfico -->
+        <div class="chart-container" id="chartContainer">
+            <canvas id="incomeChart"></canvas>
+        </div>
+
+        <!-- Área donde se mostrarán los resultados del reporte -->
+        <div id="reportResults" class="report-section d-none">
+            <!-- Los resultados del reporte se inyectarán aquí mediante JavaScript -->
         </div>
     </div>
 
-    <!-- Custom Message Box Area -->
-    <div id="messageBoxContainer"></div>
-
-    <div class="card border-0 shadow-sm custom-shadow">
-        <div class="card-body table-responsive p-0">
-            <table id="tablaAnaliticas" class="table table-hover table-sm align-middle mb-0">
-                <thead class="table-light text-nowrap">
-                    <tr>
-                        <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-gray-500 uppercase tracking-wider rounded-top-left-lg">ID (Analítica)</th>
-                        <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre del Paciente</th>
-                        <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-gray-500 uppercase tracking-wider">Código</th>
-                        <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-gray-500 uppercase tracking-wider">Pruebas</th>
-                        <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-gray-500 uppercase tracking-wider">Resultados</th>
-                        <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
-                        <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-gray-500 uppercase tracking-wider">Pagos</th>
-                        <th scope="col" class="px-4 py-3 text-start text-xs font-semibold text-gray-500 uppercase tracking-wider rounded-top-right-lg">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="reportsTableBody">
-                    <!-- Table rows will be dynamically inserted here by JavaScript -->
-                    <tr>
-                        <td colspan="8" class="text-center py-5 text-muted">Cargando reportes...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- Payment Modal -->
-<div class="modal fade" id="modalPagar" tabindex="-1" aria-labelledby="modalPagarLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-xl shadow-lg">
-            <div class="modal-header bg-primary text-white border-0 rounded-top-xl">
-                <h5 class="modal-title" id="modalPagarLabel"><i class="bi bi-credit-card-fill me-2"></i>Realizar Pago</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <p class="text-muted" id="modalPatientInfo"></p>
-                <div id="pendingTestsList" class="mb-3 max-h-60 overflow-y-auto border rounded p-3 bg-light">
-                    <!-- Pending tests will be dynamically inserted here -->
-                    <p class="text-center text-muted">No hay pruebas pendientes de pago.</p>
-                </div>
-                <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3">
-                    <span class="fs-5 fw-bold text-dark">Total a Pagar: <span id="totalToPayDisplay" class="text-success">€0.00</span></span>
-                    <button type="button" class="btn btn-success btn-lg rounded-pill shadow-sm" id="confirmPaymentBtn" disabled>
-                        <i class="bi bi-cash-coin me-2"></i>Confirmar Pago
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <!-- Incluye Bootstrap JS (bundle incluye Popper.js) al final del body para un mejor rendimiento -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Incluye Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <!-- Incluye jsPDF para generar PDFs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Incluye html2canvas para convertir HTML a imagen para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 
-<!-- Bootstrap 5 JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9Gkcq+pma+48nqqxLpvC2/mCWILvM" crossorigin="anonymous"></script>
+    <script>
+        // Inicializa jsPDF al cargar el script
+        const { jsPDF } = window.jspdf;
 
-<script>
-    // Mock data to simulate API response
-    const mockAnaliticasData = [
-        { id: 1, resultado: "Normal", estado: "Completado", codigo_paciente: "P001", pagado: 0, id_tipo_prueba: 101, tipo_prueba: "Hemograma Completo", precio: 50.00, id_paciente: 1, paciente: "Juan Perez", fecha_registro: "2024-06-20 10:00:00", fecha_solo: "2024-06-20" },
-        { id: 2, resultado: "Alto", estado: "Completado", codigo_paciente: "P001", pagado: 0, id_tipo_prueba: 102, tipo_prueba: "Glucosa en Sangre", precio: 30.00, id_paciente: 1, paciente: "Juan Perez", fecha_registro: "2024-06-20 10:05:00", fecha_solo: "2024-06-20" },
-        { id: 3, resultado: "", estado: "Pendiente", codigo_paciente: "P002", pagado: 1, id_tipo_prueba: 103, tipo_prueba: "Perfil Lipídico", precio: 70.00, id_paciente: 2, paciente: "Maria Garcia", fecha_registro: "2024-06-19 14:00:00", fecha_solo: "2024-06-19" },
-        { id: 4, resultado: "Normal", estado: "Completado", codigo_paciente: "P003", pagado: 1, id_tipo_prueba: 101, tipo_prueba: "Hemograma Completo", precio: 50.00, id_paciente: 3, paciente: "Pedro Lopez", fecha_registro: "2024-06-18 09:30:00", fecha_solo: "2024-06-18" },
-        { id: 5, resultado: "Normal", estado: "Completado", codigo_paciente: "P001", pagado: 1, id_tipo_prueba: 104, tipo_prueba: "Prueba de Orina", precio: 25.00, id_paciente: 1, paciente: "Juan Perez", fecha_registro: "2024-06-17 11:00:00", fecha_solo: "2024-06-17" },
-        { id: 6, resultado: "", estado: "Pendiente", codigo_paciente: "P004", pagado: 0, id_tipo_prueba: 105, tipo_prueba: "Función Renal", precio: 60.00, id_paciente: 4, paciente: "Ana Martinez", fecha_registro: "2024-06-20 16:00:00", fecha_solo: "2024-06-20" },
-    ];
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener referencias a los elementos del DOM
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const reportResultsDiv = document.getElementById('reportResults');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const chartContainer = document.getElementById('chartContainer');
+            const incomeChartCanvas = document.getElementById('incomeChart');
+            const btnGeneratePdf = document.getElementById('btnGeneratePdf');
 
-    let currentReportsData = []; // Stores the raw fetched data
-    let groupedReports = []; // Stores the grouped data for display
+            let myChart; // Variable para almacenar la instancia de Chart.js
 
-    // Helper function to group data similar to your PHP logic
-    const groupAnaliticas = (data) => {
-        const grupos = {};
-        data.forEach(a => {
-            const clave = `${a.paciente}_${a.fecha_solo}`;
-            if (!grupos[clave]) {
-                grupos[clave] = {
-                    paciente: a.paciente,
-                    codigo: a.codigo_paciente,
-                    id_paciente: a.id_paciente,
-                    fecha: a.fecha_solo,
-                    registros: [],
-                    pagos: [],
-                };
+            // Establecer fechas por defecto: hoy y 30 días atrás
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30); // Resta 30 días
+
+            // Formatear las fechas para el input type="date" (YYYY-MM-DD)
+            startDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
+            endDateInput.value = today.toISOString().split('T')[0];
+
+            /**
+             * Destruye el gráfico existente si lo hay.
+             */
+            function destroyChart() {
+                if (myChart) {
+                    myChart.destroy();
+                }
             }
-            grupos[clave].registros.push(a);
-            grupos[clave].pagos.push(a.pagado);
-        });
-        // Convert object to array for easier iteration
-        return Object.values(grupos).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Sort by date descending
-    };
 
-    // Custom Message Box Function
-    function showMessage(message, type) {
-        const container = document.getElementById('messageBoxContainer');
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show message-box`;
-        alertDiv.setAttribute('role', 'alert');
-        alertDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        container.appendChild(alertDiv);
+            /**
+             * Función asíncrona genérica para enviar solicitudes AJAX al backend PHP.
+             * @param {string} action La acción a realizar en el backend (ej. 'getTotalIncome').
+             * @param {object} extraData Datos adicionales a enviar en la solicitud.
+             */
+            async function fetchData(action, extraData = {}) {
+                reportResultsDiv.classList.add('d-none'); // Oculta los resultados anteriores
+                chartContainer.style.display = 'none'; // Oculta el contenedor del gráfico
+                btnGeneratePdf.style.display = 'none'; // Oculta el botón de PDF
+                loadingSpinner.style.display = 'block'; // Muestra el spinner de carga
+                destroyChart(); // Destruye cualquier gráfico existente
 
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            const bsAlert = new bootstrap.Alert(alertDiv);
-            bsAlert.close();
-        }, 5000);
-    }
+                // Crea un objeto FormData para enviar los datos al servidor
+                const formData = new FormData();
+                formData.append('action', action); // Agrega la acción
+                formData.append('startDate', startDateInput.value); // Agrega la fecha de inicio
+                formData.append('endDate', endDateInput.value);     // Agrega la fecha de fin
 
-    // Helper to format date for display
-    const formatDate = (dateString) => {
-        if (!dateString) return '';
-        const [year, month, day] = dateString.split('-');
-        return `${day}/${month}/${year}`;
-    };
+                // Agrega cualquier dato adicional al FormData
+                for (const key in extraData) {
+                    formData.append(key, extraData[key]);
+                }
 
-    // Function to render the reports table
-    const renderReportsTable = (dataToRender) => {
-        const tableBody = document.getElementById('reportsTableBody');
-        tableBody.innerHTML = ''; // Clear existing rows
+                try {
+                    // Realiza la solicitud fetch (AJAX) al script PHP
+                    const response = await fetch('api/reports.php', { // ¡IMPORTANTE! Ajusta esta ruta si tu archivo PHP está en otro lugar
+                        method: 'POST', // Método POST para enviar datos
+                        body: formData  // Cuerpo de la solicitud con FormData
+                    });
 
-        if (dataToRender.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="8" class="text-center py-4 text-muted">No se encontraron reportes.</td>
-                </tr>
-            `;
-            return;
-        }
+                    // Parsea la respuesta JSON del servidor
+                    const result = await response.json();
 
-        dataToRender.forEach((group, index) => {
-            const todosConResultado = group.registros.every(r => r.resultado && r.resultado.trim() !== '');
-            const todosPagados = group.pagos.every(p => p === 1);
-            const displayId = group.registros.length > 0 ? group.registros[0].id : 'N/A'; // Use first analytic ID for display
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="px-4 py-3 text-sm text-gray-900">${displayId}</td>
-                <td class="px-4 py-3 text-sm text-gray-900 fw-bold">${group.paciente}</td>
-                <td class="px-4 py-3 text-sm text-gray-700">${group.codigo}</td>
-                <td class="px-4 py-3 text-sm text-gray-700">
-                    <ul class="list-unstyled mb-0 small">
-                        ${group.registros.map(r => `<li>${r.tipo_prueba}</li>`).join('')}
-                    </ul>
-                </td>
-                <td class="px-4 py-3 text-sm">
-                    ${todosConResultado ?
-                        `<span class="badge bg-primary"><i class="fas fa-check-circle me-1"></i> Resultado</span>` :
-                        `<span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i> Sin Resultado</span>`
+                    if (result.status === 'success') {
+                        // Si la operación fue exitosa, muestra el reporte y el gráfico si aplica
+                        displayReport(action, result.data);
+                        btnGeneratePdf.style.display = 'block'; // Muestra el botón de PDF después de cargar el reporte
+                    } else {
+                        // Si hubo un error en el servidor, muestra el mensaje de error
+                        displayError(result.message || 'Error al cargar el reporte.');
                     }
-                </td>
-                <td class="px-4 py-3 text-sm text-gray-700">${formatDate(group.fecha)}</td>
-                <td class="px-4 py-3 text-sm">
-                    ${todosPagados ?
-                        `<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Pagado</span>` :
-                        `<span class="badge bg-warning text-dark"><i class="fas fa-exclamation-triangle me-1"></i> Pendiente</span>`
+                } catch (error) {
+                    // Captura errores de red o del fetch
+                    console.error('Error fetching data:', error);
+                    displayError('Error de conexión con el servidor. Por favor, verifica la ruta del archivo PHP y la conexión.');
+                } finally {
+                    // Oculta el spinner de carga y muestra la sección de resultados
+                    loadingSpinner.style.display = 'none';
+                    reportResultsDiv.classList.remove('d-none');
+                }
+            }
+
+            /**
+             * Función para mostrar los datos del reporte en la interfaz de usuario.
+             * @param {string} action La acción del reporte que se está mostrando.
+             * @param {object|array} data Los datos recibidos del backend para el reporte.
+             */
+            function displayReport(action, data) {
+                reportResultsDiv.innerHTML = ''; // Limpia el contenido anterior del div de resultados
+                let html = '<h3>Resultados del Reporte</h3>'; // Título de la sección de resultados
+
+                // Estructura el HTML según el tipo de reporte
+                switch (action) {
+                    case 'getTotalIncome':
+                        html += `
+                            <div class="alert alert-success" role="alert">
+                                <h4>Ingresos Totales por Período:</h4>
+                                <p class="lead mb-0"><strong>${data.totalIncome ? parseFloat(data.totalIncome).toFixed(2) + ' CFA' : '0.00 CFA'}</strong></p>
+                            </div>
+                        `;
+                        // Aquí podrías agregar un gráfico de línea si tuvieras datos por día/mes
+                        // Para este ejemplo, solo se muestra el total, no hay datos para un gráfico de tendencia.
+                        // Si el backend proporcionara ingresos por día, se podría usar renderLineChart.
+                        break;
+                    case 'getIncomeByType':
+                        html += `
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="card text-center bg-success text-white">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Ingresos por Consultas</h5>
+                                            <p class="card-text fs-4 text-white"><strong>${data.consultations ? parseFloat(data.consultations).toFixed(2) + ' CFA' : '0.00 CFA'}</strong></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="card text-center bg-white text-dark">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Ingresos por Analíticas</h5>
+                                            <p class="card-text fs-4"><strong>${data.analytics ? parseFloat(data.analytics).toFixed(2) + ' CFA' : '0.00 CFA'}</strong></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        // Renderiza un gráfico de pastel para ingresos por tipo
+                        renderPieChart(data);
+                        break;
+                    case 'getIncomeByPatient':
+                        html += '<h4>Ingresos por Paciente:</h4>';
+                        if (data.length > 0) {
+                            html += `
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Paciente</th>
+                                                <th>Ingreso Total</th>
+                                                <th>Ingreso Consultas</th>
+                                                <th>Ingreso Analíticas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            data.forEach(patient => {
+                                html += `
+                                    <tr>
+                                        <td>${patient.name}</td>
+                                        <td>${patient.total_income.toFixed(2)} CFA</td>
+                                        <td>${patient.consultation_income.toFixed(2)} CFA</td>
+                                        <td>${patient.analytic_income.toFixed(2)} CFA</td>
+                                    </tr>
+                                `;
+                            });
+                            html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                        } else {
+                            html += '<p class="text-muted">No se encontraron ingresos por paciente para el período seleccionado.</p>';
+                        }
+                        break;
+                    case 'getOutstandingConsultations':
+                        html += '<h4>Consultas Pendientes de Pago:</h4>';
+                        if (data.length > 0) {
+                            html += `
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Consulta</th>
+                                                <th>Paciente</th>
+                                                <th>Motivo</th>
+                                                <th>Precio</th>
+                                                <th>Fecha Registro</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            data.forEach(consultation => {
+                                html += `
+                                    <tr>
+                                        <td>${consultation.consulta_id}</td>
+                                        <td>${consultation.nombre} ${consultation.apellidos}</td>
+                                        <td>${consultation.motivo_consulta}</td>
+                                        <td>${parseFloat(consultation.precio).toFixed(2)} CFA</td>
+                                        <td>${new Date(consultation.fecha_registro).toLocaleDateString('es-ES')}</td>
+                                    </tr>
+                                `;
+                            });
+                            html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                        } else {
+                            html += '<p class="text-muted">No hay consultas pendientes de pago.</p>';
+                        }
+                        break;
+                    case 'getOutstandingAnalytics':
+                        html += '<h4>Analíticas Pendientes de Pago:</h4>';
+                        if (data.length > 0) {
+                            html += `
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Analítica</th>
+                                                <th>Paciente</th>
+                                                <th>Tipo Prueba</th>
+                                                <th>Precio</th>
+                                                <th>Fecha Registro</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            data.forEach(analytic => {
+                                html += `
+                                    <tr>
+                                        <td>${analytic.analitica_id}</td>
+                                        <td>${analytic.nombre} ${analytic.apellidos}</td>
+                                        <td>${analytic.tipo_prueba}</td>
+                                        <td>${parseFloat(analytic.precio).toFixed(2)} CFA</td>
+                                        <td>${new Date(analytic.fecha_registro).toLocaleDateString('es-ES')}</td>
+                                    </tr>
+                                `;
+                            });
+                            html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                        } else {
+                            html += '<p class="text-muted">No hay analíticas pendientes de pago.</p>';
+                        }
+                        break;
+                    default:
+                        html += '<p>Selecciona un tipo de reporte para ver los resultados.</p>';
+                        break;
+                }
+                reportResultsDiv.innerHTML = html; // Inyecta el HTML generado en el div de resultados
+            }
+
+            /**
+             * Renderiza un gráfico de pastel para los ingresos por tipo (consultas vs. analíticas).
+             * @param {object} data Objeto con las propiedades 'consultations' y 'analytics'.
+             */
+            function renderPieChart(data) {
+                chartContainer.style.display = 'block'; // Muestra el contenedor del gráfico
+
+                const ctx = incomeChartCanvas.getContext('2d');
+                destroyChart(); // Destruye cualquier gráfico anterior
+
+                myChart = new Chart(ctx, {
+                    type: 'pie', // Tipo de gráfico: pastel
+                    data: {
+                        labels: ['Consultas', 'Analíticas'], // Etiquetas para las secciones del pastel
+                        datasets: [{
+                            data: [data.consultations, data.analytics], // Datos para cada sección
+                            backgroundColor: [
+                                'rgba(0, 123, 255, 0.7)', // Azul para Consultas
+                                'rgba(23, 162, 184, 0.7)'  // Celeste para Analíticas
+                            ],
+                            borderColor: [
+                                'rgba(0, 123, 255, 1)',
+                                'rgba(23, 162, 184, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true, // El gráfico será responsivo
+                        maintainAspectRatio: false, // Permite que el gráfico no mantenga su aspecto original
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Distribución de Ingresos por Tipo de Servicio',
+                                font: {
+                                    size: 18
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += parseFloat(context.raw).toFixed(2) + ' CFA';
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
                     }
-                </td>
-                <td class="px-4 py-3 text-sm text-nowrap">
-                    ${!todosPagados ? `
-                        <button class="btn btn-pay btn-sm rounded-pill shadow-sm mb-2 w-100"
-                                data-bs-toggle="modal" data-bs-target="#modalPagar"
-                                data-group='${JSON.stringify(group)}'
-                                title="Pagar pruebas pendientes">
-                            <i class="fas fa-cash-register me-2"></i> Pagar
-                        </button>
-                    ` : `
-                        <a href="fpdf/generar_factura.php?id=${displayId}&fecha=${group.fecha}"
-                           target="_blank" class="btn btn-print-invoice btn-sm rounded-pill shadow-sm mb-2 w-100" title="Imprimir Factura">
-                            <i class="fas fa-print me-2"></i> Imprimir Factura
-                        </a>
-                    `}
-                    <a href="fpdf/imprimir_pruebas.php?id=${group.id_paciente}&fecha=${group.fecha}"
-                       target="_blank" class="btn btn-view-tests btn-sm rounded-pill shadow-sm w-100" title="Ver Pruebas Médicas">
-                        <i class="fas fa-file-medical me-2"></i> Ver Pruebas
-                    </a>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
-    };
+                });
+            }
 
-    // Function to simulate fetching data from API
-    const fetchReports = async () => {
-        const tableBody = document.getElementById('reportsTableBody');
-        tableBody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">
-            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
-            <p class="mt-2">Cargando reportes...</p>
-        </td></tr>`;
+            /**
+             * Función para mostrar mensajes de error en la interfaz de usuario.
+             * @param {string} message El mensaje de error a mostrar.
+             */
+            function displayError(message) {
+                reportResultsDiv.innerHTML = `<div class="alert alert-danger alert-message" role="alert">
+                                                <strong>Error:</strong> ${message}
+                                              </div>`;
+                reportResultsDiv.classList.remove('d-none'); // Asegura que la sección de resultados esté visible
+                chartContainer.style.display = 'none'; // Oculta el contenedor del gráfico en caso de error
+                btnGeneratePdf.style.display = 'none'; // Oculta el botón de PDF en caso de error
+            }
 
-        // In a real application, you'd make a fetch call to your PHP backend:
-        // const response = await fetch('/api/reports/financial?startDate=...&endDate=...&search=...');
-        // const data = await response.json();
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+            /**
+             * Genera un archivo PDF del contenido del reporte visible.
+             */
+            btnGeneratePdf.addEventListener('click', async () => {
+                btnGeneratePdf.disabled = true; // Deshabilita el botón mientras se genera el PDF
+                btnGeneratePdf.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generando PDF...';
 
-        currentReportsData = [...mockAnaliticasData]; // Use a copy for manipulation
-        groupedReports = groupAnaliticas(currentReportsData);
-        renderReportsTable(groupedReports);
-    };
+                // Usamos html2canvas para capturar la sección de resultados y el gráfico
+                const reportSection = document.getElementById('reportResults');
+                const chartElement = document.getElementById('incomeChart');
+                const chartContainerElement = document.getElementById('chartContainer');
 
-    // Handle search input change
-    document.getElementById('buscadorPago').addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        const filteredReports = groupedReports.filter(group => {
-            return (
-                group.paciente.toLowerCase().includes(searchTerm) ||
-                group.codigo.toLowerCase().includes(searchTerm) ||
-                group.fecha.includes(searchTerm) ||
-                group.registros.some(r => r.tipo_prueba.toLowerCase().includes(searchTerm))
-            );
-        });
-        renderReportsTable(filteredReports);
-    });
+                const doc = new jsPDF('p', 'mm', 'a4'); // 'p' para retrato, 'mm' para milímetros, 'a4' tamaño de página
 
-    // --- Payment Modal Logic ---
-    const modalPagar = document.getElementById('modalPagar');
-    let selectedGroupForPayment = null;
-    let selectedTestsForPayment = [];
-    let currentTotalToPay = 0;
+                // Agrega un título al PDF
+                doc.setFontSize(22);
+                doc.text('Reporte Financiero del Consultorio Clínico', 14, 20);
+                doc.setFontSize(12);
+                doc.text(`Fecha de Generación: ${new Date().toLocaleDateString('es-ES')}`, 14, 30);
+                doc.text(`Período: ${startDateInput.value} al ${endDateInput.value}`, 14, 37);
 
-    modalPagar.addEventListener('show.bs.modal', (event) => {
-        const button = event.relatedTarget; // Button that triggered the modal
-        const groupData = JSON.parse(button.getAttribute('data-group'));
-        selectedGroupForPayment = groupData;
+                let yPos = 50; // Posición inicial Y para el contenido
 
-        const modalPatientInfo = modalPagar.querySelector('#modalPatientInfo');
-        modalPatientInfo.textContent = `Paciente: ${groupData.paciente} (Fecha: ${formatDate(groupData.fecha)})`;
+                // 1. Capturar y añadir el gráfico si está visible
+                if (chartContainerElement.style.display === 'block' && myChart) {
+                    doc.setFontSize(16);
+                    doc.text('Gráfico de Ingresos', 14, yPos);
+                    yPos += 10;
 
-        const pendingTestsList = modalPagar.querySelector('#pendingTestsList');
-        pendingTestsList.innerHTML = '';
-        currentTotalToPay = 0;
-        selectedTestsForPayment = []; // Reset selected tests
+                    // Convierte el canvas del gráfico en una imagen de datos URL
+                    const chartImage = incomeChartCanvas.toDataURL('image/png', 1.0); // Calidad 1.0 (máxima)
 
-        const pending = groupData.registros.filter(r => r.pagado === 0);
+                    // Añade la imagen del gráfico al PDF
+                    // Calcula las dimensiones para que quepa en la página y mantenga el aspecto
+                    const imgWidth = 180; // Ancho deseado en mm
+                    const imgHeight = (incomeChartCanvas.height * imgWidth) / incomeChartCanvas.width;
+                    doc.addImage(chartImage, 'PNG', 14, yPos, imgWidth, imgHeight);
+                    yPos += imgHeight + 20; // Deja espacio después del gráfico
+                }
 
-        if (pending.length === 0) {
-            pendingTestsList.innerHTML = `<p class="text-center text-muted">No hay pruebas pendientes de pago para este grupo.</p>`;
-            document.getElementById('confirmPaymentBtn').disabled = true;
-        } else {
-            pending.forEach(test => {
-                const div = document.createElement('div');
-                div.className = 'd-flex justify-content-between align-items-center py-2 border-bottom';
-                div.innerHTML = `
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="${test.id}" data-price="${test.precio}" id="testCheck${test.id}" checked>
-                        <label class="form-check-label text-dark" for="testCheck${test.id}">${test.tipo_prueba}</label>
-                    </div>
-                    <span class="fw-bold text-dark">€${parseFloat(test.precio).toFixed(2)}</span>
-                `;
-                pendingTestsList.appendChild(div);
+                // 2. Capturar y añadir el contenido HTML de la sección de resultados
+                doc.setFontSize(16);
+                doc.text('Detalle del Reporte', 14, yPos);
+                yPos += 10;
 
-                // Add to selected tests by default and update total
-                selectedTestsForPayment.push(test.id);
-                currentTotalToPay += parseFloat(test.precio);
+                // html2canvas renderiza el HTML a un canvas (imagen)
+                const canvas = await html2canvas(reportSection, { scale: 2 }); // Escala 2 para mejor resolución en PDF
+                const imgData = canvas.toDataURL('image/png', 1.0); // Calidad 1.0 (máxima)
+
+                // Calcula las dimensiones para que quepa en la página y mantenga el aspecto
+                const imgWidth = 190; // Ancho deseado en mm (casi el ancho de la página A4)
+                const pageHeight = doc.internal.pageSize.height;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+
+                let position = yPos; // Posición inicial para la imagen del HTML
+
+                // Si el contenido es demasiado largo para una página, divídelo en varias
+                doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= (pageHeight - position); // Reduce la altura restante
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight; // Calcula la nueva posición para la siguiente página
+                    doc.addPage(); // Añade una nueva página
+                    doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                // Guarda el PDF con un nombre de archivo
+                doc.save(`Reporte_Financiero_${new Date().toLocaleDateString('es-ES').replace(/\//g, '-')}.pdf`);
+
+                btnGeneratePdf.disabled = false; // Habilita el botón nuevamente
+                btnGeneratePdf.innerHTML = '<i class="bi bi-file-earmark-pdf-fill"></i> Generar PDF';
             });
-            // Remove last border-bottom
-            if (pendingTestsList.lastChild) {
-                pendingTestsList.lastChild.classList.remove('border-bottom');
-            }
-            document.getElementById('confirmPaymentBtn').disabled = false;
-        }
-        updateTotalToPayDisplay();
-    });
 
-    modalPagar.addEventListener('change', (event) => {
-        if (event.target.matches('.form-check-input')) {
-            const checkbox = event.target;
-            const testId = parseInt(checkbox.value);
-            const price = parseFloat(checkbox.dataset.price);
-
-            if (checkbox.checked) {
-                selectedTestsForPayment.push(testId);
-                currentTotalToPay += price;
-            } else {
-                selectedTestsForPayment = selectedTestsForPayment.filter(id => id !== testId);
-                currentTotalToPay -= price;
-            }
-            updateTotalToPayDisplay();
-            document.getElementById('confirmPaymentBtn').disabled = selectedTestsForPayment.length === 0;
-        }
-    });
-
-    const updateTotalToPayDisplay = () => {
-        document.getElementById('totalToPayDisplay').textContent = `€${currentTotalToPay.toFixed(2)}`;
-    };
-
-    document.getElementById('confirmPaymentBtn').addEventListener('click', async () => {
-        const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
-        confirmPaymentBtn.disabled = true;
-        confirmPaymentBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Procesando...`;
-
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-
-        // In a real application, you'd send this to your PHP backend:
-        // const formData = new FormData();
-        // selectedTestsForPayment.forEach(id => formData.append('analyticIds[]', id));
-        // // Example of adding more data if needed:
-        // // formData.append('pacienteId', selectedGroupForPayment.id_paciente);
-        // // formData.append('fechaPago', new Date().toISOString().slice(0,10));
-
-        // try {
-        //     const response = await fetch('/api/payments/markPaid', {
-        //         method: 'POST',
-        //         body: formData,
-        //     });
-        //     const result = await response.json();
-        //     if (result.success) {
-        //         showMessage('Pago(s) procesado(s) exitosamente.', 'success');
-        //         fetchReports(); // Re-fetch or update data
-        //     } else {
-        //         showMessage('Error al procesar el pago: ' + result.message, 'danger');
-        //     }
-        // } catch (error) {
-        //     console.error('Error al enviar el pago:', error);
-        //     showMessage('Error de red o del servidor al procesar el pago.', 'danger');
-        // }
-
-        // Update mock data for demonstration
-        mockAnaliticasData.forEach(item => {
-            if (selectedTestsForPayment.includes(item.id)) {
-                item.pagado = 1;
-            }
+            // Asigna los event listeners a los botones para ejecutar las funciones de reporte
+            document.getElementById('btnTotalIncome').addEventListener('click', () => fetchData('getTotalIncome'));
+            document.getElementById('btnIncomeByType').addEventListener('click', () => fetchData('getIncomeByType'));
+            document.getElementById('btnIncomeByPatient').addEventListener('click', () => fetchData('getIncomeByPatient'));
+            document.getElementById('btnOutstandingConsultations').addEventListener('click', () => fetchData('getOutstandingConsultations'));
+            document.getElementById('btnOutstandingAnalytics').addEventListener('click', () => fetchData('getOutstandingAnalytics'));
         });
-
-        // Hide the modal manually
-        const bootstrapModal = bootstrap.Modal.getInstance(modalPagar);
-        if (bootstrapModal) {
-            bootstrapModal.hide();
-        }
-
-        showMessage('Pago(s) procesado(s) exitosamente.', 'success');
-        fetchReports(); // Re-fetch or update data
-
-        confirmPaymentBtn.disabled = false;
-        confirmPaymentBtn.innerHTML = `<i class="bi bi-cash-coin me-2"></i>Confirmar Pago`;
-    });
-
-    // Initial fetch of reports when the page loads
-    document.addEventListener('DOMContentLoaded', fetchReports);
-
-</script>
-
- 
+    </script>
