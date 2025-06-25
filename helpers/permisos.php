@@ -23,6 +23,7 @@ function verificarAcceso($vista)
             'tipo_prueba',
             'salas',
             'pagos',
+            'reportes',
             'analiticas',
             'ingresos',
          /*    'detalles_consultas', */
