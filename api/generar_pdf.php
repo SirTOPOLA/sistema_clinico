@@ -1,6 +1,6 @@
 <?php
 require('../fpdf/fpdf.php');
-require('../conexion.php');
+require('../config/conexion.php');
 
 $id_paciente = $_GET['id_paciente'];
 $inicio = $_GET['inicio'] ?? null;
