@@ -42,9 +42,9 @@ $pdf->Image('../img/logo.jpg', 10, 10, 25);
 // Encabezado Institucional
 $pdf->SetXY(40, 10);
 $pdf->SetFont('Arial', 'B', 14);
-$pdf->Cell(0, 7, utf8_decode('CONSULTORIO MÉDICO “DOCTOR OSCAR SL”'), 0, 1);
+$pdf->Cell(0, 7, utf8_decode("CONSULTORIO MÉDICO DOCTOR OSCAR SL"), 0, 1);
 $pdf->SetFont('Arial', 'I', 11);
-$pdf->Cell(0, 6, utf8_decode('“SALUD PARA TODOS”'), 0, 1);
+$pdf->Cell(0, 6, utf8_decode("'SALUD PARA TODOS'"), 0, 1);
 $pdf->SetFont('Arial', '', 10);
 $pdf->Cell(0, 6, utf8_decode('Promotor: Doctor Oscar Bioko'), 0, 1);
 $pdf->Cell(0, 6, utf8_decode('Dirección: Ela Nguema, C/Francisco Esono'), 0, 1);
