@@ -225,10 +225,10 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <label>Hasta</label>
             <input type="date" id="fecha_fin" class="form-control">
           </div>
-          <div class="col-md-4 d-flex align-items-end justify-content-between">
+          <div class="col-md-4 d-flex align-items-end justify-content-center gap-2">
             <button onclick="filtrarHistorial()" class="btn btn-success"><i class="bi bi-search"></i> Buscar</button>
             <button onclick="generarPDF()" class="btn btn-danger"><i class="bi bi-file-earmark-pdf-fill"></i> PDF</button>
-            <button onclick="window.print()" class="btn btn-secondary"><i class="bi bi-printer"></i> Imprimir</button>
+             
           </div>
         </div>
 

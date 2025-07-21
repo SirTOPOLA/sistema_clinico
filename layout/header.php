@@ -796,6 +796,36 @@
                 display: none !important;
             }
         }
+
+
+        /* Mejora de inputs al enfoque */
+.modal .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Encabezado moderno */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Footer elegante */
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Espaciado en etiquetas */
+.modal .form-label {
+    font-weight: 500;
+}
+
+/* Modal con esquinas más redondeadas */
+.modal-content {
+    border-radius: 1rem;
+}
+
     </style>
 
 </head>

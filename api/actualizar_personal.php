@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../conexion.php'; // Asegúrate de tener tu conexión PDO aquí
+require_once '../config/conexion.php'; // Asegúrate de tener tu conexión PDO aquí
 
 try {
     // Validar existencia de ID

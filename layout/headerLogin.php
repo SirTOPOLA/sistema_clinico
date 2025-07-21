@@ -36,8 +36,8 @@
     }
 
     .login-image {
-      background: url('img/img-1.jpg') no-repeat center center;
-      background-size: cover;
+      background: url('img/img-login.jpg') no-repeat center center;
+      background-size: contain;
       height: 300px;
     }
 
