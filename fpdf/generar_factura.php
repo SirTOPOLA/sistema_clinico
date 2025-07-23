@@ -63,9 +63,7 @@ $pdf->SetX(40);
 $pdf->SetFont('Arial', 'I', 11);
 $pdf->Cell(0, 6, utf8_decode("'SALUD PARA TODOS'"), 0, 1);
 $pdf->SetX(40);
-$pdf->SetFont('Arial', '', 10);
-$pdf->Cell(0, 6, utf8_decode('Promotor: Doctor Oscar Bioko'), 0, 1);
-$pdf->SetX(40);
+ 
 $pdf->Cell(0, 6, utf8_decode('Dirección: Ela Nguema, C/Francisco Esono'), 0, 1);
 $pdf->SetX(40);
 $pdf->Cell(0, 6, utf8_decode('Tel: 222 213694 / 555 53 41 11 - WhatsApp: +240 222 21 36 94'), 0, 1);
