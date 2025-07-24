@@ -40,7 +40,7 @@
               <span class="input-group-text bg-white">
                 <i class="bi bi-person text-success"></i>
               </span>
-              <input type="text" id="usuario" name="usuario" class="form-control" placeholder="correo@ejemplo.com"
+              <input type="text" id="usuario" name="usuario" class="form-control" placeholder="miUsuario@ejemplo"
                 required autocomplete="text">
             </div>
             <div class="form-text text-danger d-none" id="errorEmail">Ingrese un usuario válido.</div>
