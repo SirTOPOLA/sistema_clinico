@@ -29,9 +29,9 @@
       width: 100%;
       max-width: 100%;
       height: 100%;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+      /* box-shadow: 0 0 30px rgba(0, 0, 0, 0.1); */
       background-color: white;
-      border-radius: 1rem;
+   /*    border-radius: 1rem; */
       overflow: hidden;
     }
 
@@ -89,14 +89,11 @@
     }
 
     /* ----figura elegante--- */
-    .circle-figure {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #198754, #0d6efd); /* Verde a azul */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  font-size: 2rem;
+.logo-simple {
+  max-height: 100px;
+  width: auto;
 }
+
 
   </style>
 </head>

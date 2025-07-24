@@ -1,7 +1,7 @@
 <?php
 
 $idUsuario = $_SESSION['usuario']['id'] ?? 0;
-
+$rol = strtolower(trim($_SESSION['usuario']['rol'] ?? ''));
 // Listado de analíticas
 $sql = "SELECT a.id, a.resultado, a.estado, a.codigo_paciente, a.pagado,
                tp.nombre AS tipo_prueba,
@@ -66,17 +66,17 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
             <th>Resultado</th>
 
             <th>Fecha</th>
-            <th>Acciones</th>
+            <?php if ($rol !== 'doctor'): ?>
+              <th>Acciones</th>
+            <?php endif; ?>
           </tr>
         </thead>
         <tbody>
           <?php foreach ($analiticas as $a): ?>
-            <tr data-id="<?= $a['id'] ?>"
-              data-tipo="<?= $a['tipo_prueba'] ?>"
+            <tr data-id="<?= $a['id'] ?>" data-tipo="<?= $a['tipo_prueba'] ?>"
               data-id_tipo_prueba="<?= htmlspecialchars($a['tipo_prueba'], ENT_QUOTES) ?>"
               data-id_paciente="<?= htmlspecialchars($a['paciente'], ENT_QUOTES) ?>"
               data-codigo="<?= htmlspecialchars($a['codigo_paciente'], ENT_QUOTES) ?>"
-
               data-resultado="<?= htmlspecialchars($a['resultado'], ENT_QUOTES) ?>">
               <td><?= $a['id'] ?></td>
               <td><?= htmlspecialchars($a['tipo_prueba']) ?></td>
@@ -87,35 +87,45 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
                 <?php if (!empty($a['resultado'])): ?>
                   <span class="badge bg-primary">Resultado</span>
                   <br>
-
                 <?php else: ?>
                   <span class="badge bg-danger">Sin Resultado</span>
                 <?php endif; ?>
               </td>
 
               <td><?= date('d/m/Y H:i', strtotime($a['fecha_registro'])) ?></td>
-              <td class="text-nowrap">
-
-                <button class="btn btn-sm btn-outline-primary btn-editar" data-bs-toggle="modal" data-bs-target="#modalEditar">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-
-                <?php if (empty($a['resultado'])): ?>
-                  <button
-                    class="btn btn-sm btn-outline-primary btn-editar"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalEditar"
-                    id="<?= $a['id'] ?>"
-                    title="Añadir Resultado">
-                    <i class="bi bi-pencil-square me-1"></i> Añadir Resultado
+              <?php if ($rol === 'laboratorio'): ?>
+                <td class="text-nowrap">
+                  <button class="btn btn-sm btn-outline-primary btn-editar" data-bs-toggle="modal" data-id="<?= $a['id'] ?>"
+                    data-bs-target="#modalEditar">
+                    <i class="bi bi-pencil-square"></i>
                   </button>
+                  <?php if (empty($a['resultado'])): ?>
+                    <button class="btn btn-sm btn-outline-primary btn-editar" data-bs-toggle="modal"
+                      data-bs-target="#modalEditar" id="<?= $a['id'] ?>" title="Añadir Resultado">
+                      <i class="bi bi-pencil-square me-1"></i> Añadir Resultado
+                    </button>
+                  <?php endif; ?>
+                </td>
                 <?php endif; ?>
-
-                <a href="eliminar_analitica.php?id=<?= $a['id'] ?>" class="btn btn-sm btn-outline-danger"
-                  onclick="return confirm('¿Eliminar esta analítica?')">
-                  <i class="bi bi-trash"></i>
-                </a>
-              </td>
+                
+                <?php if ($rol === 'administrador'): ?>
+                  <td class="text-nowrap">
+                  <button class="btn btn-sm btn-outline-primary btn-editar" data-bs-toggle="modal" data-id="<?= $a['id'] ?>"
+                    data-bs-target="#modalEditar">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <?php if (empty($a['resultado'])): ?>
+                    <button class="btn btn-sm btn-outline-primary btn-editar" data-bs-toggle="modal"
+                      data-bs-target="#modalEditar" id="<?= $a['id'] ?>" title="Añadir Resultado">
+                      <i class="bi bi-pencil-square me-1"></i> Añadir Resultado
+                    </button>
+                  <?php endif; ?>
+                  <a href="eliminar_analitica.php?id=<?= $a['id'] ?>" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('¿Eliminar esta analítica?')">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              <?php endif; ?>
             </tr>
           <?php endforeach ?>
         </tbody>
@@ -213,22 +223,77 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
 
 
 
+
+
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('modalEditar');
-    modal.addEventListener('show.bs.modal', e => {
-      const btn = e.relatedTarget;
-      document.getElementById('edit-id').value = btn.dataset.id;
-      document.getElementById('edit-tipo').value = btn.dataset.id_tipo_prueba;
-      document.getElementById('edit-paciente').value = btn.dataset.id_paciente;
-      document.getElementById('edit-codigo').value = btn.dataset.codigo || '';
-      document.getElementById('edit-estado').value = btn.dataset.estado;
-      document.getElementById('edit-resultado').value = btn.dataset.resultado;
-      document.getElementById('pagadoEditar').checked = btn.dataset.pagado == 1;
+    const modalEditar = document.getElementById('modalEditar');
+
+    // Escucha cuando el modal se muestra
+    modalEditar.addEventListener('show.bs.modal', async e => {
+      const btn = e.relatedTarget; // El botón que activó el modal
+      const analiticaId = btn.getAttribute('data-id'); // Obtén el ID del botón
+
+      if (analiticaId) {
+        try {
+          const res = await fetch(`api/obtener_analitica.php?id=${analiticaId}`);
+          // Verifica si la respuesta es OK (estado 200) y luego la parsea como JSON
+          if (!res.ok) {
+            throw new Error(`¡Error HTTP! Estado: ${res.status}`);
+          }
+          const data = await res.json();
+
+          const infoResultadoDiv = document.getElementById('infoResultado');
+          if (data.success) {
+            infoResultadoDiv.innerHTML = `
+                            <form action="api/guardar_resultado.php" method="POST">
+                                <p><strong>Paciente:</strong> ${data.nombre} ${data.apellidos}</p>
+                                <p><strong>Tipo de Prueba:</strong> ${data.tipo_prueba}</p>
+                                <p><strong>Fecha de Solicitud:</strong> ${data.fecha}</p>
+
+                                <div class="mb-3">
+                                    <label for="resultado" class="form-label">Resultado</label>
+                                    <input type="text" class="form-control" name="resultado" id="resultadoInput" value="${data.resultado || ''}" required>
+                                </div>
+
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="toggleReferencia" ${data.valores_referencia ? 'checked' : ''}>
+                                    <label class="form-check-label" for="toggleReferencia">¿Desea añadir valores de referencia?</label>
+                                </div>
+
+                                <div class="mb-3 ${data.valores_referencia ? '' : 'd-none'}" id="contenedorReferencia">
+                                    <label for="valores_referencia" class="form-label">Valores de Referencia</label>
+                                    <textarea class="form-control" name="valores_referencia" rows="3">${data.valores_referencia || ''}</textarea>
+                                </div>
+
+                                <input type="hidden" name="id_analitica" value="${data.id}">
+                                <button type="submit" class="btn btn-primary mt-3">Guardar Resultado</button>
+                            </form>
+                        `;
+
+            // Agrega el event listener para el checkbox toggleReferencia *después* de que esté en el DOM
+            document.getElementById('toggleReferencia').addEventListener('change', function () {
+              const contenedor = document.getElementById('contenedorReferencia');
+              if (this.checked) {
+                contenedor.classList.remove('d-none');
+              } else {
+                contenedor.classList.add('d-none');
+              }
+            });
+
+          } else {
+            infoResultadoDiv.innerHTML = '<div class="alert alert-danger">No se encontró información para esta analítica.</div>';
+          }
+        } catch (error) {
+          console.error('Error al obtener datos de la analítica:', error);
+          document.getElementById('infoResultado').innerHTML = '<div class="alert alert-danger">Error al cargar la información. Intente de nuevo.</div>';
+        }
+      } else {
+        document.getElementById('infoResultado').innerHTML = '<div class="alert alert-warning">No se proporcionó un ID de analítica.</div>';
+      }
     });
   });
 </script>
-
 
 <script>
   const buscadorConsulta = document.getElementById("buscadorConsulta");
@@ -309,63 +374,4 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
     <span class='badge bg-info me-1'>${t.nombre} <button type='button' class='btn-close btn-close-white btn-sm ms-1' onclick='eliminarTipo(${t.id})'></button></span>`).join("");
     inputTipos.value = tiposElegidos.map(t => t.id).join(',');
   }
-</script>
-
-<script>
-  const botonesEditar = document.querySelectorAll('.btn-editar');
-  botonesEditar.forEach(boton => {
-    boton.addEventListener('click', async () => {
-      const id = boton.getAttribute('id');
-      const res = await fetch(`api/obtener_analitica.php?id=${id}`);
-      const data = await res.json();
-
-      if (data.success) {
-        document.getElementById('infoResultado').innerHTML = `
-  <p><strong>Paciente:</strong> ${data.nombre} ${data.apellidos}</p>
-  <p><strong>Tipo de Prueba:</strong> ${data.tipo_prueba}</p>
-  <p><strong>Fecha de Solicitud:</strong> ${data.fecha}</p>
-
-  <div class="mb-3">
-    <label for="resultado">Resultado</label>
-     <input type="text" class="form-control" name="resultado" required>
-  </div>
-
-  <div class="form-check form-switch mb-3">
-    <input class="form-check-input" type="checkbox" id="toggleReferencia">
-    <label class="form-check-label" for="toggleReferencia">¿Desea añadir valores de referencia?</label>
-  </div>
-
-  <div class="mb-3 d-none" id="contenedorReferencia">
-    <label for="valores_referencia">Valores de Referencia</label>
-    <textarea class="form-control" name="valores_referencia" rows="3"></textarea>
-  </div>
-
-  <input type="hidden" name="id_analitica" value="${data.id}">
-  <button class="btn btn-primary mt-3">Guardar Resultado</button>
-`;
-      } else {
-        document.getElementById('infoResultado').innerHTML = '<div class="alert alert-danger">No se encontró información.</div>';
-      }
-
-
-
-
-      document.getElementById('toggleReferencia').addEventListener('change', function() {
-        const contenedor = document.getElementById('contenedorReferencia');
-        if (this.checked) {
-          contenedor.classList.remove('d-none');
-        } else {
-          contenedor.classList.add('d-none');
-        }
-      });
-
-
-
-
-
-
-
-
-    });
-  });
 </script>

@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fecha_nacimiento = $_POST['fecha_nacimiento'];
         $dip = htmlspecialchars(trim($_POST['dip']));
         $sexo = htmlspecialchars (trim($_POST['sexo']));
-        $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+     
         $telefono = htmlspecialchars(trim($_POST['telefono']));
         $profesion = htmlspecialchars(trim($_POST['profesion']));
       
@@ -42,27 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'telefono_tutor' => $telefono_tutor,
             'direccion' => $residencia,
         ]);
-
-
-
-
-        print_r($_POST);
-
-        echo $residencia;
-
-      
-
+ 
+       
         if ($validacion !== true) {
             $_SESSION['error'] = $validacion;
             header('Location: ../index.php?vista=pacientes');
             exit;
         }
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error'] = 'El correo electrónico no es válido.';
-            header('Location: ../index.php?vista=pacientes');
-            exit;
-        }
+         
 
       
         
@@ -98,7 +86,7 @@ $codigo_paciente = $base . $fechaPart . $aleatorio; // Total 2 + 4 + 2 = 8 carac
             ':dip' =>$dip,
             'sexo'=> $sexo,
             ':direccion' =>$residencia,
-            ':email' => $email,
+            ':email' => $email ?? null,
             ':telefono' => $telefono,
             ':profesion' => $profesion,
             ':ocupacion' => $ocupacion,

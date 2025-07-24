@@ -22,7 +22,7 @@ try {
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($resultado) {
-        echo json_encode(['success' => true, ...$resultado]);
+        echo json_encode(['success' => true] + $resultado); // ← ✅ CORREGIDO
     } else {
         echo json_encode(['success' => false, 'message' => 'No encontrado']);
     }

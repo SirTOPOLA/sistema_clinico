@@ -37,8 +37,7 @@ function verificarAcceso($vista)
         
         'doctor' => [
             'dashboard_doctor',
-            'recetas',
-            'tipo_prueba',
+            'recetas', 
             'ingresos',
             'analiticas',
             'consultas',

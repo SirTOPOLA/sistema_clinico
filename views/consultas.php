@@ -1,6 +1,7 @@
 <?php
 
 $idUsuario = $_SESSION['usuario']['id'] ?? 0;
+$rol = strtolower(trim($_SESSION['usuario']['rol'] ?? ''));
 
 // Obtener lista de consultas
 $sql = "SELECT c.*, p.nombre, p.apellidos
@@ -32,13 +33,15 @@ $campos = [
     <div class="row mb-3">
         <div class="col-md-6 d-flex justify-content-between align-items-center mb-4">
             <h3 class="mb-0"><i class="bi bi-clipboard-pulse me-2"></i>Listado de Consultas</h3>
+            <?php if ($rol === 'administrador'): ?>
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear">
                 <i class="bi bi-plus-circle me-1"></i> Nueva Consulta
             </button>
         </div>
-        <div class="col-md-4">
-            <input type="text" id="buscador" class="form-control" placeholder="Buscar consulta...">
-        </div>
+            <?php endif;?>
+            <div class="col-md-4">
+                <input type="text" id="buscador" class="form-control" placeholder="Buscar consulta...">
+            </div>
     </div>
 
     <?php if (isset($_SESSION['success'])): ?>
@@ -86,11 +89,16 @@ $campos = [
                                 <td><?= $c['imc'] ?></td>
                                 <td><?= date('d/m/Y H:i', strtotime($c['fecha_registro'])) ?></td>
                                 <td class="text-nowrap">
+                                    <?php if ($rol === 'administrador'): ?>
                                     <button class="btn btn-sm btn-primary editar-consulta" data-id="<?= $c['id'] ?>"
                                         data-bs-toggle="modal" data-bs-target="#modal-editar">
                                         <i class="bi bi-pencil-square"></i>
                                     </button>
-
+                                    <a href="eliminar_consulta.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('¿Eliminar esta consulta?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                <?php endif;?>
                                     <button class="btn btn-sm btn-info ver-detalles-consulta" data-id="<?= $c['id'] ?>"
                                         data-bs-toggle="modal" data-bs-target="#modalDetallesConsulta">
                                         <i class="bi bi-eye-fill"></i>
@@ -104,10 +112,6 @@ $campos = [
                                         </button>
                                     <?php endif; ?>
 
-                                    <a href="eliminar_consulta.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger"
-                                        onclick="return confirm('¿Eliminar esta consulta?')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

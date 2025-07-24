@@ -195,9 +195,9 @@ $pdf->AddPage();
 // Información del Paciente
 $pdf->SectionTitle('INFORMACION DEL PACIENTE', '');
 
-$pdf->InfoRow('Nombre Completo', $paciente['nombre'] . ' ' . $paciente['apellidos'], true);
+$pdf->InfoRow('Nombre Completo', utf8_decode($paciente['nombre'] ). ' ' . utf8_decode($paciente['apellidos']), true);
 $pdf->InfoRow('Fecha de Nacimiento', date('d/m/Y', strtotime($paciente['fecha_nacimiento'])));
-$pdf->InfoRow(utf8_decode('Dirección'), $paciente['direccion']);
+$pdf->InfoRow(utf8_decode('Dirección'), utf8_decode($paciente['direccion']));
 $pdf->InfoRow('Fecha del Examen', date('d/m/Y', strtotime($fecha)));
 
 $pdf->Ln(8);

@@ -27,7 +27,29 @@ $medicamentos = $datos['descripcion'];
 $observaciones = $datos['comentario'];
 
 // Calcular edad
-$edad = date_diff(date_create($fecha_nac), date_create('today'))->y;
+//$edad = date_diff(date_create($fecha_nac), date_create('today'))->y;
+
+function calcularEdadFlexible($fecha_nac) {
+    $fechaNacimiento = date_create($fecha_nac);
+    $hoy = date_create('today');
+    $diferencia = date_diff($fechaNacimiento, $hoy);
+
+    if ($diferencia->y >= 1) {
+        return $diferencia->y . ' años';
+    } elseif ($diferencia->m >= 1) {
+        return $diferencia->m . ' meses';
+    } else {
+        // Calcular semanas si tiene menos de 1 mes
+        $dias = $diferencia->d;
+        $semanas = floor($dias / 7);
+        if ($semanas >= 1) {
+            return $semanas . ' semana' . ($semanas > 1 ? 's' : '');
+        } else {
+            return $dias . ' día' . ($dias > 1 ? 's' : '');
+        }
+    }
+}
+$edad = calcularEdadFlexible($fecha_nac); // $fecha_nacimiento debe estar en formato YYYY-MM-DD
 
 // Clase personalizada
 class PDF extends FPDF {
@@ -36,11 +58,10 @@ class PDF extends FPDF {
         $this->Image('../img/logo.jpg', 10, 8, 25);
         // Título
         $this->SetFont('Arial', 'B', 14);
-        $this->Cell(0, 8, utf8_decode('CONSULTORIO MÉDICO “DOCTOR OSCAR SL”'), 0, 1, 'C');
+        $this->Cell(0, 8, utf8_decode("CONSULTORIO MÉDICO 'DOCTOR OSCAR SL'"), 0, 1, 'C');
         $this->SetFont('Arial', 'I', 11);
         $this->Cell(0, 6, utf8_decode('"SALUD PARA TODOS"'), 0, 1, 'C');
-        $this->SetFont('Arial', '', 9);
-        $this->Cell(0, 5, utf8_decode('PROMOTOR: DOCTOR OSCAR BIOKO'), 0, 1, 'C');
+        $this->SetFont('Arial', '', 9); 
         $this->Cell(0, 5, utf8_decode('DIRECCIÓN: ELA NGUEMA C/FRANCISCO ESONO'), 0, 1, 'C');
         $this->Cell(0, 5, utf8_decode('CONTACTOS: 222 213694 / 555 534111   WHATSAPP: +240 222 21 36 94'), 0, 1, 'C');
         $this->Ln(5);
@@ -73,7 +94,7 @@ $pdf->Ln(5);
 $pdf->SetFont('Arial', '', 11);
 $pdf->SetTextColor(0);
 $pdf->Cell(0, 8, utf8_decode("Paciente: $nombre"), 0, 1);
-$pdf->Cell(0, 8, utf8_decode("Edad: $edad años"), 0, 1);
+$pdf->Cell(0, 8, utf8_decode("Edad: $edad"), 0, 1);
 $pdf->Cell(0, 8, utf8_decode( "Género: $genero"), 0, 1);
 $pdf->Cell(0, 8, utf8_decode("Dirección: $direccion"), 0, 1);
 $pdf->Ln(5);
