@@ -328,7 +328,7 @@ function generarPDF() {
     return;
   }
 
-  const url = `api/generar_pdf.php?id_paciente=${id_paciente}&inicio=${inicio}&fin=${fin}`;
+  const url = `fpdf/generar_pdf.php?id_paciente=${id_paciente}&inicio=${inicio}&fin=${fin}`;
   window.open(url, '_blank');
 }
 
