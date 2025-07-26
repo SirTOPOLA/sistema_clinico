@@ -11,9 +11,9 @@ try {
     }
    
     // Validar y sanear campos
-    $empleado_id = filter_input(INPUT_POST, 'empleado_id', FILTER_VALIDATE_INT);
-    $rol_id      = filter_input(INPUT_POST, 'rol_id', FILTER_VALIDATE_INT);
-    $nombre      = trim($_POST['nombre'] ?? '');
+    $empleado_id = filter_input(INPUT_POST, 'id_personal', FILTER_VALIDATE_INT);
+    $rol_id      = filter_input(INPUT_POST, 'id_rol', FILTER_VALIDATE_INT);
+    $nombre      = trim($_POST['nombre_usuario'] ?? '');
     $contrasena  = trim($_POST['contrasena'] ?? '');
 
     // Validaciones manuales

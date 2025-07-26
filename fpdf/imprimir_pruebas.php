@@ -39,35 +39,53 @@ class ModernPDF extends FPDF {
     private $accentColor = [46, 204, 113];       // Verde médico
     private $lightGray = [236, 240, 241];        // Gris claro
     private $darkGray = [127, 140, 141];         // Gris medio
-    
     function Header() {
-        // Fondo del header con gradiente simulado
-        $this->SetFillColor($this->primaryColor[0], $this->primaryColor[1], $this->primaryColor[2]);
-        $this->Rect(0, 0, 210, 35, 'F');
-        
-        // Logo
-        $this->Image('../img/logo2.jpg', 15, 8, 25);
-        
-        // Información de la clínica
-        $this->SetTextColor(255, 255, 255);
-        $this->SetFont('Arial', 'B', 18);
-        $this->SetXY(50, 12);
-        $this->Cell(0, 8, 'CLINICA DOCTOR OSCAR', 0, 1, 'L');
-        
-        $this->SetFont('Arial', '', 11);
-        $this->SetXY(50, 22);
-        $this->Cell(0, 5, 'Centro Medico Especializado - Elanguema, Malabo', 0, 1, 'L');
-        
-        // Fecha del reporte
-        $this->SetFont('Arial', 'B', 10);
-        $this->SetXY(150, 12);
-        $this->Cell(0, 5, 'REPORTE MEDICO', 0, 1, 'R');
-        $this->SetFont('Arial', '', 9);
-        $this->SetXY(150, 18);
-        $this->Cell(0, 5, 'Fecha: ' . date('d/m/Y H:i'), 0, 1, 'R');
-        
-        $this->Ln(20);
-    }
+    // Fondo del header con color
+    $this->SetFillColor($this->primaryColor[0], $this->primaryColor[1], $this->primaryColor[2]);
+    $this->Rect(0, 0, 210, 35, 'F');
+
+    // Logo a la izquierda
+    $this->Image('../img/logo.jpg', 15, 7, 20);
+
+    // Color y fuente del texto
+    $this->SetTextColor(255, 255, 255);
+    $this->SetFont('Arial', 'B', 14);
+    
+    // Coordenadas iniciales para los textos
+    $x = 45;
+    $y = 8;
+
+    // Nombre de la clínica
+    $this->SetXY($x, $y);
+    $this->Cell(0, 6, utf8_decode('CONSULTORIO MÉDICO DOCTOR OSCAR'), 0, 1, 'L');
+
+    // Lema
+    $this->SetFont('Arial', 'I', 11);
+    $this->SetXY($x, $y += 7);
+    $this->Cell(0, 5, utf8_decode('"SALUD PARA TODOS"'), 0, 1, 'L');
+
+    // Dirección
+    $this->SetFont('Arial', '', 10);
+    $this->SetXY($x, $y += 6);
+    $this->Cell(0, 5, utf8_decode('Dirección: Ela Nguema, C/Francisco Esono'), 0, 1, 'L');
+
+    // Teléfono
+    $this->SetXY($x, $y += 5);
+    $this->Cell(0, 5, utf8_decode('Tel: 222 213694 / 555 534111 - WhatsApp: +240 222 21 36 94'), 0, 1, 'L');
+
+    // Título de reporte
+    $this->SetFont('Arial', 'B', 10);
+    $this->SetXY(150, 10);
+    $this->Cell(0, 5, utf8_decode('REPORTE MÉDICO'), 0, 1, 'R');
+
+    // Fecha
+    $this->SetFont('Arial', '', 9);
+    $this->SetXY(150, 16);
+    $this->Cell(0, 5, 'Fecha: ' . date('d/m/Y H:i'), 0, 1, 'R');
+
+    // Espacio después del header
+    $this->Ln(12);
+}
 
     function Footer() {
         $this->SetY(-25);
@@ -177,9 +195,9 @@ $pdf->AddPage();
 // Información del Paciente
 $pdf->SectionTitle('INFORMACION DEL PACIENTE', '');
 
-$pdf->InfoRow('Nombre Completo', $paciente['nombre'] . ' ' . $paciente['apellidos'], true);
+$pdf->InfoRow('Nombre Completo', utf8_decode($paciente['nombre'] ). ' ' . utf8_decode($paciente['apellidos']), true);
 $pdf->InfoRow('Fecha de Nacimiento', date('d/m/Y', strtotime($paciente['fecha_nacimiento'])));
-$pdf->InfoRow('Dirección', $paciente['direccion']);
+$pdf->InfoRow(utf8_decode('Dirección'), utf8_decode($paciente['direccion']));
 $pdf->InfoRow('Fecha del Examen', date('d/m/Y', strtotime($fecha)));
 
 $pdf->Ln(8);

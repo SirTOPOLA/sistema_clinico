@@ -1,5 +1,3 @@
-
-
 <div class="container-fluid d-flex flex-column flex-md-row align-items-center justify-content-center p-0 login-wrapper">
   <!-- Card completa en móvil y solo form en escritorio -->
   <div class="login-card d-flex flex-column flex-md-row overflow-hidden">
@@ -15,9 +13,15 @@
       <div class="login-form">
         <!-- Figura decorativa solo en escritorio -->
         <!--          <div class="round-figure d-none d-md-block"></div> -->
-        <div class="circle-figure d-none d-lg-flex align-items-center justify-content-center mx-auto mb-3">
+        <!-- <div class="circle-figure d-none d-lg-flex align-items-center justify-content-center mx-auto mb-3">
           <i class="bi bi-heart-pulse-fill text-white"></i>
-        </div>
+        </div> -->
+
+         
+<div class="d-none d-lg-flex align-items-center justify-content-center mx-auto mb-3">
+  <img src="img/logo.jpg" alt="Logotipo" class="logo-simple">
+</div>
+
 
         <h3 class="mb-4 text-center text-success fw-bold"
           style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
@@ -36,7 +40,7 @@
               <span class="input-group-text bg-white">
                 <i class="bi bi-person text-success"></i>
               </span>
-              <input type="text" id="usuario" name="usuario" class="form-control" placeholder="correo@ejemplo.com"
+              <input type="text" id="usuario" name="usuario" class="form-control" placeholder="miUsuario@ejemplo"
                 required autocomplete="text">
             </div>
             <div class="form-text text-danger d-none" id="errorEmail">Ingrese un usuario válido.</div>

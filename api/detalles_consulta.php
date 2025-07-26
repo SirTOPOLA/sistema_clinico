@@ -114,7 +114,7 @@ $ingresos = $ingresos->fetchAll(PDO::FETCH_ASSOC);
         <tr>
           <th>Prueba</th>
           <th>Resultado</th>
-          <th>Estado</th>
+          
           <th>Fecha</th>
         </tr>
       </thead>
@@ -122,8 +122,7 @@ $ingresos = $ingresos->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($analiticas as $a): ?>
           <tr>
             <td><?= htmlspecialchars($a['tipo']) ?></td>
-            <td><?= nl2br(htmlspecialchars($a['resultado'])) ?></td>
-            <td><?= htmlspecialchars($a['estado']) ?></td>
+            <td><?= nl2br(htmlspecialchars($a['resultado'])) ?></td> 
             <td><?= date('d/m/Y H:i', strtotime($a['fecha_registro'])) ?></td>
           </tr>
         <?php endforeach; ?>

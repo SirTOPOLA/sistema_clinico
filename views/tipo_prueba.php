@@ -59,7 +59,7 @@ $tipos = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
                 data-precio="<?= $t['precio'] ?>">
               <td><?= $t['id'] ?></td>
               <td><?= htmlspecialchars($t['nombre']) ?></td>
-              <td><?= number_format($t['precio'], 2) ?> €</td>
+              <td><?= number_format($t['precio'], 2) ?>  XAF</td>
               <td><?= date('d/m/Y H:i', strtotime($t['fecha_registro'])) ?></td>
               <td class="text-nowrap">
                 <button class="btn btn-sm btn-outline-primary btn-editar-tipo" data-bs-toggle="modal" data-bs-target="#modalEditarTipo">

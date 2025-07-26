@@ -10,8 +10,6 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-
-
 ?>
 <div id="content" class="container-fluid">
   <div class="row mb-3">
@@ -58,8 +56,7 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <th>DIP</th>
               <th>CODIGO</th>
               <th>Sexo</th>
-              <th>Teléfono</th>
-              <th>Email</th>
+              <th>Teléfono</th> 
               <th>Registro</th>
               <th>Acciones</th>
             </tr>
@@ -83,8 +80,7 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <td><?= htmlspecialchars($p['dip']) ?></td>
                 <td><?= htmlspecialchars($p['codigo']) ?></td>
                 <td><?= htmlspecialchars($p['sexo']) ?></td>
-                <td><?= htmlspecialchars($p['telefono']) ?></td>
-                <td><?= htmlspecialchars($p['email']) ?></td>
+                <td><?= htmlspecialchars($p['telefono']) ?></td> 
                 <td><?= date('d/m/Y H:i', strtotime($p['fecha_registro'])) ?></td>
                 <td class="text-nowrap">
                   <button class="btn btn-sm btn-outline-primary btn-editar" data-bs-toggle="modal"
@@ -132,11 +128,10 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <select name="sexo" class="form-select">
             <option value="">Seleccionar</option>
             <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Otro">Otro</option>
+            <option value="Femenino">Femenino</option> 
           </select>
         </div>
-        <div class="col-md-6"><label>Email</label><input type="email" name="email" class="form-control"></div>
+       <!--  <div class="col-md-6"><label>Email (OPCIONAL)</label><input type="email" name="email" class="form-control"></div> -->
         <div class="col-md-6"><label>Teléfono</label><input type="text" name="telefono" class="form-control"></div>
         <div class="col-md-6"><label>Profesión</label><input type="text" name="profesion" class="form-control"></div>
         <div class="col-md-6"><label>Ocupación</label><input type="text" name="ocupacion" class="form-control"></div>
@@ -144,7 +139,7 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             class="form-control"></div>
         <div class="col-md-6"><label>Teléfono del Tutor</label><input type="text" name="telefono_tutor"
             class="form-control"></div>
-        <div class="col-md-12"><label>Dirección</label><textarea name="direccion" class="form-control"></textarea></div>
+        <div class="col-md-6"><label>Dirección</label><textarea name="direccion" class="form-control"></textarea></div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -178,12 +173,11 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <select name="sexo" id="edit_sexo" class="form-select">
             <option value="">Seleccionar</option>
             <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Otro">Otro</option>
+            <option value="Femenino">Femenino</option> 
           </select>
         </div>
-        <div class="col-md-6"><label>Email</label><input type="email" name="email" id="edit_email" class="form-control">
-        </div>
+        <!-- <div class="col-md-6"><label>Email</label><input type="email" name="email" id="edit_email" class="form-control">
+        </div> -->
         <div class="col-md-6"><label>Teléfono</label><input type="text" name="telefono" id="edit_telefono"
             class="form-control"></div>
         <div class="col-md-6"><label>Profesión</label><input type="text" name="profesion" id="edit_profesion"
@@ -194,7 +188,7 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             id="edit_tutor_nombre" class="form-control"></div>
         <div class="col-md-6"><label>Teléfono del Tutor</label><input type="text" name="telefono_tutor"
             id="edit_telefono_tutor" class="form-control"></div>
-        <div class="col-md-12"><label>Dirección</label><textarea name="direccion" id="edit_direccion"
+        <div class="col-md-6"><label>Dirección</label><textarea name="direccion" id="edit_direccion"
             class="form-control"></textarea></div>
       </div>
       <div class="modal-footer">
@@ -225,10 +219,10 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <label>Hasta</label>
             <input type="date" id="fecha_fin" class="form-control">
           </div>
-          <div class="col-md-4 d-flex align-items-end justify-content-between">
+          <div class="col-md-4 d-flex align-items-end justify-content-center gap-2">
             <button onclick="filtrarHistorial()" class="btn btn-success"><i class="bi bi-search"></i> Buscar</button>
             <button onclick="generarPDF()" class="btn btn-danger"><i class="bi bi-file-earmark-pdf-fill"></i> PDF</button>
-            <button onclick="window.print()" class="btn btn-secondary"><i class="bi bi-printer"></i> Imprimir</button>
+             
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 <?php
 $idUsuario = $_SESSION['usuario']['id'] ?? 0;
 
+$rol = strtolower(trim($_SESSION['usuario']['rol'] ?? ''));
 // Ingresos
 $sqlIngresos = "SELECT i.id, i.fecha_ingreso, i.fecha_alta, i.numero_cama, 
                 CONCAT(p.nombre, ' ', p.apellidos) AS paciente, 
@@ -123,9 +124,11 @@ $salas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
+                     <?php if ($rol === 'administrador'): ?>
                 <a href="eliminar_ingreso.php?id=<?= $i['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este ingreso?')">
                   <i class="bi bi-trash"></i>
                 </a>
+                    <?php endif; ?>
               </td>
             </tr>
           <?php endforeach ?>

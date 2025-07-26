@@ -80,8 +80,7 @@ $menu = [
   ],
   'doctor' => [
     'Dashboard' => 'dashboard_doctor', 
-    'Recetas' => 'recetas',
-    'Pruebas' => 'tipo_prueba',
+    'Recetas' => 'recetas', 
     'ingresos' => 'ingresos',
     'Consultas' => 'consultas',
     'analiticas' => 'analiticas', 

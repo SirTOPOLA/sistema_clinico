@@ -1,5 +1,6 @@
 <?php
 $idUsuario = $_SESSION['usuario']['id'] ?? 0;
+$rol = strtolower(trim($_SESSION['usuario']['rol'] ?? ''));
 
 // Consulta básica (puedes unir con consultas, pacientes si gustas)
 $sql = "SELECT r.*, p.nombre AS nombre_paciente, p.apellidos 
@@ -84,6 +85,7 @@ $recetas = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
                     data-bs-toggle="modal"
                     data-bs-target="#modalEditar"
                     data-id="<?= $r['id'] ?>"
+                    data-nombre_paciente="<?= htmlspecialchars($r['nombre_paciente'] . ' ' . $r['apellidos'], ENT_QUOTES) ?>"
                     data-descripcion="<?= htmlspecialchars($r['descripcion'], ENT_QUOTES) ?>"
                     data-comentario="<?= htmlspecialchars($r['comentario'], ENT_QUOTES) ?>"
                     data-id_paciente="<?= $r['id_paciente'] ?>"
@@ -91,10 +93,12 @@ $recetas = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
                     data-codigo="<?= $r['codigo_paciente'] ?>">
                     <i class="bi bi-pencil-square"></i>
                   </button>
+                  <?php if($rol === 'administrador'): ?>
                   <a href="eliminar_receta.php?id=<?= $r['id'] ?>" class="btn btn-sm btn-outline-danger"
-                    onclick="return confirm('¿Deseas eliminar esta receta?')" title="Eliminar">
-                    <i class="bi bi-trash"></i>
-                  </a>
+                  onclick="return confirm('¿Deseas eliminar esta receta?')" title="Eliminar">
+                  <i class="bi bi-trash"></i>
+                </a>
+                <?php endif;?>
 
                   <a href="fpdf/imprimir_receta.php?id=<?= $r['id'] ?>" target="_blank" class="btn btn-sm btn-outline-warning" title="Imprimir">
                     <i class="bi bi-printer"></i>
@@ -201,6 +205,7 @@ $recetas = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
       document.getElementById('edit-descripcion').value = button.getAttribute('data-descripcion');
       document.getElementById('edit-comentario').value = button.getAttribute('data-comentario');
       document.getElementById('codigo_paciente').value = button.getAttribute('data-codigo');
+      document.getElementById('nombre_paciente').value = button.getAttribute('data-nombre_paciente');
     });
   });
 </script>

@@ -25,16 +25,9 @@ function verificarAcceso($vista)
             'pagos',
             'reportes',
             'analiticas',
-            'ingresos',
-         /*    'detalles_consultas', */
+            'ingresos', 
             'empleados'
-        ],
-        'secretaria' => [
-            'dashboard_secretaria',
-            'pacientes',
-            'ingresos',
-            'consultas',
-        ],
+        ], 
         
         'laboratorio' => [
             'dashboard_laboratorio',
@@ -44,8 +37,7 @@ function verificarAcceso($vista)
         
         'doctor' => [
             'dashboard_doctor',
-            'recetas',
-            'tipo_prueba',
+            'recetas', 
             'ingresos',
             'analiticas',
             'consultas',
@@ -54,8 +46,7 @@ function verificarAcceso($vista)
 
     // Definir el dashboard principal por rol
     $dashboards = [
-        'administrador' => 'dashboard_administrador',
-        'secretaria' => 'dashboard_secretaria',
+        'administrador' => 'dashboard_administrador', 
         'laboratorio' => 'dashboard_laboratorio',
         'doctor' => 'dashboard_doctor'
     ];
@@ -69,7 +60,7 @@ function verificarAcceso($vista)
 
     // Validación del permiso según el rol
     if (!array_key_exists($rol, $permisos) || !in_array($vista, $permisos[$rol])) {
-        $_SESSION['alerta'] = ['tipo' => 'warning', 'mensaje' => 'No tienes permiso para acceder a la vista solicitada.'];
+        $_SESSION['alerta'] = ['tipo' => 'success', 'mensaje' => 'Inicio de sesion exitoso.'];
         header("Location: index.php?vista=" . ($dashboards[$rol] ?? 'login'));
         exit;
     }
