@@ -232,8 +232,8 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
     // Escucha cuando el modal se muestra
     modalEditar.addEventListener('show.bs.modal', async e => {
       const btn = e.relatedTarget; // El botón que activó el modal
-      const analiticaId = btn.getAttribute('data-id'); // Obtén el ID del botón
-
+      const analiticaId = btn.getAttribute('id'); // Obtén el ID del botón
+ 
       if (analiticaId) {
         try {
           const res = await fetch(`api/obtener_analitica.php?id=${analiticaId}`);
