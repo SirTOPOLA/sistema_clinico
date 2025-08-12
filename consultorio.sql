@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: localhost:3306
--- Tiempo de generación: 25-06-2025 a las 14:44:02
--- Versión del servidor: 10.4.25-MariaDB
--- Versión de PHP: 8.1.10
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 12-08-2025 a las 16:29:17
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -39,15 +39,33 @@ CREATE TABLE `analiticas` (
   `codigo_paciente` varchar(50) DEFAULT NULL,
   `pagado` tinyint(1) DEFAULT 0,
   `valores_refencia` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `analiticas`
 --
 
 INSERT INTO `analiticas` (`id`, `resultado`, `estado`, `id_tipo_prueba`, `id_consulta`, `fecha_registro`, `id_usuario`, `id_paciente`, `codigo_paciente`, `pagado`, `valores_refencia`) VALUES
-(2, NULL, '0', 1, 1, '2025-06-13 15:22:02', 1, 2, 'SM2007060636698143', 1, NULL),
-(3, 'POSITIVO', '1', 2, 1, '2025-06-13 15:22:02', 1, 2, 'SM2007060636698143', 1, 'bajo de 0-30 normal 30-60 Riesgo 60-100');
+(2, 'Negativo', '1', 1, 1, '2025-06-13 15:22:02', 1, 2, 'SM2007060636698143', 1, ''),
+(3, 'POSITIVO', '1', 2, 1, '2025-06-13 15:22:02', 1, 2, 'SM2007060636698143', 1, 'bajo de 0-30 normal 30-60 Riesgo 60-100'),
+(4, 'Positivo', '1', 1, 2, '2025-07-23 11:53:20', 3, 4, 'GS052264', 1, '');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `compras_proveedores`
+--
+
+CREATE TABLE `compras_proveedores` (
+  `id` int(11) NOT NULL,
+  `id_proveedor` int(11) NOT NULL,
+  `id_personal` int(11) NOT NULL,
+  `fecha_compra` date NOT NULL,
+  `monto_total` decimal(10,2) NOT NULL,
+  `adelanto` decimal(10,2) DEFAULT 0.00,
+  `estado_pago` varchar(50) DEFAULT 'pendiente',
+  `fecha_registro` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -74,14 +92,31 @@ CREATE TABLE `consultas` (
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `pagado` int(1) NOT NULL,
   `precio` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `consultas`
 --
 
 INSERT INTO `consultas` (`id`, `motivo_consulta`, `temperatura`, `control_cada_horas`, `frecuencia_cardiaca`, `frecuencia_respiratoria`, `tension_arterial`, `pulso`, `saturacion_oxigeno`, `peso_anterior`, `peso_actual`, `peso_ideal`, `imc`, `id_paciente`, `id_usuario`, `fecha_registro`, `pagado`, `precio`) VALUES
-(1, 'dolor desde hace 2 dias', 36, 2, 45, 65, '456', 34, 35, 69, 67, 66, 5, 2, 1, '2025-06-12 16:12:39', 1, 1000);
+(1, 'dolor desde hace 2 dias', 36, 2, 45, 65, '456', 34, 35, 69, 67, 66, 5, 2, 1, '2025-06-12 16:12:39', 1, 1000),
+(2, 'fiebre amarilla', 38, 3, 90, 19, '120/80', 80, 98, 65, 62, 70, 24.8, 4, 1, '2025-07-23 12:43:39', 1, 15000);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalle_compra_proveedores`
+--
+
+CREATE TABLE `detalle_compra_proveedores` (
+  `id` int(11) NOT NULL,
+  `id_compra` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `unidad` varchar(50) NOT NULL,
+  `precio_unitario` decimal(10,2) NOT NULL,
+  `precio_venta` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -105,14 +140,15 @@ CREATE TABLE `detalle_consulta` (
   `id_consulta` int(11) DEFAULT NULL,
   `id_usuario` int(11) DEFAULT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `detalle_consulta`
 --
 
 INSERT INTO `detalle_consulta` (`id`, `operacion`, `orina`, `defeca`, `defeca_dias`, `duerme`, `duerme_horas`, `antecedentes_patologicos`, `alergico`, `antecedentes_familiares`, `antecedentes_conyuge`, `control_signos_vitales`, `id_consulta`, `id_usuario`, `fecha_registro`) VALUES
-(1, 'no', 'si', 'si', 4, 'si', 6, 'TB', 'NO', 'NO', 'NO', '4', 1, 1, '2025-06-12 16:12:39');
+(1, 'no', 'si', 'si', 4, 'si', 6, 'TB', 'NO', 'NO', 'NO', '4', 1, 1, '2025-06-12 16:12:39'),
+(2, 'no', 'si', 'si', 1, 'si', 8, 'no', 'no', 'no', 'no', 'no', 2, 1, '2025-07-23 12:43:39');
 
 -- --------------------------------------------------------
 
@@ -130,14 +166,15 @@ CREATE TABLE `ingresos` (
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `id_usuario` int(11) NOT NULL,
   `numero_cama` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `ingresos`
 --
 
 INSERT INTO `ingresos` (`id`, `id_paciente`, `id_sala`, `fecha_ingreso`, `fecha_alta`, `token`, `fecha_registro`, `id_usuario`, `numero_cama`) VALUES
-(1, 2, 1, '2025-06-16 15:30:00', '2025-06-17 16:10:00', '1', '2025-06-17 12:27:31', 3, 2);
+(1, 2, 1, '2025-06-16 15:30:00', '2025-06-17 16:10:00', '1', '2025-06-17 12:27:31', 3, 2),
+(2, 4, 1, '2025-07-24 15:10:00', NULL, NULL, '2025-07-24 15:10:46', 3, 3);
 
 -- --------------------------------------------------------
 
@@ -162,7 +199,7 @@ CREATE TABLE `pacientes` (
   `telefono_tutor` varchar(20) DEFAULT NULL,
   `id_usuario` int(11) DEFAULT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `pacientes`
@@ -170,7 +207,8 @@ CREATE TABLE `pacientes` (
 
 INSERT INTO `pacientes` (`id`, `codigo`, `nombre`, `apellidos`, `fecha_nacimiento`, `dip`, `sexo`, `direccion`, `email`, `telefono`, `profesion`, `ocupacion`, `tutor_nombre`, `telefono_tutor`, `id_usuario`, `fecha_registro`) VALUES
 (2, 'SM2007060636698143', 'salvador 2', 'mete bijeri', '2007-06-06', '3776539', 'Masculino', 'Buena esperanza I', 'salvadormete@gmail.com', '555432345', 'estudiante', 'estudiante', 'no tiene', 'no tiene', 1, '2025-06-12 11:14:13'),
-(3, 'MC061545', 'Maximiliano', 'Compe Puye', '2005-06-15', '8963542', 'Masculino', 'Ela Nguema', 'maxicomoe@gmail.com', '555667809', 'estudiante', 'estudiante', 'no tiene', 'no tiene', 1, '2025-06-17 13:16:03');
+(3, 'MC061545', 'Maximiliano', 'Compe Puye', '2005-06-15', '8963542', 'Masculino', 'Ela Nguema', 'maxicomoe@gmail.com', '555667809', 'estudiante', 'estudiante', 'no tiene', 'no tiene', 1, '2025-06-17 13:16:03'),
+(4, 'GS052264', 'Gerónimo', 'saka Bepa', '2025-05-22', '000147852', 'Masculino', 'Sumko', NULL, '555101214', 'secretariada', 'dependienta', 'Marta Beta', '555101214', 1, '2025-07-23 11:15:56');
 
 -- --------------------------------------------------------
 
@@ -185,15 +223,16 @@ CREATE TABLE `pagos` (
   `id_tipo_prueba` int(11) NOT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `id_usuario` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `pagos`
 --
 
 INSERT INTO `pagos` (`id`, `cantidad`, `id_analitica`, `id_tipo_prueba`, `fecha_registro`, `id_usuario`) VALUES
-(2, '5000.00', 2, 1, '2025-06-24 15:40:58', 1),
-(3, '9000.00', 3, 2, '2025-06-24 15:40:58', 1);
+(2, 5000.00, 2, 1, '2025-06-24 15:40:58', 1),
+(3, 9000.00, 3, 2, '2025-06-24 15:40:58', 1),
+(4, 5000.00, 4, 1, '2025-07-23 12:01:52', 1);
 
 -- --------------------------------------------------------
 
@@ -213,7 +252,7 @@ CREATE TABLE `personal` (
   `codigo` varchar(50) DEFAULT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `id_usuario` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `personal`
@@ -222,7 +261,47 @@ CREATE TABLE `personal` (
 INSERT INTO `personal` (`id`, `nombre`, `apellidos`, `fecha_nacimiento`, `direccion`, `correo`, `telefono`, `especialidad`, `codigo`, `fecha_registro`, `id_usuario`) VALUES
 (1, 'Jesus Crispin', 'Topola Boñaho', '1997-06-30', 'Ela Nguema', 'sir@gmail.com', '551718822', 'Programador', 'fc123', '2025-06-10 17:23:31', 1),
 (2, 'salvador', 'Mete Bijeri', '2000-05-09', 'calle mongomo', 'salvadormete@gmail.com', '555908732', 'Medicina Interna', 'SM250616', '2025-06-16 11:36:34', 1),
-(3, 'Maximiliano', 'Compe Puye', '1990-06-13', 'CAMPO AMOR', 'maxicomoe@gmail.com', '555971145', 'Doctor', 'MC250617', '2025-06-17 11:26:31', 1);
+(3, 'Maximiliano', 'Compe Puye', '1990-06-13', 'CAMPO AMOR', 'maxicomoe@gmail.com', '555971145', 'Doctor', 'MC250617', '2025-06-17 11:26:31', 1),
+(4, 'Gerónimo', 'saka Bepa', '2000-09-06', 'Sumko', 'geronimo@gmail.com', '555101214', 'Enfermeria', 'GS250721', '2025-07-21 13:50:59', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `productos_farmacia`
+--
+
+CREATE TABLE `productos_farmacia` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(255) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `codigo_barras` varchar(100) DEFAULT NULL,
+  `stock_caja` int(11) DEFAULT 0,
+  `stock_frasco` int(11) DEFAULT 0,
+  `stock_tira` int(11) DEFAULT 0,
+  `stock_pastilla` int(11) DEFAULT 0,
+  `precio_caja` decimal(10,2) NOT NULL,
+  `precio_frasco` decimal(10,2) NOT NULL,
+  `precio_tira` decimal(10,2) NOT NULL,
+  `precio_pastilla` decimal(10,2) NOT NULL,
+  `fecha_vencimiento` date DEFAULT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `fecha_registro` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `proveedores`
+--
+
+CREATE TABLE `proveedores` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(255) NOT NULL,
+  `contacto` varchar(255) DEFAULT NULL,
+  `telefono` varchar(50) DEFAULT NULL,
+  `direccion` varchar(100) DEFAULT NULL,
+  `fecha_registro` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -239,14 +318,15 @@ CREATE TABLE `recetas` (
   `comentario` text DEFAULT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `id_usuario` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `recetas`
 --
 
 INSERT INTO `recetas` (`id`, `descripcion`, `id_consulta`, `id_paciente`, `codigo_paciente`, `comentario`, `fecha_registro`, `id_usuario`) VALUES
-(1, 'paracetamol(1mg): solo si hay dolor o fiebre\r\nampicilina: uno en la mañana, uno en la noche', 1, 2, 'SM2007060636698143', 'mantener fuera del alcance de los niños.', '2025-06-13 16:19:34', 1);
+(1, 'paracetamol(1mg): solo si hay dolor o fiebre\r\nampicilina: uno en la mañana, uno en la noche', 1, 2, 'SM2007060636698143', 'mantener fuera del alcance de los niños.', '2025-06-13 16:19:34', 1),
+(2, 'paracetamol: tomar mañana y tarde\r\nVitamina C: una vez por día', 2, 4, 'GS052264', 'dejar fuera del alcance', '2025-07-24 14:12:35', 3);
 
 -- --------------------------------------------------------
 
@@ -258,7 +338,7 @@ CREATE TABLE `roles` (
   `id` int(11) NOT NULL,
   `nombre` varchar(50) NOT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `roles`
@@ -267,10 +347,8 @@ CREATE TABLE `roles` (
 INSERT INTO `roles` (`id`, `nombre`, `fecha_registro`) VALUES
 (1, 'Administrador', '2025-06-10 17:26:17'),
 (2, 'laboratorio', '2025-06-16 11:53:15'),
-(3, 'secretaria', '2025-06-16 11:54:02'),
-(4, 'triaje', '2025-06-16 11:54:37'),
-(5, 'urgencia', '2025-06-16 11:54:37'),
-(6, 'doctor', '2025-06-17 11:28:47');
+(6, 'doctor', '2025-06-17 11:28:47'),
+(7, 'farmacia', '2025-08-12 10:04:55');
 
 -- --------------------------------------------------------
 
@@ -283,7 +361,7 @@ CREATE TABLE `salas_ingreso` (
   `nombre` varchar(100) NOT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `id_usuario` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `salas_ingreso`
@@ -304,15 +382,15 @@ CREATE TABLE `tipo_pruebas` (
   `precio` decimal(10,2) NOT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `id_usuario` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `tipo_pruebas`
 --
 
 INSERT INTO `tipo_pruebas` (`id`, `nombre`, `precio`, `fecha_registro`, `id_usuario`) VALUES
-(1, 'PALUDISMO', '5000.00', '2025-06-12 12:38:09', 1),
-(2, 'HEPATITIS B', '9000.00', '2025-06-12 12:39:44', 1);
+(1, 'PALUDISMO', 5000.00, '2025-06-12 12:38:09', 1),
+(2, 'HEPATITIS B', 9000.00, '2025-06-12 12:39:44', 1);
 
 -- --------------------------------------------------------
 
@@ -327,7 +405,7 @@ CREATE TABLE `usuarios` (
   `password` varchar(255) DEFAULT NULL,
   `id_personal` int(11) DEFAULT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `usuarios`
@@ -336,7 +414,8 @@ CREATE TABLE `usuarios` (
 INSERT INTO `usuarios` (`id`, `nombre_usuario`, `id_rol`, `password`, `id_personal`, `fecha_registro`) VALUES
 (1, 'admin', 1, '$2y$10$tDik4yXSE.O1bGIku8JHKe9NwJ4jZY6iL3AH.8aph/DuUjHcpoL5O', 1, '2025-06-10 17:42:47'),
 (2, 'laboratorio', 2, '$2y$10$3IngK68OS2Gzb9A4LVuOMO4ngAa94N6wNv/E0p/WrBI6cQgvg6UCu', 2, '2025-06-16 11:57:31'),
-(3, 'doctor', 6, '$2y$10$7RSZBKnEruBgvgrOpaMshewnXBGy2dhWkarTPAtPrb6HY/kcCSdRG', 3, '2025-06-17 11:29:09');
+(3, 'doctor', 6, '$2y$10$7RSZBKnEruBgvgrOpaMshewnXBGy2dhWkarTPAtPrb6HY/kcCSdRG', 3, '2025-06-17 11:29:09'),
+(4, 'laboratorio1', 2, '$2y$10$lWePJ1KBrM8vzac8lW11pesrNGdcsERFz55XUHl23DKKTJxzz4PKe', 4, '2025-07-21 14:46:43');
 
 --
 -- Índices para tablas volcadas
@@ -353,12 +432,28 @@ ALTER TABLE `analiticas`
   ADD KEY `id_paciente` (`id_paciente`);
 
 --
+-- Indices de la tabla `compras_proveedores`
+--
+ALTER TABLE `compras_proveedores`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_proveedor` (`id_proveedor`),
+  ADD KEY `id_personal` (`id_personal`);
+
+--
 -- Indices de la tabla `consultas`
 --
 ALTER TABLE `consultas`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_paciente` (`id_paciente`),
   ADD KEY `id_usuario` (`id_usuario`);
+
+--
+-- Indices de la tabla `detalle_compra_proveedores`
+--
+ALTER TABLE `detalle_compra_proveedores`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_compra` (`id_compra`),
+  ADD KEY `id_producto` (`id_producto`);
 
 --
 -- Indices de la tabla `detalle_consulta`
@@ -398,6 +493,18 @@ ALTER TABLE `pagos`
 -- Indices de la tabla `personal`
 --
 ALTER TABLE `personal`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `productos_farmacia`
+--
+ALTER TABLE `productos_farmacia`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `proveedores`
+--
+ALTER TABLE `proveedores`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -445,55 +552,79 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `analiticas`
 --
 ALTER TABLE `analiticas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `compras_proveedores`
+--
+ALTER TABLE `compras_proveedores`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `consultas`
 --
 ALTER TABLE `consultas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `detalle_compra_proveedores`
+--
+ALTER TABLE `detalle_compra_proveedores`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_consulta`
 --
 ALTER TABLE `detalle_consulta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `ingresos`
 --
 ALTER TABLE `ingresos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `pacientes`
 --
 ALTER TABLE `pacientes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `personal`
 --
 ALTER TABLE `personal`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `productos_farmacia`
+--
+ALTER TABLE `productos_farmacia`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `proveedores`
+--
+ALTER TABLE `proveedores`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `recetas`
 --
 ALTER TABLE `recetas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `salas_ingreso`
@@ -511,7 +642,7 @@ ALTER TABLE `tipo_pruebas`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Restricciones para tablas volcadas
@@ -527,11 +658,25 @@ ALTER TABLE `analiticas`
   ADD CONSTRAINT `analiticas_ibfk_4` FOREIGN KEY (`id_paciente`) REFERENCES `pacientes` (`id`);
 
 --
+-- Filtros para la tabla `compras_proveedores`
+--
+ALTER TABLE `compras_proveedores`
+  ADD CONSTRAINT `compras_proveedores_ibfk_1` FOREIGN KEY (`id_proveedor`) REFERENCES `proveedores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `compras_proveedores_ibfk_2` FOREIGN KEY (`id_personal`) REFERENCES `personal` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Filtros para la tabla `consultas`
 --
 ALTER TABLE `consultas`
   ADD CONSTRAINT `consultas_ibfk_1` FOREIGN KEY (`id_paciente`) REFERENCES `pacientes` (`id`),
   ADD CONSTRAINT `consultas_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
+
+--
+-- Filtros para la tabla `detalle_compra_proveedores`
+--
+ALTER TABLE `detalle_compra_proveedores`
+  ADD CONSTRAINT `detalle_compra_proveedores_ibfk_1` FOREIGN KEY (`id_compra`) REFERENCES `compras_proveedores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `detalle_compra_proveedores_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos_farmacia` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `detalle_consulta`

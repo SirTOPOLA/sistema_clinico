@@ -30,9 +30,6 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
     </div>
   </div>
 
-
-
-
   <?php if (isset($_SESSION['success'])): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       <?= $_SESSION['success'];
@@ -50,9 +47,6 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
   <?php endif; ?>
 
 
-
-
-
   <div class="card border-0 shadow-sm">
     <div class="card-body table-responsive">
       <table id="tablaAnaliticas" class="table table-hover table-bordered table-sm align-middle">
@@ -62,9 +56,7 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
             <th>Tipo</th>
             <th>Paciente</th>
             <th>Código</th>
-
             <th>Resultado</th>
-
             <th>Fecha</th>
             <?php if ($rol !== 'doctor'): ?>
               <th>Acciones</th>
@@ -82,7 +74,6 @@ $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY n
               <td><?= htmlspecialchars($a['tipo_prueba']) ?></td>
               <td><?= htmlspecialchars($a['paciente']) ?></td>
               <td><?= htmlspecialchars($a['codigo_paciente']) ?></td>
-
               <td>
                 <?php if (!empty($a['resultado'])): ?>
                   <span class="badge bg-primary">Resultado</span>
