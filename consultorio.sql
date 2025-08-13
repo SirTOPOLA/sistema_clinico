@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-08-2025 a las 16:29:17
+-- Tiempo de generación: 13-08-2025 a las 13:58:26
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -101,6 +101,23 @@ CREATE TABLE `consultas` (
 INSERT INTO `consultas` (`id`, `motivo_consulta`, `temperatura`, `control_cada_horas`, `frecuencia_cardiaca`, `frecuencia_respiratoria`, `tension_arterial`, `pulso`, `saturacion_oxigeno`, `peso_anterior`, `peso_actual`, `peso_ideal`, `imc`, `id_paciente`, `id_usuario`, `fecha_registro`, `pagado`, `precio`) VALUES
 (1, 'dolor desde hace 2 dias', 36, 2, 45, 65, '456', 34, 35, 69, 67, 66, 5, 2, 1, '2025-06-12 16:12:39', 1, 1000),
 (2, 'fiebre amarilla', 38, 3, 90, 19, '120/80', 80, 98, 65, 62, 70, 24.8, 4, 1, '2025-07-23 12:43:39', 1, 15000);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `depositos`
+--
+
+CREATE TABLE `depositos` (
+  `id` int(11) NOT NULL,
+  `poliza_id` int(11) DEFAULT NULL,
+  `saldo` decimal(10,2) DEFAULT NULL,
+  `respaldo` decimal(10,2) DEFAULT NULL,
+  `tiempo_devolucion` varchar(10) DEFAULT NULL,
+  `fecha_devolucion_respaldo` date DEFAULT NULL,
+  `fecha` date DEFAULT NULL,
+  `descripcion` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -213,6 +230,19 @@ INSERT INTO `pacientes` (`id`, `codigo`, `nombre`, `apellidos`, `fecha_nacimient
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `paciente_poliza`
+--
+
+CREATE TABLE `paciente_poliza` (
+  `id` int(11) NOT NULL,
+  `paciente_id` int(11) DEFAULT NULL,
+  `poliza_id` int(11) DEFAULT NULL,
+  `titular` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `pagos`
 --
 
@@ -263,6 +293,20 @@ INSERT INTO `personal` (`id`, `nombre`, `apellidos`, `fecha_nacimiento`, `direcc
 (2, 'salvador', 'Mete Bijeri', '2000-05-09', 'calle mongomo', 'salvadormete@gmail.com', '555908732', 'Medicina Interna', 'SM250616', '2025-06-16 11:36:34', 1),
 (3, 'Maximiliano', 'Compe Puye', '1990-06-13', 'CAMPO AMOR', 'maxicomoe@gmail.com', '555971145', 'Doctor', 'MC250617', '2025-06-17 11:26:31', 1),
 (4, 'Gerónimo', 'saka Bepa', '2000-09-06', 'Sumko', 'geronimo@gmail.com', '555101214', 'Enfermeria', 'GS250721', '2025-07-21 13:50:59', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `polizas`
+--
+
+CREATE TABLE `polizas` (
+  `id` int(11) NOT NULL,
+  `numero_poliza` varchar(50) DEFAULT NULL,
+  `tipo` enum('familiar','individual') DEFAULT NULL,
+  `fecha_inicio` date DEFAULT NULL,
+  `fecha_fin` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -395,6 +439,22 @@ INSERT INTO `tipo_pruebas` (`id`, `nombre`, `precio`, `fecha_registro`, `id_usua
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `usos_deposito`
+--
+
+CREATE TABLE `usos_deposito` (
+  `id` int(11) NOT NULL,
+  `deposito_id` int(11) DEFAULT NULL,
+  `paciente_id` int(11) DEFAULT NULL,
+  `concepto` varchar(225) DEFAULT NULL,
+  `monto_usado` decimal(10,2) DEFAULT NULL,
+  `descuento` decimal(10,2) DEFAULT NULL,
+  `fecha` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `usuarios`
 --
 
@@ -448,6 +508,13 @@ ALTER TABLE `consultas`
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
+-- Indices de la tabla `depositos`
+--
+ALTER TABLE `depositos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `poliza_id` (`poliza_id`);
+
+--
 -- Indices de la tabla `detalle_compra_proveedores`
 --
 ALTER TABLE `detalle_compra_proveedores`
@@ -481,6 +548,14 @@ ALTER TABLE `pacientes`
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
+-- Indices de la tabla `paciente_poliza`
+--
+ALTER TABLE `paciente_poliza`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `paciente_id` (`paciente_id`),
+  ADD KEY `poliza_id` (`poliza_id`);
+
+--
 -- Indices de la tabla `pagos`
 --
 ALTER TABLE `pagos`
@@ -494,6 +569,13 @@ ALTER TABLE `pagos`
 --
 ALTER TABLE `personal`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `polizas`
+--
+ALTER TABLE `polizas`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `numero_poliza` (`numero_poliza`);
 
 --
 -- Indices de la tabla `productos_farmacia`
@@ -537,6 +619,14 @@ ALTER TABLE `tipo_pruebas`
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
+-- Indices de la tabla `usos_deposito`
+--
+ALTER TABLE `usos_deposito`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `deposito_id` (`deposito_id`),
+  ADD KEY `paciente_id` (`paciente_id`);
+
+--
 -- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -567,6 +657,12 @@ ALTER TABLE `consultas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT de la tabla `depositos`
+--
+ALTER TABLE `depositos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `detalle_compra_proveedores`
 --
 ALTER TABLE `detalle_compra_proveedores`
@@ -591,6 +687,12 @@ ALTER TABLE `pacientes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT de la tabla `paciente_poliza`
+--
+ALTER TABLE `paciente_poliza`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
@@ -601,6 +703,12 @@ ALTER TABLE `pagos`
 --
 ALTER TABLE `personal`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `polizas`
+--
+ALTER TABLE `polizas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_farmacia`
@@ -639,6 +747,12 @@ ALTER TABLE `tipo_pruebas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT de la tabla `usos_deposito`
+--
+ALTER TABLE `usos_deposito`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -672,6 +786,12 @@ ALTER TABLE `consultas`
   ADD CONSTRAINT `consultas_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
+-- Filtros para la tabla `depositos`
+--
+ALTER TABLE `depositos`
+  ADD CONSTRAINT `depositos_ibfk_1` FOREIGN KEY (`poliza_id`) REFERENCES `polizas` (`id`);
+
+--
 -- Filtros para la tabla `detalle_compra_proveedores`
 --
 ALTER TABLE `detalle_compra_proveedores`
@@ -700,6 +820,13 @@ ALTER TABLE `pacientes`
   ADD CONSTRAINT `pacientes_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
+-- Filtros para la tabla `paciente_poliza`
+--
+ALTER TABLE `paciente_poliza`
+  ADD CONSTRAINT `paciente_poliza_ibfk_1` FOREIGN KEY (`paciente_id`) REFERENCES `pacientes` (`id`),
+  ADD CONSTRAINT `paciente_poliza_ibfk_2` FOREIGN KEY (`poliza_id`) REFERENCES `polizas` (`id`);
+
+--
 -- Filtros para la tabla `pagos`
 --
 ALTER TABLE `pagos`
@@ -726,6 +853,13 @@ ALTER TABLE `salas_ingreso`
 --
 ALTER TABLE `tipo_pruebas`
   ADD CONSTRAINT `tipo_pruebas_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
+
+--
+-- Filtros para la tabla `usos_deposito`
+--
+ALTER TABLE `usos_deposito`
+  ADD CONSTRAINT `usos_deposito_ibfk_1` FOREIGN KEY (`deposito_id`) REFERENCES `depositos` (`id`),
+  ADD CONSTRAINT `usos_deposito_ibfk_2` FOREIGN KEY (`paciente_id`) REFERENCES `pacientes` (`id`);
 
 --
 -- Filtros para la tabla `usuarios`
