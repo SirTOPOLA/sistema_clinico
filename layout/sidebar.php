@@ -1,16 +1,17 @@
 <?php
 $rol = strtolower(trim($_SESSION['usuario']['rol'] ?? ''));
 $current = $_GET['vista'] ?? 'dashboard_administrador';
- 
+
 // Clase CSS adicional según el rol del usuario
 $claseRol = match ($rol) {
-    'administrador' => 'sidebar-admin',
-    'secretaria'    => 'sidebar-secretaria', 
-    'laboratorio'   => 'sidebar-laboratorio',
-    'doctor'      => 'sidebar-doctor',
-    default         => 'sidebar-generico',
+  'administrador' => 'sidebar-admin',
+  'secretaria' => 'sidebar-secretaria',
+  'laboratorio' => 'sidebar-laboratorio',
+  'doctor' => 'sidebar-doctor',
+  'farmacia' => 'sidebar-doctor',
+  default => 'sidebar-generico',
 };
- 
+
 $iconos_por_rol = [
   'administrador' => [
     'dashboard_administrador' => 'bi-speedometer2',
@@ -45,6 +46,10 @@ $iconos_por_rol = [
     'dashboard_laboratorio' => 'bi-eyedropper',
     'analiticas' => 'bi-clipboard-pulse',
   ],
+  'farmacia' => [
+    'dashboard_farmacia' => 'bi-eyedropper',
+    'analiticas' => 'bi-clipboard-pulse',
+  ],
 ];
 
 // Escoge los íconos adecuados según el rol actual
@@ -53,7 +58,7 @@ $iconos = $iconos_por_rol[$rol] ?? [];
 // Menú por rol
 $menu = [
   'administrador' => [
-    'Dashboard' => 'dashboard_administrador', 
+    'Dashboard' => 'dashboard_administrador',
     'Usuarios' => 'usuarios',
     'Pacientes' => 'pacientes',
     'Recetas' => 'recetas',
@@ -69,40 +74,33 @@ $menu = [
     // 'Configuración' => 'configuracion',
   ],
   'laboratorio' => [
-    'Dashboard' => 'dashboard_laboratorio', 
-    'analiticas' => 'analiticas', 
+    'Dashboard' => 'dashboard_laboratorio',
+    'analiticas' => 'analiticas',
   ],
   'secretaria' => [
-    'Dashboard' => 'dashboard_secretaria', 
+    'Dashboard' => 'dashboard_secretaria',
     'Pacientes' => 'pacientes',
     'ingresos' => 'ingresos',
     'Consultas' => 'consultas',
   ],
   'doctor' => [
-    'Dashboard' => 'dashboard_doctor', 
-    'Recetas' => 'recetas', 
+    'Dashboard' => 'dashboard_doctor',
+    'Recetas' => 'recetas',
     'ingresos' => 'ingresos',
     'Consultas' => 'consultas',
-    'analiticas' => 'analiticas', 
+    'analiticas' => 'analiticas',
   ],
-  /* 'triaje' => [
-    'Dashboard' => 'dashboard_enfermera', 
-    'Pacientes' => 'pacientes',
+  'farmacia' => [
+    'Dashboard' => 'dashboard_farmacia',
+    'Productos' => 'medicamentos',
     'Consultas' => 'consultas',
-    ], */
-    /* 'urgencia' => [
-      'Dashboard' => 'dashboard_urgencia', 
-      'ingresos' => 'ingresos', 
-    ], */
-    /* 'triaje' => [
-    'Dashboard' => 'dashboard_triaje', 
-  ], */
+  ] 
 ];
 ?>
 <div class="wrapper">
-<div id="sidebar" class="sidebar <?= $claseRol ?> position-fixed scroll-box overflow-auto h-100 p-3">
+  <div id="sidebar" class="sidebar <?= $claseRol ?> position-fixed scroll-box overflow-auto h-100 p-3">
 
-  
+
     <h5 class="mb-4"><i class="bi bi-journal-bookmark-fill me-2"></i>Menú</h5>
     <ul class="nav nav-pills flex-column">
       <?php foreach ($menu[$rol] as $label => $vistaName):

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 13-08-2025 a las 13:58:26
+-- Tiempo de generación: 13-08-2025 a las 16:23:12
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -237,6 +237,7 @@ CREATE TABLE `paciente_poliza` (
   `id` int(11) NOT NULL,
   `paciente_id` int(11) DEFAULT NULL,
   `poliza_id` int(11) DEFAULT NULL,
+  `perfil` text DEFAULT NULL,
   `titular` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

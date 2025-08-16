@@ -41,6 +41,13 @@ function verificarAcceso($vista)
             'ingresos',
             'analiticas',
             'consultas',
+        ],
+        'farmacia' => [
+            'dashboard_farmacia',
+            'recetas', 
+            'ingresos',
+            'analiticas',
+            'consultas',
         ]
     ];
 
@@ -48,7 +55,8 @@ function verificarAcceso($vista)
     $dashboards = [
         'administrador' => 'dashboard_administrador', 
         'laboratorio' => 'dashboard_laboratorio',
-        'doctor' => 'dashboard_doctor'
+        'doctor' => 'dashboard_doctor',
+        'farmacia' => 'dashboard_farmacia'
     ];
 
     // Vista inválida por nombre
