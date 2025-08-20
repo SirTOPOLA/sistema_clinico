@@ -149,7 +149,7 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
                     <i class="bi bi-pencil-square"></i>
                   </button>
                   <?php if($rol === 'administrador'): ?>
-                  <a href="acciones/compras_crud.php?action=eliminar&id=<?= $compra['id'] ?>" class="btn btn-sm btn-outline-danger"
+                  <a href="api/compras_crud.php?action=eliminar&id=<?= $compra['id'] ?>" class="btn btn-sm btn-outline-danger"
                   onclick="return confirm('¿Deseas eliminar esta compra? Esta acción es irreversible.')" title="Eliminar">
                     <i class="bi bi-trash"></i>
                   </a>
@@ -172,7 +172,7 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
         <h5 class="modal-title" id="modalCrearCompraLabel"><i class="bi bi-plus-circle me-2"></i>Registrar Nueva Compra</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="acciones/compras_crud.php?action=crear" method="POST">
+      <form action="api/compras_crud.php?action=crear" method="POST">
         <div class="modal-body p-4">
           <h6 class="mb-3 text-primary">Detalles de la Compra Principal</h6>
           <div class="mb-3">
@@ -294,6 +294,13 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
         <input type="number" class="form-control pastillas-por-frasco-input" name="productos[INDEX][pastillas_por_frasco]" min="0" value="0">
       </div>
     </div>
+    
+    <!-- Campo para la fecha de vencimiento -->
+    <div class="mb-3">
+      <label class="form-label small">Fecha de Vencimiento</label>
+      <input type="date" class="form-control fecha-vencimiento-input" name="productos[INDEX][fecha_vencimiento]">
+    </div>
+
 
     <div class="row">
       <div class="col-md-6 mb-3">
@@ -325,7 +332,7 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
         <h5 class="modal-title" id="modalEditarCompraLabel"><i class="bi bi-pencil-square me-2"></i>Editar Compra</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="acciones/compras_crud.php?action=editar" method="POST">
+      <form action="api/compras_crud.php?action=editar" method="POST">
         <div class="modal-body p-4">
           <input type="hidden" id="edit-compra-id" name="id">
           <div class="mb-3">
@@ -472,6 +479,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputTirasPorCaja = currentRow.querySelector('.tiras-por-caja-input');
     const inputPastillasPorTira = currentRow.querySelector('.pastillas-por-tira-input');
     const inputPastillasPorFrasco = currentRow.querySelector('.pastillas-por-frasco-input');
+    // Campo de fecha de vencimiento
+    const inputFechaVencimiento = currentRow.querySelector('.fecha-vencimiento-input');
 
 
     const selectedProductOption = selectProducto.options[selectProducto.selectedIndex];
@@ -553,6 +562,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const newTirasPorCajaInput = newRow.querySelector('.tiras-por-caja-input');
     const newPastillasPorTiraInput = newRow.querySelector('.pastillas-por-tira-input');
     const newPastillasPorFrascoInput = newRow.querySelector('.pastillas-por-frasco-input');
+    const newFechaVencimientoInput = newRow.querySelector('.fecha-vencimiento-input'); // Nuevo listener
     const newRemoveBtn = newRow.querySelector('.eliminar-producto-btn');
 
     if (newSelectProducto) {
@@ -580,6 +590,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (newPastillasPorFrascoInput) {
         newPastillasPorFrascoInput.addEventListener('input', updateProductDetails);
     }
+    // Listener para la fecha de vencimiento
+    if (newFechaVencimientoInput) {
+        newFechaVencimientoInput.addEventListener('input', updateProductDetails); // No afecta el total, pero mantiene la consistencia
+    }
+
 
     // Listener para el botón de eliminar fila
     if (newRemoveBtn) {
