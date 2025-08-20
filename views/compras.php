@@ -1,8 +1,11 @@
-<?php
-// Asumiendo que $pdo ya está inicializado y conectado a la base de datos
-// y que $_SESSION['usuario']['id'] y $_SESSION['usuario']['rol'] están disponibles.
+<?php 
 $idUsuario = $_SESSION['usuario']['id'] ?? 0;
 $rol = strtolower(trim($_SESSION['usuario']['rol'] ?? ''));
+
+// Función para formatear moneda XAF sin decimales y con punto de mil
+function formatXAF($value) {
+    return number_format($value, 0, '', '.');
+}
 
 // Consulta para compras a proveedores, uniendo con personal y proveedores
 // Se añade un subquery para calcular el total esperado de venta por cada compra
@@ -37,9 +40,9 @@ $proveedoresDropdown = $pdo->query($sqlProveedoresDropdown)->fetchAll(PDO::FETCH
 
 // Consulta para obtener la lista de productos de farmacia para los selects en los modales
 // Asegúrate de que tu tabla `productos_farmacia` tenga las columnas para estas conversiones:
-// `tiras_por_caja` DECIMAL(10,2) DEFAULT NULL,
-// `pastillas_por_tira` DECIMAL(10,2) DEFAULT NULL,
-// `pastillas_por_frasco` DECIMAL(10,2) DEFAULT NULL
+// `tiras_por_caja` INT DEFAULT 0,
+// `pastillas_por_tira` INT DEFAULT 0,
+// `pastillas_por_frasco` INT DEFAULT 0
 $sqlProductosFarmaciaDropdown = "SELECT id, nombre, precio_caja, precio_frasco, precio_tira, precio_pastilla, 
     COALESCE(tiras_por_caja, 0) AS tiras_por_caja, 
     COALESCE(pastillas_por_tira, 0) AS pastillas_por_tira,
@@ -52,7 +55,7 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
   <div class="row mb-3">
     <div class="col-md-6 d-flex justify-content-between align-items-center mb-4">
       <h3 class="mb-0"><i class="bi bi-cart-fill me-2"></i>Listado de Compras a Proveedores</h3>
-      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrearCompra">
+      <button class="btn btn-success rounded-pill" data-bs-toggle="modal" data-bs-target="#modalCrearCompra">
         <i class="bi bi-plus-circle-fill me-1"></i> Nueva Compra
       </button>
     </div>
@@ -120,14 +123,14 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
                 <td><?= htmlspecialchars($compra['nombre_proveedor']) ?></td>
                 <td><?= htmlspecialchars($compra['nombre_personal'] . ' ' . $compra['apellidos_personal']) ?></td>
                 <td><?= date('d/m/Y', strtotime($compra['fecha_compra'])) ?></td>
-                <td>XAF <?= number_format($compra['monto_total'], 0, '', '.') ?></td>
-                <td>XAF <?= number_format($compra['adelanto'], 0, '', '.') ?></td>
+                <td>XAF <?= formatXAF($compra['monto_total']) ?></td>
+                <td>XAF <?= formatXAF($compra['adelanto']) ?></td>
                 <td class="<?= $claseColorNeto ?>">
-                    XAF <?= number_format($neto, 0, '', '.') ?>
+                    XAF <?= formatXAF($neto) ?>
                 </td>
-                <td>XAF <?= number_format($totalEsperadoVenta, 0, '', '.') ?></td>
+                <td>XAF <?= formatXAF($totalEsperadoVenta) ?></td>
                 <td class="<?= $claseColorBeneficios ?>">
-                    XAF <?= number_format($beneficios, 0, '', '.') ?>
+                    XAF <?= formatXAF($beneficios) ?>
                 </td>
                 <td><?= htmlspecialchars($compra['estado_pago']) ?></td>
                 <td><?= date('d/m/Y H:i', strtotime($compra['fecha_registro'])) ?></td>
@@ -146,7 +149,7 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
                     <i class="bi bi-pencil-square"></i>
                   </button>
                   <?php if($rol === 'administrador'): ?>
-                  <a href="eliminar_compra.php?id=<?= $compra['id'] ?>" class="btn btn-sm btn-outline-danger"
+                  <a href="acciones/compras_crud.php?action=eliminar&id=<?= $compra['id'] ?>" class="btn btn-sm btn-outline-danger"
                   onclick="return confirm('¿Deseas eliminar esta compra? Esta acción es irreversible.')" title="Eliminar">
                     <i class="bi bi-trash"></i>
                   </a>
@@ -272,6 +275,23 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
           <option value="pastilla">Pastilla</option>
         </select>
         <small class="form-text text-muted unidad-info"></small> <!-- Para mostrar info de la unidad -->
+      </div>
+    </div>
+
+    <!-- Nuevos campos para las unidades contenidas -->
+    <h6 class="mt-2 text-primary small">Unidades Contenidas por Unidad Comprada</h6>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label small">Tiras por Caja</label>
+        <input type="number" class="form-control tiras-por-caja-input" name="productos[INDEX][tiras_por_caja]" min="0" value="0">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label small">Pastillas por Tira</label>
+        <input type="number" class="form-control pastillas-por-tira-input" name="productos[INDEX][pastillas_por_tira]" min="0" value="0">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label small">Pastillas por Frasco</label>
+        <input type="number" class="form-control pastillas-por-frasco-input" name="productos[INDEX][pastillas_por_frasco]" min="0" value="0">
       </div>
     </div>
 
@@ -434,10 +454,10 @@ document.addEventListener('DOMContentLoaded', function() {
       
       total += (cantidad * precioUnitario);
     });
-    document.getElementById('monto_total').value = formatXAF(total).replace('XAF', '').trim(); // Eliminar "XAF" para el input numérico
+    document.getElementById('monto_total').value = formatXAF(total);
   }
 
-  // Función para actualizar el precio de venta sugerido y el total por producto
+  // Función para actualizar el precio de venta sugerido, info de unidad y el total por producto
   function updateProductDetails(event) {
     const currentRow = event.target.closest('.producto-row');
     const selectProducto = currentRow.querySelector('.producto-select');
@@ -448,34 +468,45 @@ document.addEventListener('DOMContentLoaded', function() {
     const unidadInfoSpan = currentRow.querySelector('.unidad-info');
     const totalPorProductoSpan = currentRow.querySelector('.total-por-producto');
 
+    // Nuevos campos de unidades contenidas
+    const inputTirasPorCaja = currentRow.querySelector('.tiras-por-caja-input');
+    const inputPastillasPorTira = currentRow.querySelector('.pastillas-por-tira-input');
+    const inputPastillasPorFrasco = currentRow.querySelector('.pastillas-por-frasco-input');
+
+
     const selectedProductOption = selectProducto.options[selectProducto.selectedIndex];
     const selectedUnidad = selectUnidad.value;
 
     let precioSugerido = 0;
     let unidadInfoText = '';
+    let defaultTirasPorCaja = 0;
+    let defaultPastillasPorTira = 0;
+    let defaultPastillasPorFrasco = 0;
 
-    if (selectedProductOption && selectedUnidad) {
-      const tirasPorCaja = parseFloat(selectedProductOption.getAttribute('data-tiras-por-caja')) || 0;
-      const pastillasPorTira = parseFloat(selectedProductOption.getAttribute('data-pastillas-por-tira')) || 0;
-      const pastillasPorFrasco = parseFloat(selectedProductOption.getAttribute('data-pastillas-por-frasco')) || 0;
+
+    if (selectedProductOption) {
+      // Obtener los valores predefinidos de las data-attributes
+      defaultTirasPorCaja = parseFloat(selectedProductOption.getAttribute('data-tiras-por-caja')) || 0;
+      defaultPastillasPorTira = parseFloat(selectedProductOption.getAttribute('data-pastillas-por-tira')) || 0;
+      defaultPastillasPorFrasco = parseFloat(selectedProductOption.getAttribute('data-pastillas-por-frasco')) || 0;
 
       switch (selectedUnidad) {
         case 'caja':
           precioSugerido = selectedProductOption.getAttribute('data-precio-caja');
-          if (tirasPorCaja > 0 && pastillasPorTira > 0) {
-            unidadInfoText = `Esta caja contiene ${tirasPorCaja} tiras, cada una con ${pastillasPorTira} pastillas.`;
+          if (defaultTirasPorCaja > 0 && defaultPastillasPorTira > 0) {
+            unidadInfoText = `Esta caja contiene ${defaultTirasPorCaja} tiras, cada una con ${defaultPastillasPorTira} pastillas.`;
           }
           break;
         case 'frasco':
           precioSugerido = selectedProductOption.getAttribute('data-precio-frasco');
-          if (pastillasPorFrasco > 0) {
-            unidadInfoText = `Este frasco contiene ${pastillasPorFrasco} pastillas.`;
+          if (defaultPastillasPorFrasco > 0) {
+            unidadInfoText = `Este frasco contiene ${defaultPastillasPorFrasco} pastillas.`;
           }
           break;
         case 'tira':
           precioSugerido = selectedProductOption.getAttribute('data-precio-tira');
-          if (pastillasPorTira > 0) {
-            unidadInfoText = `Esta tira contiene ${pastillasPorTira} pastillas.`;
+          if (defaultPastillasPorTira > 0) {
+            unidadInfoText = `Esta tira contiene ${defaultPastillasPorTira} pastillas.`;
           }
           break;
         case 'pastilla':
@@ -487,6 +518,12 @@ document.addEventListener('DOMContentLoaded', function() {
       inputPrecioVenta.value = '0.00';
     }
     unidadInfoSpan.textContent = unidadInfoText;
+
+    // Asignar los valores a los inputs de unidades contenidas
+    inputTirasPorCaja.value = defaultTirasPorCaja;
+    inputPastillasPorTira.value = defaultPastillasPorTira;
+    inputPastillasPorFrasco.value = defaultPastillasPorFrasco;
+
 
     // Calcular y mostrar el total por producto en la fila
     const cantidad = parseFloat(inputCantidad.value) || 0;
@@ -507,12 +544,15 @@ document.addEventListener('DOMContentLoaded', function() {
       input.name = input.name.replace('INDEX', productoIndex);
     });
 
-    // Adjuntar listeners a los nuevos selects de producto y unidad
+    // Adjuntar listeners a los nuevos selects de producto y unidad, y a los inputs de cantidad/precio/unidades contenidas
     const newSelectProducto = newRow.querySelector('.producto-select');
     const newSelectUnidad = newRow.querySelector('.unidad-select');
     const newCantidadInput = newRow.querySelector('.cantidad-input');
     const newPrecioUnitarioInput = newRow.querySelector('.precio-unitario-input');
-    const newPrecioVentaInput = newRow.querySelector('.precio-venta-input'); // Nuevo listener
+    const newPrecioVentaInput = newRow.querySelector('.precio-venta-input'); // Listener para total por producto
+    const newTirasPorCajaInput = newRow.querySelector('.tiras-por-caja-input');
+    const newPastillasPorTiraInput = newRow.querySelector('.pastillas-por-tira-input');
+    const newPastillasPorFrascoInput = newRow.querySelector('.pastillas-por-frasco-input');
     const newRemoveBtn = newRow.querySelector('.eliminar-producto-btn');
 
     if (newSelectProducto) {
@@ -527,8 +567,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (newPrecioUnitarioInput) {
       newPrecioUnitarioInput.addEventListener('input', updateProductDetails);
     }
-    if (newPrecioVentaInput) { // También al cambiar el precio de venta (aunque no afecte el total de compra, es para la fila)
-      newPrecioVentaInput.addEventListener('input', updateProductDetails);
+    if (newPrecioVentaInput) { 
+      newPrecioVentaInput.addEventListener('input', updateProductDetails); // Para que se actualice el total por producto si cambian
+    }
+    // Listeners para los nuevos campos de unidades contenidas
+    if (newTirasPorCajaInput) {
+        newTirasPorCajaInput.addEventListener('input', updateProductDetails);
+    }
+    if (newPastillasPorTiraInput) {
+        newPastillasPorTiraInput.addEventListener('input', updateProductDetails);
+    }
+    if (newPastillasPorFrascoInput) {
+        newPastillasPorFrascoInput.addEventListener('input', updateProductDetails);
     }
 
     // Listener para el botón de eliminar fila
@@ -541,8 +591,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     productosDinamicsoContainer.appendChild(newRow);
     productoIndex++; // Incrementar el índice para la próxima fila
-    // No llamamos a updateProductDetails aquí, se llamará automáticamente al inicializar la fila
-    // y la primera fila se inicializa con los valores por defecto del template
+    
+    // Al añadir una nueva fila, actualizar sus detalles para que se precarguen si se selecciona un producto
+    if (newSelectProducto && newSelectProducto.options.length > 1) { // Si hay productos para seleccionar
+        // Disparar el evento change para la primera fila si hay un producto seleccionado por defecto
+        // o si queremos que se inicialice con un valor.
+        // Aquí no hay producto seleccionado por defecto, así que solo inicializamos la visualización del total de la fila.
+        updateProductDetails({ target: newSelectProducto }); 
+    }
     calculateTotalCompra(); // Recalcular total al añadir nueva fila vacía
   }
 
@@ -557,7 +613,6 @@ document.addEventListener('DOMContentLoaded', function() {
         productosDinamicsoContainer.innerHTML = ''; 
         productoIndex = 0; // Reiniciar el índice
         addProductoRow(); // Añadir la primera fila por defecto
-        updateProductDetails({ target: productosDinamicsoContainer.querySelector('.producto-select') }); // Inicializar los detalles de la primera fila
       });
       // Asegurarse de que el total se calcule al abrir el modal si ya hay productos predefinidos
       modalCrearCompra.addEventListener('shown.bs.modal', calculateTotalCompra);
