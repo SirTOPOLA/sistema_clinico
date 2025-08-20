@@ -45,6 +45,8 @@ function verificarAcceso($vista)
         'farmacia' => [
             'dashboard_farmacia',
             'medicamentos',  
+            'proveedores',  
+            'compras',  
         ]
     ];
 

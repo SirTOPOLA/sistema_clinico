@@ -92,8 +92,9 @@ $menu = [
   ],
   'farmacia' => [
     'Dashboard' => 'dashboard_farmacia',
-    'Productos' => 'medicamentos',
-    'Consultas' => 'consultas',
+    'Productos' => 'medicamentos', 
+    'Proveedores' => 'proveedores',
+    'Compras' => 'compras',
   ] 
 ];
 ?>

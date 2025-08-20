@@ -6,14 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <!-- Bootstrap 5.3 CSS -->
-    
-   <!--  <link href="../css/bootstrap.min.css" rel="stylesheet"> -->
-    
+
+    <!--  <link href="../css/bootstrap.min.css" rel="stylesheet"> -->
+
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
-<!-- 
+    <!-- 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
  -->
@@ -26,9 +26,9 @@
             --danger-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --warning-gradient: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
             --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            
-            --card-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            --card-hover-shadow: 0 15px 35px rgba(0,0,0,0.12);
+
+            --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            --card-hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
             --border-radius: 16px;
         }
 
@@ -38,7 +38,7 @@
             min-height: 100vh;
             overflow: hidden;
         }
- 
+
         .modern-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -69,10 +69,21 @@
             background: var(--gradient);
         }
 
-        .stat-card.primary::before { background: var(--primary-gradient); }
-        .stat-card.success::before { background: var(--success-gradient); }
-        .stat-card.info::before { background: var(--info-gradient); }
-        .stat-card.danger::before { background: var(--danger-gradient); }
+        .stat-card.primary::before {
+            background: var(--primary-gradient);
+        }
+
+        .stat-card.success::before {
+            background: var(--success-gradient);
+        }
+
+        .stat-card.info::before {
+            background: var(--info-gradient);
+        }
+
+        .stat-card.danger::before {
+            background: var(--danger-gradient);
+        }
 
         .stat-number {
             font-size: 2.5rem;
@@ -84,10 +95,29 @@
             background-clip: text;
         }
 
-        .stat-card.primary .stat-number { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .stat-card.success .stat-number { background: var(--success-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .stat-card.info .stat-number { background: var(--info-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .stat-card.danger .stat-number { background: var(--danger-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card.primary .stat-number {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card.success .stat-number {
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card.info .stat-number {
+            background: var(--info-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card.danger .stat-number {
+            background: var(--danger-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
         .stat-icon {
             width: 60px;
@@ -100,10 +130,21 @@
             color: white;
         }
 
-        .stat-icon.primary { background: var(--primary-gradient); }
-        .stat-icon.success { background: var(--success-gradient); }
-        .stat-icon.info { background: var(--info-gradient); }
-        .stat-icon.danger { background: var(--danger-gradient); }
+        .stat-icon.primary {
+            background: var(--primary-gradient);
+        }
+
+        .stat-icon.success {
+            background: var(--success-gradient);
+        }
+
+        .stat-icon.info {
+            background: var(--info-gradient);
+        }
+
+        .stat-icon.danger {
+            background: var(--danger-gradient);
+        }
 
         .chart-container {
             background: rgba(255, 255, 255, 0.95);
@@ -202,16 +243,17 @@
         }
 
         @media (max-width: 768px) {
+
             .grid-2x2,
             .grid-2x2-equal {
                 grid-template-columns: 1fr;
                 gap: 1rem;
             }
-            
+
             .stat-number {
                 font-size: 2rem;
             }
-            
+
             .chart-container {
                 padding: 1rem;
             }
@@ -223,7 +265,7 @@
             padding: 0.5rem 1rem;
             font-weight: 500;
         }
-        
+
 
         .wrapper {
             display: flex;
@@ -301,19 +343,19 @@
 
         /* SECRETARIA */
         .sidebar-doctor {
-        background-color: #6c757d;
-        font-family: 'Arial Rounded MT', sans-serif;
-    }
-    
-    /* TRIAJE */
-            .sidebar-secretaria {
+            background-color: #6c757d;
+            font-family: 'Arial Rounded MT', sans-serif;
+        }
+
+        /* TRIAJE */
+        .sidebar-secretaria {
             background-color: #198754;
             font-family: 'Verdana', sans-serif;
         }
 
         /* LABORATORIO */
         .sidebar-laboratorio {
-            background-color:  #2c3e50;
+            background-color: #2c3e50;
             font-family: 'Tahoma', sans-serif;
         }
 
@@ -355,15 +397,15 @@
         #content {
             flex-grow: 1;
             overflow-y: auto;
-            background-color:rgba(231, 233, 236, 0.56);
+            background-color: rgba(231, 233, 236, 0.56);
             height: calc(100vh - 80px);
 
             /*  height: 100vh; */
-            margin-left: 250px; 
+            margin-left: 250px;
             margin-top: 80px;
-           /*  padding: 1rem; */
+            /*  padding: 1rem; */
             transition: margin-left 0.3s ease;
-              /* border: solid 2px #52a552; */
+            /* border: solid 2px #52a552; */
         }
 
         #content.collapsed {
@@ -397,7 +439,7 @@
             position: sticky;
             top: 0;
             background-color: rgb(142, 148, 155);
-            /* table-dark */
+
             color: white;
             z-index: 1030;
         }
@@ -489,14 +531,20 @@
 
         /* Ajuste de los iconos y texto en dispositivos móviles */
         @media (max-width: 768px) {
-            .table {
+           
+        }
+
+
+
+        /* 
+         .table {
                 display: block;
                 width: 100%;
             }
 
             .table thead {
                 display: none;
-                /* Ocultamos encabezados en móviles */
+
 
             }
 
@@ -517,8 +565,7 @@
 
             .table tbody tr td {
                 display: flex;
-                justify-content: flex-start;
-                /* Alineación a la izquierda */
+                justify-content: flex-start; 
                 align-items: center;
                 padding: 0.5rem 0;
                 border-bottom: 1px solid #080606;
@@ -532,12 +579,10 @@
             .table tbody tr td::before {
                 content: attr(data-label);
                 flex: 0 0 30%;
-                /* Reducimos el espacio del título */
                 font-weight: 600;
                 color: #555;
                 text-align: left;
                 padding-right: 20px;
-                /* Menos espacio entre el icono y el texto */
                 font-size: 1rem;
             }
 
@@ -545,20 +590,14 @@
             .table tbody tr td a {
                 flex: 1;
                 text-align: left;
-                /* Alineamos el contenido a la izquierda */
                 font-size: 1rem;
-                /* Mejor legibilidad */
             }
 
-            /* Para los iconos en data-label, cambiamos el tamaño */
             .table tbody tr td::before {
                 font-size: 1.1rem;
-                /* Mayor tamaño de los iconos */
                 margin-right: 10px;
-                /* Separar más los iconos del texto */
             }
 
-            /* Ajuste en el diseño de los enlaces */
             .table tbody tr td a {
                 display: inline-block;
                 width: 100%;
@@ -566,26 +605,18 @@
                 margin-top: 5px;
             }
 
-            /* Estilo para los iconos tipo figura */
             .table tbody tr td::before {
                 font-size: 1.5rem;
-                /* Ajustar tamaño de los iconos */
                 margin-right: 8px;
-                /* Espacio entre el icono y el texto */
             }
 
-            /* Para las acciones de edición */
             .table tbody tr td a {
                 font-size: 1.2rem;
-                /* Ajustar tamaño del icono de la acción */
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 margin-left: 8px;
-            }
-        }
-
-
+            } */
 
         .card {
             border-radius: 1rem;
@@ -642,23 +673,17 @@
             border-radius: 0.5rem;
         }
 
-        /* En dispositivos móviles, mostramos los data-label */
         @media (max-width: 768px) {
             .table tbody tr td::before {
                 display: block;
-                /* Mostramos el data-label como bloque */
                 content: attr(data-label);
-                /* Extraemos el contenido del data-label */
                 font-weight: bold;
-                /* Hacemos que los labels sean más visibles */
                 margin-bottom: 5px;
-                /* Espaciamos un poco */
                 font-size: 1rem;
-                /* Ajustamos el tamaño de fuente */
             }
         }
 
-      
+
 
         /*  @media (max-width: 767.98px) {
             .table-responsive table thead {
@@ -799,33 +824,32 @@
 
 
         /* Mejora de inputs al enfoque */
-.modal .form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
+        .modal .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
 
-/* Encabezado moderno */
-.modal-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
+        /* Encabezado moderno */
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
 
-/* Footer elegante */
-.modal-footer {
-    background-color: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-}
+        /* Footer elegante */
+        .modal-footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
 
-/* Espaciado en etiquetas */
-.modal .form-label {
-    font-weight: 500;
-}
+        /* Espaciado en etiquetas */
+        .modal .form-label {
+            font-weight: 500;
+        }
 
-/* Modal con esquinas más redondeadas */
-.modal-content {
-    border-radius: 1rem;
-}
-
+        /* Modal con esquinas más redondeadas */
+        .modal-content {
+            border-radius: 1rem;
+        }
     </style>
 
 </head>
