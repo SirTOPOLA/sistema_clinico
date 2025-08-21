@@ -3,7 +3,7 @@ session_start(); // Inicia la sesión para usar mensajes de éxito/error
 
 // Asume que tu archivo de conexión a la base de datos se llama 'conexion.php'
 // y que define una variable $pdo para la conexión PDO.
-require_once '../config/conexion.php'; 
+require_once '../config/conexion.php';
 
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
@@ -18,7 +18,7 @@ if (isset($_GET['action'])) {
                 $monto_total = filter_input(INPUT_POST, 'monto_total', FILTER_VALIDATE_FLOAT); // Se calcula en JS, pero validar para seguridad
                 $adelanto = filter_input(INPUT_POST, 'adelanto', FILTER_VALIDATE_FLOAT);
                 $estado_pago = filter_input(INPUT_POST, 'estado_pago', FILTER_SANITIZE_STRING);
-                
+
                 // Validar campos requeridos
                 if (empty($id_proveedor) || empty($id_personal) || empty($fecha_compra) || $monto_total === false || $adelanto === false) {
                     $_SESSION['error_compra'] = 'Datos de la compra principal incompletos o inválidos.';
@@ -32,11 +32,11 @@ if (isset($_GET['action'])) {
 
                 // 2. Insertar la compra principal en 'compras_proveedores'
                 $pdo->beginTransaction(); // Inicia una transacción para asegurar la integridad de los datos
-                
+
                 $stmt_compra = $pdo->prepare("INSERT INTO compras_proveedores 
                     (id_proveedor, id_personal, fecha_compra, monto_total, adelanto, estado_pago) 
                     VALUES (:id_proveedor, :id_personal, :fecha_compra, :monto_total, :adelanto, :estado_pago)");
-                
+
                 $stmt_compra->bindParam(':id_proveedor', $id_proveedor);
                 $stmt_compra->bindParam(':id_personal', $id_personal);
                 $stmt_compra->bindParam(':fecha_compra', $fecha_compra);
@@ -44,12 +44,12 @@ if (isset($_GET['action'])) {
                 $stmt_compra->bindParam(':adelanto', $adelanto);
                 $stmt_compra->bindParam(':estado_pago', $estado_pago);
                 $stmt_compra->execute();
-                
+
                 $id_compra = $pdo->lastInsertId(); // Obtener el ID de la compra recién insertada
 
                 // 3. Procesar los productos adquiridos (detalle de la compra)
                 $productos_adquiridos = $_POST['productos'] ?? []; // Array de productos del formulario
-                
+
                 if (empty($productos_adquiridos)) {
                     // Si no hay productos, pero la compra principal ya se insertó,
                     // podríamos revertirla o permitir compras sin productos si es el caso de uso.
@@ -66,7 +66,7 @@ if (isset($_GET['action'])) {
                     $unidad = filter_var($producto_detalle['unidad'], FILTER_SANITIZE_STRING);
                     $precio_unitario = filter_var($producto_detalle['precio_unitario'], FILTER_VALIDATE_FLOAT);
                     $precio_venta = filter_var($producto_detalle['precio_venta'], FILTER_VALIDATE_FLOAT);
-                    
+
                     // Nuevos campos de unidades contenidas y fecha de vencimiento por cada producto
                     $tiras_por_caja_comprada = filter_var($producto_detalle['tiras_por_caja'], FILTER_VALIDATE_INT);
                     $pastillas_por_tira_comprada = filter_var($producto_detalle['pastillas_por_tira'], FILTER_VALIDATE_INT);
@@ -87,7 +87,7 @@ if (isset($_GET['action'])) {
                         tiras_por_caja_comprada, pastillas_por_tira_comprada, pastillas_por_frasco_comprada, fecha_vencimiento_producto) 
                         VALUES (:id_compra, :id_producto, :cantidad, :unidad, :precio_unitario, :precio_venta, 
                         :tiras_por_caja_comprada, :pastillas_por_tira_comprada, :pastillas_por_frasco_comprada, :fecha_vencimiento_producto)");
-                    
+
                     $stmt_detalle->bindParam(':id_compra', $id_compra);
                     $stmt_detalle->bindParam(':id_producto', $id_producto);
                     $stmt_detalle->bindParam(':cantidad', $cantidad);
@@ -152,7 +152,7 @@ if (isset($_GET['action'])) {
                                 tiras_por_caja = :tiras_por_caja, pastillas_por_tira = :pastillas_por_tira,
                                 pastillas_por_frasco = :pastillas_por_frasco
                             WHERE id = :id_producto");
-                        
+
                         $stmt_update_prod_data->bindParam(':stock_caja', $new_stock_caja);
                         $stmt_update_prod_data->bindParam(':stock_frasco', $new_stock_frasco);
                         $stmt_update_prod_data->bindParam(':stock_tira', $new_stock_tira);
@@ -176,7 +176,7 @@ if (isset($_GET['action'])) {
                         exit();
                     }
                 }
-                
+
                 $pdo->commit(); // Confirma la transacción
                 $_SESSION['success_compra'] = 'Compra y detalles de productos registrados exitosamente.';
                 break;
@@ -207,7 +207,7 @@ if (isset($_GET['action'])) {
                     adelanto = :adelanto, 
                     estado_pago = :estado_pago 
                     WHERE id = :id");
-                
+
                 $stmt->bindParam(':id_proveedor', $id_proveedor);
                 $stmt->bindParam(':id_personal', $id_personal);
                 $stmt->bindParam(':fecha_compra', $fecha_compra);
@@ -228,7 +228,7 @@ if (isset($_GET['action'])) {
 
                 if (empty($id_compra)) {
                     $_SESSION['error_compra'] = 'ID de la compra no proporcionado para eliminar.';
-                   header('Location: ../index.php?vista=compras');
+                    header('Location: ../index.php?vista=compras');
                     exit();
                 }
 
@@ -272,7 +272,7 @@ if (isset($_GET['action'])) {
                                 $new_stock_pastilla -= $cantidad;
                                 break;
                         }
-                        
+
                         // Asegurar que el stock no sea negativo
                         $new_stock_caja = max(0, $new_stock_caja);
                         $new_stock_frasco = max(0, $new_stock_frasco);
@@ -283,7 +283,7 @@ if (isset($_GET['action'])) {
                             stock_caja = :stock_caja, stock_frasco = :stock_frasco, 
                             stock_tira = :stock_tira, stock_pastilla = :stock_pastilla
                             WHERE id = :id_producto");
-                        
+
                         $stmt_update_stock->bindParam(':stock_caja', $new_stock_caja);
                         $stmt_update_stock->bindParam(':stock_frasco', $new_stock_frasco);
                         $stmt_update_stock->bindParam(':stock_tira', $new_stock_tira);

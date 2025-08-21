@@ -464,24 +464,15 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('monto_total').value = formatXAF(total);
   }
 
-  // Función para actualizar el precio de venta sugerido, info de unidad y el total por producto
-  function updateProductDetails(event) {
-    const currentRow = event.target.closest('.producto-row');
+  // Función para actualizar el precio de venta sugerido y las unidades contenidas
+  function updateSuggestedProductDetails(currentRow) {
     const selectProducto = currentRow.querySelector('.producto-select');
     const selectUnidad = currentRow.querySelector('.unidad-select');
     const inputPrecioVenta = currentRow.querySelector('.precio-venta-input');
-    const inputCantidad = currentRow.querySelector('.cantidad-input');
-    const inputPrecioUnitario = currentRow.querySelector('.precio-unitario-input');
     const unidadInfoSpan = currentRow.querySelector('.unidad-info');
-    const totalPorProductoSpan = currentRow.querySelector('.total-por-producto');
-
-    // Nuevos campos de unidades contenidas
     const inputTirasPorCaja = currentRow.querySelector('.tiras-por-caja-input');
     const inputPastillasPorTira = currentRow.querySelector('.pastillas-por-tira-input');
     const inputPastillasPorFrasco = currentRow.querySelector('.pastillas-por-frasco-input');
-    // Campo de fecha de vencimiento
-    const inputFechaVencimiento = currentRow.querySelector('.fecha-vencimiento-input');
-
 
     const selectedProductOption = selectProducto.options[selectProducto.selectedIndex];
     const selectedUnidad = selectUnidad.value;
@@ -491,7 +482,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let defaultTirasPorCaja = 0;
     let defaultPastillasPorTira = 0;
     let defaultPastillasPorFrasco = 0;
-
 
     if (selectedProductOption) {
       // Obtener los valores predefinidos de las data-attributes
@@ -522,26 +512,43 @@ document.addEventListener('DOMContentLoaded', function() {
           precioSugerido = selectedProductOption.getAttribute('data-precio-pastilla');
           break;
       }
-      inputPrecioVenta.value = parseFloat(precioSugerido || 0).toFixed(2);
+      // Solo actualiza el valor si el campo está vacío o "0.00"
+      if (inputPrecioVenta.value === '0.00' || inputPrecioVenta.value === '') {
+        inputPrecioVenta.value = parseFloat(precioSugerido || 0).toFixed(2);
+      }
     } else {
-      inputPrecioVenta.value = '0.00';
+      if (inputPrecioVenta.value === '0.00' || inputPrecioVenta.value === '') {
+        inputPrecioVenta.value = '0.00';
+      }
     }
     unidadInfoSpan.textContent = unidadInfoText;
 
-    // Asignar los valores a los inputs de unidades contenidas
-    inputTirasPorCaja.value = defaultTirasPorCaja;
-    inputPastillasPorTira.value = defaultPastillasPorTira;
-    inputPastillasPorFrasco.value = defaultPastillasPorFrasco;
-
-
-    // Calcular y mostrar el total por producto en la fila
-    const cantidad = parseFloat(inputCantidad.value) || 0;
-    const precioUnitario = parseFloat(inputPrecioUnitario.value) || 0;
-    const rowTotal = cantidad * precioUnitario;
-    totalPorProductoSpan.textContent = formatXAF(rowTotal);
-
-    calculateTotalCompra(); // Recalcular el total general de la compra
+    // Solo actualiza los valores si los campos están vacíos o "0"
+    if (inputTirasPorCaja.value === '0' || inputTirasPorCaja.value === '') {
+        inputTirasPorCaja.value = defaultTirasPorCaja;
+    }
+    if (inputPastillasPorTira.value === '0' || inputPastillasPorTira.value === '') {
+        inputPastillasPorTira.value = defaultPastillasPorTira;
+    }
+    if (inputPastillasPorFrasco.value === '0' || inputPastillasPorFrasco.value === '') {
+        inputPastillasPorFrasco.value = defaultPastillasPorFrasco;
+    }
   }
+
+  // Función para actualizar los totales calculados (basado en cantidad y precio unitario de compra)
+  function updateCalculatedTotals(currentRow) {
+      const inputCantidad = currentRow.querySelector('.cantidad-input');
+      const inputPrecioUnitario = currentRow.querySelector('.precio-unitario-input');
+      const totalPorProductoSpan = currentRow.querySelector('.total-por-producto');
+
+      const cantidad = parseFloat(inputCantidad.value) || 0;
+      const precioUnitario = parseFloat(inputPrecioUnitario.value) || 0;
+      const rowTotal = cantidad * precioUnitario;
+      totalPorProductoSpan.textContent = formatXAF(rowTotal);
+
+      calculateTotalCompra(); // Recalcular el total general de la compra
+  }
+
 
   // Función para añadir una nueva fila de producto
   function addProductoRow() {
@@ -553,46 +560,49 @@ document.addEventListener('DOMContentLoaded', function() {
       input.name = input.name.replace('INDEX', productoIndex);
     });
 
-    // Adjuntar listeners a los nuevos selects de producto y unidad, y a los inputs de cantidad/precio/unidades contenidas
+    // Adjuntar listeners
     const newSelectProducto = newRow.querySelector('.producto-select');
     const newSelectUnidad = newRow.querySelector('.unidad-select');
     const newCantidadInput = newRow.querySelector('.cantidad-input');
     const newPrecioUnitarioInput = newRow.querySelector('.precio-unitario-input');
-    const newPrecioVentaInput = newRow.querySelector('.precio-venta-input'); // Listener para total por producto
+    const newPrecioVentaInput = newRow.querySelector('.precio-venta-input'); 
     const newTirasPorCajaInput = newRow.querySelector('.tiras-por-caja-input');
     const newPastillasPorTiraInput = newRow.querySelector('.pastillas-por-tira-input');
     const newPastillasPorFrascoInput = newRow.querySelector('.pastillas-por-frasco-input');
-    const newFechaVencimientoInput = newRow.querySelector('.fecha-vencimiento-input'); // Nuevo listener
+    const newFechaVencimientoInput = newRow.querySelector('.fecha-vencimiento-input');
     const newRemoveBtn = newRow.querySelector('.eliminar-producto-btn');
 
+    // Listeners para actualizar valores sugeridos (solo al cambiar producto/unidad)
     if (newSelectProducto) {
-      newSelectProducto.addEventListener('change', updateProductDetails);
+      newSelectProducto.addEventListener('change', () => updateSuggestedProductDetails(newRow));
     }
     if (newSelectUnidad) {
-      newSelectUnidad.addEventListener('change', updateProductDetails);
+      newSelectUnidad.addEventListener('change', () => updateSuggestedProductDetails(newRow));
     }
+
+    // Listeners para actualizar totales calculados (cantidad, precio unitario de compra)
     if (newCantidadInput) {
-      newCantidadInput.addEventListener('input', updateProductDetails);
+      newCantidadInput.addEventListener('input', () => updateCalculatedTotals(newRow));
     }
     if (newPrecioUnitarioInput) {
-      newPrecioUnitarioInput.addEventListener('input', updateProductDetails);
+      newPrecioUnitarioInput.addEventListener('input', () => updateCalculatedTotals(newRow));
     }
-    if (newPrecioVentaInput) { 
-      newPrecioVentaInput.addEventListener('input', updateProductDetails); // Para que se actualice el total por producto si cambian
+    // Listeners para campos que pueden ser editados manualmente pero también tienen sugerencias
+    if (newPrecioVentaInput) {
+      newPrecioVentaInput.addEventListener('input', () => updateCalculatedTotals(newRow)); // Afecta el total por producto, no la compra principal
     }
-    // Listeners para los nuevos campos de unidades contenidas
     if (newTirasPorCajaInput) {
-        newTirasPorCajaInput.addEventListener('input', updateProductDetails);
+        newTirasPorCajaInput.addEventListener('input', () => updateCalculatedTotals(newRow)); // No afecta el total, pero la coherencia
     }
     if (newPastillasPorTiraInput) {
-        newPastillasPorTiraInput.addEventListener('input', updateProductDetails);
+        newPastillasPorTiraInput.addEventListener('input', () => updateCalculatedTotals(newRow)); // No afecta el total, pero la coherencia
     }
     if (newPastillasPorFrascoInput) {
-        newPastillasPorFrascoInput.addEventListener('input', updateProductDetails);
+        newPastillasPorFrascoInput.addEventListener('input', () => updateCalculatedTotals(newRow)); // No afecta el total, pero la coherencia
     }
-    // Listener para la fecha de vencimiento
+    // Listener para la fecha de vencimiento (no afecta cálculos directos)
     if (newFechaVencimientoInput) {
-        newFechaVencimientoInput.addEventListener('input', updateProductDetails); // No afecta el total, pero mantiene la consistencia
+        newFechaVencimientoInput.addEventListener('input', () => {}); 
     }
 
 
@@ -607,14 +617,10 @@ document.addEventListener('DOMContentLoaded', function() {
     productosDinamicsoContainer.appendChild(newRow);
     productoIndex++; // Incrementar el índice para la próxima fila
     
-    // Al añadir una nueva fila, actualizar sus detalles para que se precarguen si se selecciona un producto
-    if (newSelectProducto && newSelectProducto.options.length > 1) { // Si hay productos para seleccionar
-        // Disparar el evento change para la primera fila si hay un producto seleccionado por defecto
-        // o si queremos que se inicialice con un valor.
-        // Aquí no hay producto seleccionado por defecto, así que solo inicializamos la visualización del total de la fila.
-        updateProductDetails({ target: newSelectProducto }); 
-    }
-    calculateTotalCompra(); // Recalcular total al añadir nueva fila vacía
+    // Inicializar los detalles sugeridos y totales para la nueva fila
+    // Aquí es donde se aplican los valores predeterminados si los campos están vacíos
+    updateSuggestedProductDetails(newRow); 
+    updateCalculatedTotals(newRow); 
   }
 
   if (agregarProductoBtn && productosDinamicsoContainer && productoTemplate) {
