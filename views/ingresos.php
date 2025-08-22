@@ -10,7 +10,7 @@ $sqlIngresos = "SELECT i.id, i.fecha_ingreso, i.fecha_alta, i.numero_cama,
                 JOIN pacientes p ON i.id_paciente = p.id
                 JOIN salas_ingreso s ON i.id_sala = s.id
                 ORDER BY i.fecha_ingreso DESC";
-$ingresos = $pdo->query($sqlIngresos)->fetchAll(PDO::FETCH_ASSOC);
+$ingresos = $pdo->prepare($sqlIngresos)->fetchAll(PDO::FETCH_ASSOC);
 
 
 //trayendo las salas..

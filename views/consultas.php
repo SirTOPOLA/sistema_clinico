@@ -104,13 +104,13 @@ $campos = [
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
 
-                                    <?php if ($c['pagado'] == 0): ?>
+                                   <!--  <?php if ($c['pagado'] == 0): ?>
                                         <button class="btn btn-sm btn-secondary ver-detalles-consulta btn-pago"
                                             data-id="<?= $c['id'] ?>" id="btnPagar-<?= $c['id'] ?>"
                                             data-bs-toggle="modal" data-bs-target="#modalPagoConsulta">
                                             <i class="bi bi-credit-card-2-front-fill me-2"></i>
                                         </button>
-                                    <?php endif; ?>
+                                    <?php endif; ?> -->
 
                                 </td>
                             </tr>
