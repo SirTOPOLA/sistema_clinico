@@ -1,8 +1,10 @@
+
 <?php
 session_start(); // Inicia la sesión para usar mensajes de éxito/error
 
 // Asume que tu archivo de conexión a la base de datos se llama 'conexion.php'
 // y que define una variable $pdo para la conexión PDO.
+ 
 require_once '../config/conexion.php';
 
 if (isset($_GET['action'])) {
@@ -15,28 +17,57 @@ if (isset($_GET['action'])) {
                 $id_proveedor = filter_input(INPUT_POST, 'id_proveedor', FILTER_VALIDATE_INT);
                 $id_personal = filter_input(INPUT_POST, 'id_personal', FILTER_VALIDATE_INT);
                 $fecha_compra = filter_input(INPUT_POST, 'fecha_compra', FILTER_SANITIZE_STRING);
-                $monto_total = filter_input(INPUT_POST, 'monto_total', FILTER_VALIDATE_FLOAT); // Se calcula en JS, pero validar para seguridad
+                $monto_total = filter_input(INPUT_POST, 'monto_total', FILTER_VALIDATE_FLOAT); 
                 $adelanto = filter_input(INPUT_POST, 'adelanto', FILTER_VALIDATE_FLOAT);
                 $estado_pago = filter_input(INPUT_POST, 'estado_pago', FILTER_SANITIZE_STRING);
-
-                // Validar campos requeridos
-                if (empty($id_proveedor) || empty($id_personal) || empty($fecha_compra) || $monto_total === false || $adelanto === false) {
-                    $_SESSION['error_compra'] = 'Datos de la compra principal incompletos o inválidos.';
+                
+                // --- Validación de campos principales de la compra ---
+                if ($id_proveedor === false || $id_proveedor <= 0) {
+                    $_SESSION['error_compra'] = 'El proveedor seleccionado no es válido.';
                     header('Location: ../index.php?vista=compras');
                     exit();
                 }
+                if ($id_personal === false || $id_personal <= 0) {
+                    $_SESSION['error_compra'] = 'El ID de personal no es válido.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                if (!DateTime::createFromFormat('Y-m-d', $fecha_compra)) {
+                    $_SESSION['error_compra'] = 'La fecha de compra no es válida. Formato esperado: AAAA-MM-DD.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                if ($monto_total === false || $monto_total < 0) {
+                    $_SESSION['error_compra'] = 'El monto total de la compra no es válido o es negativo. '.htmlspecialchars($monto_total);
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                if ($adelanto === false || $adelanto < 0) {
+                    $_SESSION['error_compra'] = 'El adelanto no es válido o es negativo.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                if ($adelanto > $monto_total) {
+                    $_SESSION['error_compra'] = 'El adelanto no puede ser mayor que el monto total de la compra.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                $allowed_estados = ['pendiente', 'pagado', 'parcial'];
+                if (!in_array($estado_pago, $allowed_estados)) {
+                    $_SESSION['error_compra'] = 'El estado de pago seleccionado no es válido.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                // --- Fin Validación de campos principales ---
 
-                // Asegurar que monto_total y adelanto sean números válidos
-                $monto_total = ($monto_total === null) ? 0.00 : $monto_total;
-                $adelanto = ($adelanto === null) ? 0.00 : $adelanto;
 
                 // 2. Insertar la compra principal en 'compras_proveedores'
                 $pdo->beginTransaction(); // Inicia una transacción para asegurar la integridad de los datos
-
+                
                 $stmt_compra = $pdo->prepare("INSERT INTO compras_proveedores 
                     (id_proveedor, id_personal, fecha_compra, monto_total, adelanto, estado_pago) 
                     VALUES (:id_proveedor, :id_personal, :fecha_compra, :monto_total, :adelanto, :estado_pago)");
-
+                
                 $stmt_compra->bindParam(':id_proveedor', $id_proveedor);
                 $stmt_compra->bindParam(':id_personal', $id_personal);
                 $stmt_compra->bindParam(':fecha_compra', $fecha_compra);
@@ -44,42 +75,90 @@ if (isset($_GET['action'])) {
                 $stmt_compra->bindParam(':adelanto', $adelanto);
                 $stmt_compra->bindParam(':estado_pago', $estado_pago);
                 $stmt_compra->execute();
-
+                
                 $id_compra = $pdo->lastInsertId(); // Obtener el ID de la compra recién insertada
 
                 // 3. Procesar los productos adquiridos (detalle de la compra)
                 $productos_adquiridos = $_POST['productos'] ?? []; // Array de productos del formulario
-
+                
                 if (empty($productos_adquiridos)) {
-                    // Si no hay productos, pero la compra principal ya se insertó,
-                    // podríamos revertirla o permitir compras sin productos si es el caso de uso.
-                    // Para este escenario, se asume que cada compra debe tener al menos un producto.
                     $pdo->rollBack();
-                    $_SESSION['error_compra'] = 'La compra debe incluir al menos un producto.';
+                    $_SESSION['error_compra'] = 'La compra debe incluir al menos un producto. Por favor, agregue productos.';
                     header('Location: ../index.php?vista=compras');
                     exit();
                 }
 
-                foreach ($productos_adquiridos as $producto_detalle) {
+                foreach ($productos_adquiridos as $index => $producto_detalle) {
+                    // --- Validación de campos de detalle de producto ---
                     $id_producto = filter_var($producto_detalle['id_producto'], FILTER_VALIDATE_INT);
                     $cantidad = filter_var($producto_detalle['cantidad'], FILTER_VALIDATE_INT);
                     $unidad = filter_var($producto_detalle['unidad'], FILTER_SANITIZE_STRING);
                     $precio_unitario = filter_var($producto_detalle['precio_unitario'], FILTER_VALIDATE_FLOAT);
                     $precio_venta = filter_var($producto_detalle['precio_venta'], FILTER_VALIDATE_FLOAT);
-
-                    // Nuevos campos de unidades contenidas y fecha de vencimiento por cada producto
+                    
                     $tiras_por_caja_comprada = filter_var($producto_detalle['tiras_por_caja'], FILTER_VALIDATE_INT);
                     $pastillas_por_tira_comprada = filter_var($producto_detalle['pastillas_por_tira'], FILTER_VALIDATE_INT);
                     $pastillas_por_frasco_comprada = filter_var($producto_detalle['pastillas_por_frasco'], FILTER_VALIDATE_INT);
                     $fecha_vencimiento_producto = filter_var($producto_detalle['fecha_vencimiento'], FILTER_SANITIZE_STRING);
 
+                    $current_product_num = $index + 1; // Para mensajes de error más claros
 
-                    if ($id_producto === false || $cantidad === false || empty($unidad) || $precio_unitario === false || $precio_venta === false) {
+                    if ($id_producto === false || $id_producto <= 0) {
                         $pdo->rollBack();
-                        $_SESSION['error_compra'] = 'Datos de detalle de producto incompletos o inválidos para uno de los productos.';
+                        $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: ID de producto inválido.";
                         header('Location: ../index.php?vista=compras');
                         exit();
                     }
+                    if ($cantidad === false || $cantidad <= 0) {
+                        $pdo->rollBack();
+                        $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: La cantidad debe ser un número entero positivo.";
+                        header('Location: ../index.php?vista=compras');
+                        exit();
+                    }
+                    $allowed_unidades = ['caja', 'frasco', 'tira', 'pastilla'];
+                    if (empty($unidad) || !in_array($unidad, $allowed_unidades)) {
+                        $pdo->rollBack();
+                        $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: Unidad de medida inválida o no seleccionada.";
+                        header('Location: ../index.php?vista=compras');
+                        exit();
+                    }
+                    if ($precio_unitario === false || $precio_unitario < 0) {
+                        $pdo->rollBack();
+                        $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: El precio unitario de compra no es válido o es negativo.";
+                        header('Location: ../index.php?vista=compras');
+                        exit();
+                    }
+                    if ($precio_venta === false || $precio_venta < 0) {
+                        $pdo->rollBack();
+                        $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: El precio de venta sugerido no es válido o es negativo.";
+                        header('Location: ../index.php?vista=compras');
+                        exit();
+                    }
+                    if ($tiras_por_caja_comprada === false || $tiras_por_caja_comprada < 0) {
+                        $pdo->rollBack();
+                        $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: Tiras por caja inválidas o negativas.";
+                        header('Location: ../index.php?vista=compras');
+                        exit();
+                    }
+                    if ($pastillas_por_tira_comprada === false || $pastillas_por_tira_comprada < 0) {
+                        $pdo->rollBack();
+                        $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: Pastillas por tira inválidas o negativas.";
+                        header('Location: ../index.php?vista=compras');
+                        exit();
+                    }
+                    if ($pastillas_por_frasco_comprada === false || $pastillas_por_frasco_comprada < 0) {
+                        $pdo->rollBack();
+                        $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: Pastillas por frasco inválidas o negativas.";
+                        header('Location: ../index.php?vista=compras');
+                        exit();
+                    }
+                    if (!empty($fecha_vencimiento_producto) && !DateTime::createFromFormat('Y-m-d', $fecha_vencimiento_producto)) {
+                        $pdo->rollBack();
+                        $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: La fecha de vencimiento no es válida. Formato esperado: AAAA-MM-DD.";
+                        header('Location: ../index.php?vista=compras');
+                        exit();
+                    }
+                    // --- Fin Validación de campos de detalle ---
 
                     // Insertar detalle del producto en 'detalle_compra_proveedores'
                     $stmt_detalle = $pdo->prepare("INSERT INTO detalle_compra_proveedores 
@@ -87,7 +166,7 @@ if (isset($_GET['action'])) {
                         tiras_por_caja_comprada, pastillas_por_tira_comprada, pastillas_por_frasco_comprada, fecha_vencimiento_producto) 
                         VALUES (:id_compra, :id_producto, :cantidad, :unidad, :precio_unitario, :precio_venta, 
                         :tiras_por_caja_comprada, :pastillas_por_tira_comprada, :pastillas_por_frasco_comprada, :fecha_vencimiento_producto)");
-
+                    
                     $stmt_detalle->bindParam(':id_compra', $id_compra);
                     $stmt_detalle->bindParam(':id_producto', $id_producto);
                     $stmt_detalle->bindParam(':cantidad', $cantidad);
@@ -131,18 +210,15 @@ if (isset($_GET['action'])) {
 
                         // Actualizar la fecha de vencimiento solo si la nueva es más reciente
                         $current_vencimiento = $producto_actual['fecha_vencimiento'];
-                        $new_vencimiento = $fecha_venc_db; // Usar el valor que se guardó en detalle_compra_proveedores
+                        $new_vencimiento = $fecha_venc_db; 
 
                         if ($current_vencimiento === null || ($new_vencimiento !== null && $new_vencimiento > $current_vencimiento)) {
-                            // Si no hay fecha actual o la nueva es más reciente, actualiza
                             $updated_fecha_vencimiento = $new_vencimiento;
                         } else {
-                            // Si la fecha actual es más reciente o igual, mantén la actual
                             $updated_fecha_vencimiento = $current_vencimiento;
                         }
 
-                        // Actualizar precios de venta en el producto principal con los precios de la compra
-                        // Esto asegura que el producto base siempre tenga los precios de venta del último lote.
+                        // Actualizar precios de venta y conversiones en el producto principal con los precios/conversiones del detalle de compra
                         $stmt_update_prod_data = $pdo->prepare("UPDATE productos_farmacia 
                             SET stock_caja = :stock_caja, stock_frasco = :stock_frasco, 
                                 stock_tira = :stock_tira, stock_pastilla = :stock_pastilla,
@@ -152,15 +228,15 @@ if (isset($_GET['action'])) {
                                 tiras_por_caja = :tiras_por_caja, pastillas_por_tira = :pastillas_por_tira,
                                 pastillas_por_frasco = :pastillas_por_frasco
                             WHERE id = :id_producto");
-
+                        
                         $stmt_update_prod_data->bindParam(':stock_caja', $new_stock_caja);
                         $stmt_update_prod_data->bindParam(':stock_frasco', $new_stock_frasco);
                         $stmt_update_prod_data->bindParam(':stock_tira', $new_stock_tira);
                         $stmt_update_prod_data->bindParam(':stock_pastilla', $new_stock_pastilla);
-                        $stmt_update_prod_data->bindParam(':precio_caja', $producto_detalle['precio_caja']); // Usar precio de caja del detalle
-                        $stmt_update_prod_data->bindParam(':precio_frasco', $producto_detalle['precio_frasco']); // Usar precio de frasco del detalle
-                        $stmt_update_prod_data->bindParam(':precio_tira', $producto_detalle['precio_tira']); // Usar precio de tira del detalle
-                        $stmt_update_prod_data->bindParam(':precio_pastilla', $producto_detalle['precio_pastilla']); // Usar precio de pastilla del detalle
+                        $stmt_update_prod_data->bindParam(':precio_caja', $producto_detalle['precio_venta']); // Usar el precio_venta del detalle
+                        $stmt_update_prod_data->bindParam(':precio_frasco', $producto_detalle['precio_venta']); // Asumiendo que precio_venta es el relevante aquí
+                        $stmt_update_prod_data->bindParam(':precio_tira', $producto_detalle['precio_venta']); 
+                        $stmt_update_prod_data->bindParam(':precio_pastilla', $producto_detalle['precio_venta']); 
                         $stmt_update_prod_data->bindParam(':fecha_vencimiento', $updated_fecha_vencimiento);
                         $stmt_update_prod_data->bindParam(':tiras_por_caja', $tiras_por_caja_comprada);
                         $stmt_update_prod_data->bindParam(':pastillas_por_tira', $pastillas_por_tira_comprada);
@@ -169,15 +245,14 @@ if (isset($_GET['action'])) {
                         $stmt_update_prod_data->execute();
 
                     } else {
-                        // Esto no debería pasar si id_producto es válido
                         $pdo->rollBack();
-                        $_SESSION['error_compra'] = 'Producto no encontrado al intentar actualizar el stock.';
+                        $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: No se encontró el producto para actualizar el stock.";
                         header('Location: ../index.php?vista=compras');
                         exit();
                     }
                 }
-
-                $pdo->commit(); // Confirma la transacción
+                
+                $pdo->commit(); 
                 $_SESSION['success_compra'] = 'Compra y detalles de productos registrados exitosamente.';
                 break;
 
@@ -191,13 +266,49 @@ if (isset($_GET['action'])) {
                 $adelanto = filter_input(INPUT_POST, 'adelanto', FILTER_VALIDATE_FLOAT);
                 $estado_pago = filter_input(INPUT_POST, 'estado_pago', FILTER_SANITIZE_STRING);
 
-                if (empty($id) || empty($id_proveedor) || empty($id_personal) || empty($fecha_compra) || $monto_total === false || $adelanto === false) {
-                    $_SESSION['error_compra'] = 'Datos incompletos o inválidos para editar la compra.';
+                // --- Validación de campos principales de la compra para edición ---
+                if ($id === false || $id <= 0) {
+                    $_SESSION['error_compra'] = 'ID de compra no válido para editar.';
                     header('Location: ../index.php?vista=compras');
                     exit();
                 }
-                $monto_total = ($monto_total === null) ? 0.00 : $monto_total;
-                $adelanto = ($adelanto === null) ? 0.00 : $adelanto;
+                if ($id_proveedor === false || $id_proveedor <= 0) {
+                    $_SESSION['error_compra'] = 'El proveedor seleccionado no es válido para la edición.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                if ($id_personal === false || $id_personal <= 0) {
+                    $_SESSION['error_compra'] = 'El ID de personal no es válido para la edición.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                if (!DateTime::createFromFormat('Y-m-d', $fecha_compra)) {
+                    $_SESSION['error_compra'] = 'La fecha de compra no es válida para la edición. Formato esperado: AAAA-MM-DD.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                if ($monto_total === false || $monto_total < 0) {
+                    $_SESSION['error_compra'] = 'El monto total de la compra no es válido o es negativo para la edición.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                if ($adelanto === false || $adelanto < 0) {
+                    $_SESSION['error_compra'] = 'El adelanto no es válido o es negativo para la edición.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                if ($adelanto > $monto_total) {
+                    $_SESSION['error_compra'] = 'El adelanto no puede ser mayor que el monto total de la compra en la edición.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                $allowed_estados = ['pendiente', 'pagado', 'parcial'];
+                if (!in_array($estado_pago, $allowed_estados)) {
+                    $_SESSION['error_compra'] = 'El estado de pago seleccionado no es válido para la edición.';
+                    header('Location: ../index.php?vista=compras');
+                    exit();
+                }
+                // --- Fin Validación de campos principales para edición ---
 
                 $stmt = $pdo->prepare("UPDATE compras_proveedores SET 
                     id_proveedor = :id_proveedor, 
@@ -207,7 +318,7 @@ if (isset($_GET['action'])) {
                     adelanto = :adelanto, 
                     estado_pago = :estado_pago 
                     WHERE id = :id");
-
+                
                 $stmt->bindParam(':id_proveedor', $id_proveedor);
                 $stmt->bindParam(':id_personal', $id_personal);
                 $stmt->bindParam(':fecha_compra', $fecha_compra);
@@ -219,23 +330,25 @@ if (isset($_GET['action'])) {
                 if ($stmt->execute()) {
                     $_SESSION['success_compra'] = 'Compra actualizada exitosamente.';
                 } else {
-                    $_SESSION['error_compra'] = 'Error al actualizar la compra.';
+                    $_SESSION['error_compra'] = 'Error al actualizar la compra. Intente nuevamente.';
                 }
                 break;
 
             case 'eliminar':
                 $id_compra = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-                if (empty($id_compra)) {
-                    $_SESSION['error_compra'] = 'ID de la compra no proporcionado para eliminar.';
+                // --- Validación de campo para eliminar ---
+                if ($id_compra === false || $id_compra <= 0) {
+                    $_SESSION['error_compra'] = 'ID de la compra no válido para eliminar.';
                     header('Location: ../index.php?vista=compras');
                     exit();
                 }
+                // --- Fin Validación de campo para eliminar ---
 
-                $pdo->beginTransaction(); // Inicia una transacción para asegurar la integridad
+                $pdo->beginTransaction(); 
 
                 // 1. Obtener los detalles de la compra para revertir el stock
-                $stmt_get_details = $pdo->prepare("SELECT id_producto, cantidad, unidad, tiras_por_caja_comprada, pastillas_por_tira_comprada, pastillas_por_frasco_comprada FROM detalle_compra_proveedores WHERE id_compra = :id_compra");
+                $stmt_get_details = $pdo->prepare("SELECT id_producto, cantidad, unidad FROM detalle_compra_proveedores WHERE id_compra = :id_compra");
                 $stmt_get_details->bindParam(':id_compra', $id_compra);
                 $stmt_get_details->execute();
                 $detalles_a_revertir = $stmt_get_details->fetchAll(PDO::FETCH_ASSOC);
@@ -245,7 +358,6 @@ if (isset($_GET['action'])) {
                     $cantidad = $detalle['cantidad'];
                     $unidad = $detalle['unidad'];
 
-                    // Obtener stock actual del producto (con bloqueo para evitar concurrencia)
                     $stmt_get_current_stock = $pdo->prepare("SELECT stock_caja, stock_frasco, stock_tira, stock_pastilla FROM productos_farmacia WHERE id = :id_producto FOR UPDATE");
                     $stmt_get_current_stock->bindParam(':id_producto', $id_producto);
                     $stmt_get_current_stock->execute();
@@ -257,7 +369,6 @@ if (isset($_GET['action'])) {
                         $new_stock_tira = $producto_actual_stock['stock_tira'];
                         $new_stock_pastilla = $producto_actual_stock['stock_pastilla'];
 
-                        // Restar el stock basado en la unidad de la compra
                         switch ($unidad) {
                             case 'caja':
                                 $new_stock_caja -= $cantidad;
@@ -272,8 +383,7 @@ if (isset($_GET['action'])) {
                                 $new_stock_pastilla -= $cantidad;
                                 break;
                         }
-
-                        // Asegurar que el stock no sea negativo
+                        
                         $new_stock_caja = max(0, $new_stock_caja);
                         $new_stock_frasco = max(0, $new_stock_frasco);
                         $new_stock_tira = max(0, $new_stock_tira);
@@ -283,7 +393,7 @@ if (isset($_GET['action'])) {
                             stock_caja = :stock_caja, stock_frasco = :stock_frasco, 
                             stock_tira = :stock_tira, stock_pastilla = :stock_pastilla
                             WHERE id = :id_producto");
-
+                        
                         $stmt_update_stock->bindParam(':stock_caja', $new_stock_caja);
                         $stmt_update_stock->bindParam(':stock_frasco', $new_stock_frasco);
                         $stmt_update_stock->bindParam(':stock_tira', $new_stock_tira);
@@ -303,23 +413,22 @@ if (isset($_GET['action'])) {
                 $stmt_delete_compra->bindParam(':id_compra', $id_compra);
                 $stmt_delete_compra->execute();
 
-                $pdo->commit(); // Confirma la transacción
+                $pdo->commit(); 
                 $_SESSION['success_compra'] = 'Compra y sus detalles eliminados y stock revertido exitosamente.';
                 break;
 
             default:
-                $_SESSION['error_compra'] = 'Acción no válida.';
+                $_SESSION['error_compra'] = 'Acción no válida. Contacte al administrador.';
                 break;
         }
     } catch (PDOException $e) {
-        $pdo->rollBack(); // Revierte la transacción en caso de error
-        $_SESSION['error_compra'] = 'Error de base de datos: ' . $e->getMessage();
+        $pdo->rollBack(); 
+        $_SESSION['error_compra'] = 'Error de base de datos al procesar la compra: ' . $e->getMessage();
     }
 } else {
-    $_SESSION['error_compra'] = 'No se especificó ninguna acción.';
+    $_SESSION['error_compra'] = 'No se especificó ninguna acción para la compra.';
 }
 
-// Redirige de vuelta a la página principal de compras
 header('Location: ../index.php?vista=compras');
 exit();
 ?>

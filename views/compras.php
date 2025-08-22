@@ -1,4 +1,5 @@
 <?php 
+
 $idUsuario = $_SESSION['usuario']['id'] ?? 0;
 $rol = strtolower(trim($_SESSION['usuario']['rol'] ?? ''));
 
@@ -189,10 +190,12 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
             <input type="date" class="form-control" id="fecha_compra" name="fecha_compra" value="<?= date('Y-m-d') ?>" required>
           </div>
           <div class="mb-3">
-            <label for="monto_total" class="form-label">Monto Total <span class="text-danger">*</span></label>
+            <label for="monto_total_display" class="form-label">Monto Total <span class="text-danger">*</span></label>
             <div class="input-group">
               <span class="input-group-text">XAF</span>
-              <input type="text" class="form-control" id="monto_total" name="monto_total" value="0" readonly required style="background-color: #e9ecef;">
+              <input type="text" class="form-control" id="monto_total_display" value="0" readonly required style="background-color: #e9ecef;">
+              <!-- Hidden input to send the raw numerical value to the backend -->
+              <input type="hidden" id="monto_total_raw" name="monto_total" value="0.00">
             </div>
           </div>
           <div class="mb-3">
@@ -461,7 +464,8 @@ document.addEventListener('DOMContentLoaded', function() {
       
       total += (cantidad * precioUnitario);
     });
-    document.getElementById('monto_total').value = formatXAF(total);
+    document.getElementById('monto_total_display').value = formatXAF(total);
+    document.getElementById('monto_total_raw').value = total.toFixed(2); // Almacenar el valor raw para el backend
   }
 
   // Función para actualizar el precio de venta sugerido y las unidades contenidas
