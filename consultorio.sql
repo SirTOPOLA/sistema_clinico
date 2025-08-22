@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 13-08-2025 a las 16:23:12
+-- Tiempo de generación: 22-08-2025 a las 10:24:10
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -324,14 +324,24 @@ CREATE TABLE `productos_farmacia` (
   `stock_frasco` int(11) DEFAULT 0,
   `stock_tira` int(11) DEFAULT 0,
   `stock_pastilla` int(11) DEFAULT 0,
-  `precio_caja` decimal(10,2) NOT NULL,
-  `precio_frasco` decimal(10,2) NOT NULL,
-  `precio_tira` decimal(10,2) NOT NULL,
-  `precio_pastilla` decimal(10,2) NOT NULL,
+  `precio_caja` decimal(10,2) DEFAULT NULL,
+  `precio_frasco` decimal(10,2) DEFAULT NULL,
+  `precio_tira` decimal(10,2) DEFAULT NULL,
+  `precio_pastilla` decimal(10,2) DEFAULT NULL,
   `fecha_vencimiento` date DEFAULT NULL,
   `id_usuario` int(11) NOT NULL,
-  `fecha_registro` datetime DEFAULT current_timestamp()
+  `fecha_registro` datetime DEFAULT current_timestamp(),
+  `tiras_por_caja` decimal(10,2) DEFAULT NULL,
+  `pastillas_por_tira` decimal(10,2) DEFAULT NULL,
+  `pastillas_por_frasco` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `productos_farmacia`
+--
+
+INSERT INTO `productos_farmacia` (`id`, `nombre`, `descripcion`, `codigo_barras`, `stock_caja`, `stock_frasco`, `stock_tira`, `stock_pastilla`, `precio_caja`, `precio_frasco`, `precio_tira`, `precio_pastilla`, `fecha_vencimiento`, `id_usuario`, `fecha_registro`, `tiras_por_caja`, `pastillas_por_tira`, `pastillas_por_frasco`) VALUES
+(1, 'Paracetamol (1g)', 'antibiótico para dolor de cabeza ', NULL, 0, 0, 0, 0, 0.00, 0.00, 0.00, 0.00, NULL, 5, '2025-08-19 12:18:41', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -347,6 +357,13 @@ CREATE TABLE `proveedores` (
   `direccion` varchar(100) DEFAULT NULL,
   `fecha_registro` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `proveedores`
+--
+
+INSERT INTO `proveedores` (`id`, `nombre`, `contacto`, `telefono`, `direccion`, `fecha_registro`) VALUES
+(1, 'LA ROCA', 'Lorena Mons', '555174856', 'Ministerio de Sanidad', '2025-08-19 11:43:27');
 
 -- --------------------------------------------------------
 
@@ -476,7 +493,8 @@ INSERT INTO `usuarios` (`id`, `nombre_usuario`, `id_rol`, `password`, `id_person
 (1, 'admin', 1, '$2y$10$tDik4yXSE.O1bGIku8JHKe9NwJ4jZY6iL3AH.8aph/DuUjHcpoL5O', 1, '2025-06-10 17:42:47'),
 (2, 'laboratorio', 2, '$2y$10$3IngK68OS2Gzb9A4LVuOMO4ngAa94N6wNv/E0p/WrBI6cQgvg6UCu', 2, '2025-06-16 11:57:31'),
 (3, 'doctor', 6, '$2y$10$7RSZBKnEruBgvgrOpaMshewnXBGy2dhWkarTPAtPrb6HY/kcCSdRG', 3, '2025-06-17 11:29:09'),
-(4, 'laboratorio1', 2, '$2y$10$lWePJ1KBrM8vzac8lW11pesrNGdcsERFz55XUHl23DKKTJxzz4PKe', 4, '2025-07-21 14:46:43');
+(4, 'laboratorio1', 2, '$2y$10$lWePJ1KBrM8vzac8lW11pesrNGdcsERFz55XUHl23DKKTJxzz4PKe', 4, '2025-07-21 14:46:43'),
+(5, 'farmacia', 7, '$2y$10$QWpXs9Stj4.fSKS8mLB5A.c7cNeYdl2QMSIGPHlCZ/oKPlG.vwTjW', 1, '2025-08-16 10:06:29');
 
 --
 -- Índices para tablas volcadas
@@ -715,13 +733,13 @@ ALTER TABLE `polizas`
 -- AUTO_INCREMENT de la tabla `productos_farmacia`
 --
 ALTER TABLE `productos_farmacia`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedores`
 --
 ALTER TABLE `proveedores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `recetas`
@@ -757,7 +775,7 @@ ALTER TABLE `usos_deposito`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Restricciones para tablas volcadas
