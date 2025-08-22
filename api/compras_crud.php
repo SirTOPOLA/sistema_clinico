@@ -1,10 +1,8 @@
-
 <?php
 session_start(); // Inicia la sesión para usar mensajes de éxito/error
 
-// Asume que tu archivo de conexión a la base de datos se llama 'conexion.php'
+// Asume que tu archivo de conexión a la base de datos se llama '../config/conexion.php'
 // y que define una variable $pdo para la conexión PDO.
- 
 require_once '../config/conexion.php';
 
 if (isset($_GET['action'])) {
@@ -38,7 +36,7 @@ if (isset($_GET['action'])) {
                     exit();
                 }
                 if ($monto_total === false || $monto_total < 0) {
-                    $_SESSION['error_compra'] = 'El monto total de la compra no es válido o es negativo. '.htmlspecialchars($monto_total);
+                    $_SESSION['error_compra'] = 'El monto total de la compra no es válido o es negativo.';
                     header('Location: ../index.php?vista=compras');
                     exit();
                 }
@@ -89,13 +87,14 @@ if (isset($_GET['action'])) {
                 }
 
                 foreach ($productos_adquiridos as $index => $producto_detalle) {
-                    // --- Validación de campos de detalle de producto ---
+                    // --- Validación de campos de detalle de producto (para inserción en detalle_compra_proveedores) ---
                     $id_producto = filter_var($producto_detalle['id_producto'], FILTER_VALIDATE_INT);
                     $cantidad = filter_var($producto_detalle['cantidad'], FILTER_VALIDATE_INT);
                     $unidad = filter_var($producto_detalle['unidad'], FILTER_SANITIZE_STRING);
                     $precio_unitario = filter_var($producto_detalle['precio_unitario'], FILTER_VALIDATE_FLOAT);
                     $precio_venta = filter_var($producto_detalle['precio_venta'], FILTER_VALIDATE_FLOAT);
                     
+                    // Estos campos son para actualizar 'productos_farmacia', no para 'detalle_compra_proveedores'
                     $tiras_por_caja_comprada = filter_var($producto_detalle['tiras_por_caja'], FILTER_VALIDATE_INT);
                     $pastillas_por_tira_comprada = filter_var($producto_detalle['pastillas_por_tira'], FILTER_VALIDATE_INT);
                     $pastillas_por_frasco_comprada = filter_var($producto_detalle['pastillas_por_frasco'], FILTER_VALIDATE_INT);
@@ -134,6 +133,9 @@ if (isset($_GET['action'])) {
                         header('Location: ../index.php?vista=compras');
                         exit();
                     }
+                    // Validaciones para las unidades contenidas y fecha de vencimiento (relevante para productos_farmacia)
+                    // Estas validaciones permanecen aquí ya que los datos vienen del frontend
+                    // y se usarán para actualizar la tabla `productos_farmacia`.
                     if ($tiras_por_caja_comprada === false || $tiras_por_caja_comprada < 0) {
                         $pdo->rollBack();
                         $_SESSION['error_compra'] = "Error en Producto #{$current_product_num}: Tiras por caja inválidas o negativas.";
@@ -161,11 +163,10 @@ if (isset($_GET['action'])) {
                     // --- Fin Validación de campos de detalle ---
 
                     // Insertar detalle del producto en 'detalle_compra_proveedores'
+                    // ***** AJUSTADO: Eliminadas columnas de unidades contenidas y fecha de vencimiento de la inserción *****
                     $stmt_detalle = $pdo->prepare("INSERT INTO detalle_compra_proveedores 
-                        (id_compra, id_producto, cantidad, unidad, precio_unitario, precio_venta, 
-                        tiras_por_caja_comprada, pastillas_por_tira_comprada, pastillas_por_frasco_comprada, fecha_vencimiento_producto) 
-                        VALUES (:id_compra, :id_producto, :cantidad, :unidad, :precio_unitario, :precio_venta, 
-                        :tiras_por_caja_comprada, :pastillas_por_tira_comprada, :pastillas_por_frasco_comprada, :fecha_vencimiento_producto)");
+                        (id_compra, id_producto, cantidad, unidad, precio_unitario, precio_venta) 
+                        VALUES (:id_compra, :id_producto, :cantidad, :unidad, :precio_unitario, :precio_venta)");
                     
                     $stmt_detalle->bindParam(':id_compra', $id_compra);
                     $stmt_detalle->bindParam(':id_producto', $id_producto);
@@ -173,16 +174,14 @@ if (isset($_GET['action'])) {
                     $stmt_detalle->bindParam(':unidad', $unidad);
                     $stmt_detalle->bindParam(':precio_unitario', $precio_unitario);
                     $stmt_detalle->bindParam(':precio_venta', $precio_venta);
-                    $stmt_detalle->bindParam(':tiras_por_caja_comprada', $tiras_por_caja_comprada);
-                    $stmt_detalle->bindParam(':pastillas_por_tira_comprada', $pastillas_por_tira_comprada);
-                    $stmt_detalle->bindParam(':pastillas_por_frasco_comprada', $pastillas_por_frasco_comprada);
-                    // Convertir fecha de vencimiento a NULL si está vacía
-                    $fecha_venc_db = !empty($fecha_vencimiento_producto) ? $fecha_vencimiento_producto : null;
-                    $stmt_detalle->bindParam(':fecha_vencimiento_producto', $fecha_venc_db);
                     $stmt_detalle->execute();
 
                     // 4. Actualizar stock, precios de venta y fecha de vencimiento en 'productos_farmacia'
-                    $stmt_update_producto = $pdo->prepare("SELECT stock_caja, stock_frasco, stock_tira, stock_pastilla, fecha_vencimiento FROM productos_farmacia WHERE id = :id_producto FOR UPDATE");
+                    // Esta sección permanece igual, ya que estos campos sí existen en 'productos_farmacia'.
+                    $stmt_update_producto = $pdo->prepare("SELECT stock_caja, stock_frasco, stock_tira, stock_pastilla, 
+                                                                   precio_caja, precio_frasco, precio_tira, precio_pastilla,
+                                                                   fecha_vencimiento 
+                                                            FROM productos_farmacia WHERE id = :id_producto FOR UPDATE");
                     $stmt_update_producto->bindParam(':id_producto', $id_producto);
                     $stmt_update_producto->execute();
                     $producto_actual = $stmt_update_producto->fetch(PDO::FETCH_ASSOC);
@@ -193,24 +192,33 @@ if (isset($_GET['action'])) {
                         $new_stock_tira = $producto_actual['stock_tira'];
                         $new_stock_pastilla = $producto_actual['stock_pastilla'];
 
+                        $updated_precio_caja = $producto_actual['precio_caja'];
+                        $updated_precio_frasco = $producto_actual['precio_frasco'];
+                        $updated_precio_tira = $producto_actual['precio_tira'];
+                        $updated_precio_pastilla = $producto_actual['precio_pastilla'];
+
+
                         switch ($unidad) {
                             case 'caja':
                                 $new_stock_caja += $cantidad;
+                                $updated_precio_caja = $precio_venta; 
                                 break;
                             case 'frasco':
                                 $new_stock_frasco += $cantidad;
+                                $updated_precio_frasco = $precio_venta; 
                                 break;
                             case 'tira':
                                 $new_stock_tira += $cantidad;
+                                $updated_precio_tira = $precio_venta; 
                                 break;
                             case 'pastilla':
                                 $new_stock_pastilla += $cantidad;
+                                $updated_precio_pastilla = $precio_venta; 
                                 break;
                         }
 
-                        // Actualizar la fecha de vencimiento solo si la nueva es más reciente
                         $current_vencimiento = $producto_actual['fecha_vencimiento'];
-                        $new_vencimiento = $fecha_venc_db; 
+                        $new_vencimiento = !empty($fecha_vencimiento_producto) ? $fecha_vencimiento_producto : null; 
 
                         if ($current_vencimiento === null || ($new_vencimiento !== null && $new_vencimiento > $current_vencimiento)) {
                             $updated_fecha_vencimiento = $new_vencimiento;
@@ -218,7 +226,6 @@ if (isset($_GET['action'])) {
                             $updated_fecha_vencimiento = $current_vencimiento;
                         }
 
-                        // Actualizar precios de venta y conversiones en el producto principal con los precios/conversiones del detalle de compra
                         $stmt_update_prod_data = $pdo->prepare("UPDATE productos_farmacia 
                             SET stock_caja = :stock_caja, stock_frasco = :stock_frasco, 
                                 stock_tira = :stock_tira, stock_pastilla = :stock_pastilla,
@@ -233,10 +240,10 @@ if (isset($_GET['action'])) {
                         $stmt_update_prod_data->bindParam(':stock_frasco', $new_stock_frasco);
                         $stmt_update_prod_data->bindParam(':stock_tira', $new_stock_tira);
                         $stmt_update_prod_data->bindParam(':stock_pastilla', $new_stock_pastilla);
-                        $stmt_update_prod_data->bindParam(':precio_caja', $producto_detalle['precio_venta']); // Usar el precio_venta del detalle
-                        $stmt_update_prod_data->bindParam(':precio_frasco', $producto_detalle['precio_venta']); // Asumiendo que precio_venta es el relevante aquí
-                        $stmt_update_prod_data->bindParam(':precio_tira', $producto_detalle['precio_venta']); 
-                        $stmt_update_prod_data->bindParam(':precio_pastilla', $producto_detalle['precio_venta']); 
+                        $stmt_update_prod_data->bindParam(':precio_caja', $updated_precio_caja);
+                        $stmt_update_prod_data->bindParam(':precio_frasco', $updated_precio_frasco);
+                        $stmt_update_prod_data->bindParam(':precio_tira', $updated_precio_tira);
+                        $stmt_update_prod_data->bindParam(':precio_pastilla', $updated_precio_pastilla);
                         $stmt_update_prod_data->bindParam(':fecha_vencimiento', $updated_fecha_vencimiento);
                         $stmt_update_prod_data->bindParam(':tiras_por_caja', $tiras_por_caja_comprada);
                         $stmt_update_prod_data->bindParam(':pastillas_por_tira', $pastillas_por_tira_comprada);

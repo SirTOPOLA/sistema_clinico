@@ -1,5 +1,5 @@
-<?php 
-
+<?php
+ 
 $idUsuario = $_SESSION['usuario']['id'] ?? 0;
 $rol = strtolower(trim($_SESSION['usuario']['rol'] ?? ''));
 
@@ -38,6 +38,10 @@ $compras = $pdo->query($sqlCompras)->fetchAll(PDO::FETCH_ASSOC);
 // Consulta para obtener la lista de proveedores para los selects en los modales
 $sqlProveedoresDropdown = "SELECT id, nombre FROM proveedores ORDER BY nombre ASC";
 $proveedoresDropdown = $pdo->query($sqlProveedoresDropdown)->fetchAll(PDO::FETCH_ASSOC);
+
+// NUEVA Consulta para obtener la lista de personal para los selects en los modales
+$sqlPersonalDropdown = "SELECT id, nombre, apellidos FROM personal ORDER BY nombre ASC";
+$personalDropdown = $pdo->query($sqlPersonalDropdown)->fetchAll(PDO::FETCH_ASSOC);
 
 // Consulta para obtener la lista de productos de farmacia para los selects en los modales
 // Asegúrate de que tu tabla `productos_farmacia` tenga las columnas para estas conversiones:
@@ -186,6 +190,17 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
             </select>
           </div>
           <div class="mb-3">
+            <label for="id_personal_crear" class="form-label">Realizada por <span class="text-danger">*</span></label>
+            <select class="form-select" id="id_personal_crear" name="id_personal" required>
+              <option value="">Seleccione el personal</option>
+              <?php foreach ($personalDropdown as $per): ?>
+                <option value="<?= $per['id'] ?>" <?= ($per['id'] == $idUsuario) ? 'selected' : '' ?>>
+                  <?= htmlspecialchars($per['nombre'] . ' ' . $per['apellidos']) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="mb-3">
             <label for="fecha_compra" class="form-label">Fecha de Compra <span class="text-danger">*</span></label>
             <input type="date" class="form-control" id="fecha_compra" name="fecha_compra" value="<?= date('Y-m-d') ?>" required>
           </div>
@@ -227,7 +242,7 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
 
         </div>
         <div class="modal-footer d-flex justify-content-between">
-          <input type="hidden" name="id_personal" value="<?= $idUsuario ?>">
+          <!-- El id_personal ahora se selecciona en el campo select, no se envía como hidden -->
           <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
           <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar Compra</button>
         </div>
@@ -348,6 +363,17 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
             </select>
           </div>
           <div class="mb-3">
+            <label for="edit-id_personal" class="form-label">Realizada por <span class="text-danger">*</span></label>
+            <select class="form-select" id="edit-id_personal" name="id_personal" required>
+              <option value="">Seleccione el personal</option>
+              <?php foreach ($personalDropdown as $per): ?>
+                <option value="<?= $per['id'] ?>">
+                  <?= htmlspecialchars($per['nombre'] . ' ' . $per['apellidos']) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="mb-3">
             <label for="edit-fecha_compra" class="form-label">Fecha de Compra <span class="text-danger">*</span></label>
             <input type="date" class="form-control" id="edit-fecha_compra" name="fecha_compra" required>
           </div>
@@ -375,7 +401,7 @@ $productosFarmaciaDropdown = $pdo->query($sqlProductosFarmaciaDropdown)->fetchAl
           </div>
         </div>
         <div class="modal-footer d-flex justify-content-between">
-          <input type="hidden" name="id_personal" value="<?= $idUsuario ?>">
+          <!-- El id_personal ahora se selecciona en el campo select, no se envía como hidden -->
           <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
           <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar Cambios</button>
         </div>
@@ -422,6 +448,9 @@ document.addEventListener('DOMContentLoaded', function() {
       const monto_total = button.getAttribute('data-monto_total');
       const adelanto = button.getAttribute('data-adelanto');
       const estado_pago = button.getAttribute('data-estado_pago');
+      // Obtener el id_personal de la fila para la edición
+      const id_personal = button.getAttribute('data-id_personal');
+
 
       const modalTitle = modalEditarCompra.querySelector('.modal-title');
       const form = modalEditarCompra.querySelector('form');
@@ -432,6 +461,8 @@ document.addEventListener('DOMContentLoaded', function() {
       form.querySelector('#edit-monto_total').value = parseFloat(monto_total || 0).toFixed(2); // Mantener 2 decimales para edición
       form.querySelector('#edit-adelanto').value = parseFloat(adelanto || 0).toFixed(2); // Mantener 2 decimales para edición
       form.querySelector('#edit-estado_pago').value = estado_pago;
+      // Establecer el personal seleccionado en el modal de edición
+      form.querySelector('#edit-id_personal').value = id_personal;
 
       // Ensure the selected option in the dropdown matches the data-estado_pago
       const estadoPagoSelect = form.querySelector('#edit-estado_pago');

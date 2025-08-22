@@ -3,12 +3,13 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
- 
+
 
 /**
  * Login específico para Internos.
  * Busca en la tabla `usuarios` usando un campo `usuario` y `password_hash`.
- */function login($pdo, $usuario, $contrasena)
+ */
+function login($pdo, $usuario, $contrasena)
 {
     // Consulta para obtener datos del usuario, su rol y datos del personal
     $sql = "SELECT 
@@ -31,11 +32,11 @@ if (session_status() == PHP_SESSION_NONE) {
     if ($user && password_verify($contrasena, $user['password'])) {
         // Sesión iniciada correctamente
         $_SESSION['usuario'] = [
-            'id'        => $user['id'],
-            'username'  => $user['username'],
-            'nombre'    => $user['nombre_completo'] ?? 'Sin nombre asignado',
-            'rol'       => $user['rol'] ?? 'Sin rol asignado',
-            'ingreso'   => $user['ingreso']
+            'id' => $user['id'],
+            'username' => $user['username'],
+            'nombre' => $user['nombre_completo'] ?? 'Sin nombre asignado',
+            'rol' => $user['rol'] ?? 'Sin rol asignado',
+            'ingreso' => $user['ingreso']
         ];
 
         $_SESSION['alerta'] = [
@@ -64,7 +65,7 @@ function logout()
 {
     session_unset();
     session_destroy();
-    
+
     header('Location: index.php?vista=login');
     exit;
 }
