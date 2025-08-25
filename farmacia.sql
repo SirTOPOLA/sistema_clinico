@@ -53,7 +53,6 @@ CREATE TABLE
         contacto VARCHAR(100)
     );
 
- 
 -- Cabecera de compras
 CREATE TABLE
     compras (
@@ -83,16 +82,17 @@ CREATE TABLE
         FOREIGN KEY (producto_id) REFERENCES productos (id)
     );
 
-CREATE TABLE pagos_proveedores (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    compra_id INT,
-    proveedor_id INT,
-    monto DECIMAL(12,2) NOT NULL,
-    fecha DATE NOT NULL,
-    metodo_pago ENUM('EFECTIVO','TRANSFERENCIA','TARJETA','OTRO') DEFAULT 'EFECTIVO',
-    FOREIGN KEY (compra_id) REFERENCES compras(id),
-    FOREIGN KEY (proveedor_id) REFERENCES proveedores(id)
-);
+CREATE TABLE
+    pagos_proveedores (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        compra_id INT,
+        proveedor_id INT,
+        monto DECIMAL(12, 2) NOT NULL,
+        fecha DATE NOT NULL,
+        metodo_pago ENUM ('EFECTIVO', 'TRANSFERENCIA', 'TARJETA', 'OTRO') DEFAULT 'EFECTIVO',
+        FOREIGN KEY (compra_id) REFERENCES compras (id),
+        FOREIGN KEY (proveedor_id) REFERENCES proveedores (id)
+    );
 
 -- ========================
 -- pacienteS Y VENTAS
@@ -100,26 +100,22 @@ CREATE TABLE pagos_proveedores (
 --CREATE TABLE pacientes (
 --   Paciente ya esta en el modulo de la clinica
 --);
-
 ALTER TABLE ventas
-ADD empleado_id INT AFTER cliente_id,         -- Quién realizó la venta
-
-ALTER TABLE ventas
-ADD FOREIGN KEY (empleado_id) REFERENCES empleados(id);
-
-
 -- Cabecera de ventas
 CREATE TABLE
     ventas (
         id INT AUTO_INCREMENT PRIMARY KEY,
         paciente_id INT,
         usuario_id INT, -- quien atendio 
-        fecha DATE NOT NULL, 
-        monto_total DECIMAL(12,2) NOT NULL,       -- Precio total calculado
-        monto_recibido DECIMAL(12,2) DEFAULT 0,   -- Dinero entregado por el cliente
-        cambio_devuelto DECIMAL(12,2) DEFAULT 0,  -- Vuelto al cliente
-        estado_pago ENUM('PAGADO','PENDIENTE','PARCIAL') DEFAULT 'PAGADO',
-        metodo_pago ENUM('EFECTIVO','TARJETA','TRANSFERENCIA','OTRO') DEFAULT 'EFECTIVO',
+        fecha DATE NOT NULL,
+        monto_total DECIMAL(12, 2) NOT NULL, -- Precio total calculado
+        monto_recibido DECIMAL(12, 2) DEFAULT 0, -- Dinero entregado por el cliente
+        cambio_devuelto DECIMAL(12, 2) DEFAULT 0, -- Vuelto al cliente
+        motivo_descuento VARCHAR(150) NULL, -- Ej: Promoción, Fidelización
+        descuento_global DECIMAL(12, 2) DEFAULT 0, -- descuento sobre el total
+        seguro TINYINT (1) DEFAULT 0, -- 0 = no, 1 = sí
+        estado_pago ENUM ('PAGADO', 'PENDIENTE', 'PARCIAL') DEFAULT 'PAGADO',
+        metodo_pago ENUM ('EFECTIVO', 'TARJETA', 'TRANSFERENCIA', 'OTRO') DEFAULT 'EFECTIVO',
         FOREIGN KEY (usuario_id) REFERENCES usuarios (id),
         FOREIGN KEY (paciente_id) REFERENCES pacientes (id)
     );
@@ -132,6 +128,7 @@ CREATE TABLE
         producto_id INT,
         cantidad INT NOT NULL,
         precio_venta DECIMAL(10, 2) NOT NULL,
+        descuento_unitario DECIMAL(12, 2) DEFAULT 0, -- descuento en cada producto
         FOREIGN KEY (venta_id) REFERENCES ventas (id),
         FOREIGN KEY (producto_id) REFERENCES productos (id)
     );
@@ -163,19 +160,3 @@ CREATE TABLE
         fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
         metodo_pago ENUM ('EFECTIVO', 'TARJETA', 'TRANSFERENCIA', 'OTRO') DEFAULT 'EFECTIVO'
     );
-
--- ========================
--- REGALOS
--- ========================
-CREATE TABLE
-    regalos (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        producto_id INT,
-        cantidad INT NOT NULL,
-        motivo VARCHAR(150), -- Ej: Promoción, Muestra médica
-        fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-        paciente_id INT, --entregado_a  Persona o paciente
-        FOREIGN KEY (producto_id) REFERENCES productos (id),
-        FOREIGN KEY (paciente_id) REFERENCES pacientes (id)
-    );
-
