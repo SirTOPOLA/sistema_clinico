@@ -100,13 +100,27 @@ CREATE TABLE pagos_proveedores (
 --CREATE TABLE pacientes (
 --   Paciente ya esta en el modulo de la clinica
 --);
+
+ALTER TABLE ventas
+ADD empleado_id INT AFTER cliente_id,         -- Quién realizó la venta
+
+ALTER TABLE ventas
+ADD FOREIGN KEY (empleado_id) REFERENCES empleados(id);
+
+
 -- Cabecera de ventas
 CREATE TABLE
     ventas (
         id INT AUTO_INCREMENT PRIMARY KEY,
         paciente_id INT,
-        fecha DATE NOT NULL,
-        total DECIMAL(12, 2) NOT NULL,
+        usuario_id INT, -- quien atendio 
+        fecha DATE NOT NULL, 
+        monto_total DECIMAL(12,2) NOT NULL,       -- Precio total calculado
+        monto_recibido DECIMAL(12,2) DEFAULT 0,   -- Dinero entregado por el cliente
+        cambio_devuelto DECIMAL(12,2) DEFAULT 0,  -- Vuelto al cliente
+        estado_pago ENUM('PAGADO','PENDIENTE','PARCIAL') DEFAULT 'PAGADO',
+        metodo_pago ENUM('EFECTIVO','TARJETA','TRANSFERENCIA','OTRO') DEFAULT 'EFECTIVO',
+        FOREIGN KEY (usuario_id) REFERENCES usuarios (id),
         FOREIGN KEY (paciente_id) REFERENCES pacientes (id)
     );
 
@@ -144,7 +158,7 @@ CREATE TABLE
         id INT AUTO_INCREMENT PRIMARY KEY,
         tipo ENUM ('INGRESO', 'EGRESO') NOT NULL,
         concepto VARCHAR(100) NOT NULL, -- Ej: Venta, Compra, Préstamo, Regalo
-        referencia VARCHAR(50), -- ID de venta, compra, préstamo
+        referencia_id INT, -- ID de venta, compra, préstamo
         monto DECIMAL(12, 2) NOT NULL,
         fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
         metodo_pago ENUM ('EFECTIVO', 'TARJETA', 'TRANSFERENCIA', 'OTRO') DEFAULT 'EFECTIVO'
@@ -160,33 +174,8 @@ CREATE TABLE
         cantidad INT NOT NULL,
         motivo VARCHAR(150), -- Ej: Promoción, Muestra médica
         fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-        --entregado_a VARCHAR(100),         -- Persona o paciente
-        paciente_id INT,
+        paciente_id INT, --entregado_a  Persona o paciente
         FOREIGN KEY (producto_id) REFERENCES productos (id),
         FOREIGN KEY (paciente_id) REFERENCES pacientes (id)
     );
 
--- ========================
--- PRÉSTAMOS
--- ========================
-CREATE TABLE
-    prestamos (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        paciente_id INT,
-        fecha DATE NOT NULL,
-        total DECIMAL(12, 2) NOT NULL,
-        estado ENUM ('PENDIENTE', 'PAGADO') DEFAULT 'PENDIENTE',
-        observacion VARCHAR(150), -- Ej: detalles 
-        FOREIGN KEY (paciente_id) REFERENCES pacientes (id)
-    );
-
-CREATE TABLE
-    prestamos_detalle (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        prestamo_id INT,
-        producto_id INT,
-        cantidad INT NOT NULL,
-        precio_unitario DECIMAL(10, 2) NOT NULL,
-        FOREIGN KEY (prestamo_id) REFERENCES prestamos (id),
-        FOREIGN KEY (producto_id) REFERENCES productos (id)
-    );
