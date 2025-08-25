@@ -23,14 +23,25 @@ CREATE TABLE prepagos_beneficiarios (
 
 CREATE TABLE movimientos_prepago (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    prepago_id INT NOT NULL,
-    paciente_id INT NOT NULL,                  -- paciente que consume el saldo
-    venta_id INT NULL,                        -- si se utilizó en una venta
+    prepago_id INT NOT NULL,                  -- referencia al prepago
+    cliente_id INT NOT NULL,                  -- titular o beneficiario que consumió
+    venta_id INT NULL,                        -- venta asociada (si aplica)
     tipo ENUM('CREDITO','DEBITO') NOT NULL,  -- CREDITO = recarga, DEBITO = consumo
     monto DECIMAL(12,2) NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     descripcion VARCHAR(150),
     FOREIGN KEY (prepago_id) REFERENCES prepagos(id),
-    FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id),
     FOREIGN KEY (venta_id) REFERENCES ventas(id)
+);
+
+
+-- Tabla de préstamos existente
+CREATE TABLE prestamos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cliente_id INT NOT NULL,
+    total DECIMAL(12,2) NOT NULL,
+    estado ENUM('PENDIENTE','PARCIAL','PAGADO') DEFAULT 'PENDIENTE',
+    fecha DATE NOT NULL,
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
