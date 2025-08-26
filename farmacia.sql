@@ -57,6 +57,7 @@ CREATE TABLE
 CREATE TABLE
     compras (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        codigo_factura VARCHAR(100),
         proveedor_id INT,
         personal_id INT,
         fecha DATE NOT NULL,

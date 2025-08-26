@@ -92,7 +92,7 @@ $menu = [
   ],
   'farmacia' => [
     'Dashboard' => 'dashboard_farmacia',
-    'Productos' => 'medicamentos_farmacia', 
+    'Productos' => 'productos_farmacia', 
     'Proveedores' => 'proveedores_farmacia',
     'Compras' => 'compras_farmacia',
     'Unidades' => 'unidadesMedida_farmacia',

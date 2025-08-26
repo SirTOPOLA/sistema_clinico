@@ -44,7 +44,7 @@ function verificarAcceso($vista)
         ],
         'farmacia' => [
             'dashboard_farmacia',
-            'medicamentos_farmacia',
+            'productos_farmacia',
             'proveedores_farmacia',
             'compras_farmacia',
             'unidadesMedida_farmacia',
