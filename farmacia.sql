@@ -100,7 +100,7 @@ CREATE TABLE
 --CREATE TABLE pacientes (
 --   Paciente ya esta en el modulo de la clinica
 --);
-ALTER TABLE ventas
+ 
 -- Cabecera de ventas
 CREATE TABLE
     ventas (
@@ -150,13 +150,13 @@ CREATE TABLE
 -- ========================
 -- FINANZAS
 -- ========================
-CREATE TABLE
-    movimientos_financieros (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        tipo ENUM ('INGRESO', 'EGRESO') NOT NULL,
-        concepto VARCHAR(100) NOT NULL, -- Ej: Venta, Compra, Préstamo, Regalo
-        referencia_id INT, -- ID de venta, compra, préstamo
-        monto DECIMAL(12, 2) NOT NULL,
-        fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-        metodo_pago ENUM ('EFECTIVO', 'TARJETA', 'TRANSFERENCIA', 'OTRO') DEFAULT 'EFECTIVO'
-    );
+--CREATE TABLE
+--    movimientos_financieros (
+--        id INT AUTO_INCREMENT PRIMARY KEY,
+--        tipo ENUM ('INGRESO', 'EGRESO') NOT NULL,
+--        concepto VARCHAR(100) NOT NULL, -- Ej: Venta, Compra, Préstamo, Regalo
+--        referencia_id INT, -- ID de venta, compra, préstamo
+--        monto DECIMAL(12, 2) NOT NULL,
+--        fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+--        metodo_pago ENUM ('EFECTIVO', 'TARJETA', 'TRANSFERENCIA', 'OTRO') DEFAULT 'EFECTIVO'
+--    );

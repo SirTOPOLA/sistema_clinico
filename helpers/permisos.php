@@ -25,34 +25,39 @@ function verificarAcceso($vista)
             'pagos',
             'reportes',
             'analiticas',
-            'ingresos', 
+            'ingresos',
             'empleados'
-        ], 
-        
+        ],
+
         'laboratorio' => [
             'dashboard_laboratorio',
             'analiticas',
-            
+
         ],
-        
+
         'doctor' => [
             'dashboard_doctor',
-            'recetas', 
+            'recetas',
             'ingresos',
             'analiticas',
             'consultas',
         ],
         'farmacia' => [
             'dashboard_farmacia',
-            'medicamentos',  
-            'proveedores',  
-            'compras',  
+            'medicamentos_farmacia',
+            'proveedores_farmacia',
+            'compras_farmacia',
+            'unidadesMedida_farmacia',
+            'categorias_farmacia',
+            'pasivos_farmacia',
+            'ventas_farmacia',
+            'inventario_farmacia'
         ]
     ];
 
     // Definir el dashboard principal por rol
     $dashboards = [
-        'administrador' => 'dashboard_administrador', 
+        'administrador' => 'dashboard_administrador',
         'laboratorio' => 'dashboard_laboratorio',
         'doctor' => 'dashboard_doctor',
         'farmacia' => 'dashboard_farmacia'
