@@ -98,9 +98,9 @@ CREATE TABLE
 -- ========================
 -- pacienteS Y VENTAS
 -- ========================
---CREATE TABLE pacientes (
+-- CREATE TABLE pacientes (
 --   Paciente ya esta en el modulo de la clinica
---);
+-- );
  
 -- Cabecera de ventas
 CREATE TABLE

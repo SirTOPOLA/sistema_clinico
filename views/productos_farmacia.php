@@ -111,7 +111,7 @@ unset($_SESSION['error'], $_SESSION['success']);
                             </td>
                             <td>
                                 <?php if ($producto['precio_unitario'] !== NULL): ?>
-                                    $<?= number_format($producto['precio_unitario'], 2) ?>
+                                    XAF <?= number_format($producto['precio_unitario'], 0) ?>
                                 <?php else: ?>
                                     <i class="bi bi-lock-fill text-muted" title="Sin precio unitario"></i>
                                 <?php endif; ?>
