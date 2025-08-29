@@ -9,7 +9,8 @@
  * 4. Actualizar el saldo del seguro si aplica.
  * 5. Verificar y decrementar el stock de cada producto.
  * 6. Insertar la venta principal y sus detalles en la base de datos.
- * 7. Manejar errores con un rollback de la transacción.
+ * 7. (NUEVO) Registrar un préstamo si la venta no está completamente pagada.
+ * 8. Manejar errores con un rollback de la transacción.
  */
 
 // Se requiere el archivo de conexión a la base de datos
@@ -93,7 +94,7 @@ try {
 
         // 4. Registrar el movimiento de débito
         $sql_movimiento = "INSERT INTO movimientos_seguro (seguro_id, paciente_id, tipo, monto, descripcion) 
-                           VALUES (:seguro_id, :paciente_id, 'DEBITO', :monto, 'Consumo en farmacia')";
+                             VALUES (:seguro_id, :paciente_id, 'DEBITO', :monto, 'Consumo en farmacia')";
         $stmt_movimiento = $pdo->prepare($sql_movimiento);
         $stmt_movimiento->execute([':seguro_id' => $seguro_id, ':paciente_id' => $paciente_id, ':monto' => $monto_total]);
 
@@ -101,14 +102,17 @@ try {
         // Lógica para ventas sin seguro (pago regular)
         // Se añaden validaciones para los montos de pago.
         $monto_recibido = (float) $monto_recibido;
+        $monto_pendiente = $monto_total - $monto_recibido; // Calcular el monto pendiente
+
         if ($monto_recibido < $monto_total) {
-            $estado_pago_final = 'PENDIENTE';
+            // Establecer el estado como PENDIENTE
+            $estado_pago_final = 'PENDIENTE'; 
         } else {
             // Se asegura que si el monto recibido es igual o mayor, el estado sea PAGADO
             $estado_pago_final = 'PAGADO';
         }
         $metodo_pago_final = $metodo_pago;
-        $cambio_devuelto_final = $monto_recibido - $monto_total;
+        $cambio_devuelto_final = max(0, $monto_recibido - $monto_total); // El cambio no puede ser negativo
         $monto_recibido_final = $monto_recibido;
     }
 
@@ -153,25 +157,34 @@ try {
     ]);
     $venta_id = $pdo->lastInsertId();
 
-
-
     // 2. Insertar los detalles de la venta
     $sql_detalle = "INSERT INTO ventas_detalle (venta_id, producto_id, cantidad, precio_venta, descuento_unitario) VALUES (?, ?, ?, ?, ?)";
     $stmt_detalle = $pdo->prepare($sql_detalle);
 
+    // Consulta para obtener el precio_unitario del producto
+    $sql_precio = "SELECT precio_unitario FROM productos WHERE id = :id";
+    $stmt_precio = $pdo->prepare($sql_precio);
+
     foreach ($productos as $producto) {
         $producto_id = filter_var($producto['id'], FILTER_SANITIZE_NUMBER_INT);
         $cantidad = filter_var($producto['cantidad'], FILTER_SANITIZE_NUMBER_INT);
-        $precio_venta = filter_var($producto['precio'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         $descuento = filter_var($producto['descuento'] ?? 0, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 
-        // Validar que el precio de venta sea mayor que cero
+        // Obtener precio_unitario desde la base de datos
+        $stmt_precio->execute([':id' => $producto_id]);
+        $precio_data = $stmt_precio->fetch(PDO::FETCH_ASSOC);
 
-        if ($precio_venta <= 0) {
-            $_SESSION['error'] = "El precio de venta del producto con ID {$producto_id} no puede ser menor o igual a cero.";
+        if (!$precio_data) {
+            $_SESSION['error'] = "No se pudo encontrar el producto con ID {$producto_id} para obtener el precio.";
             throw new Exception($_SESSION['error']);
         }
 
+        $precio_venta = (float) $precio_data['precio_unitario'];
+
+        if ($precio_venta <= 0) {
+            $_SESSION['error'] = "El precio del producto con ID {$producto_id} es inválido (menor o igual a cero).";
+            throw new Exception($_SESSION['error']);
+        }
 
         $stmt_detalle->execute([
             $venta_id,
@@ -182,6 +195,24 @@ try {
         ]);
     }
 
+    // --- LÓGICA PARA REGISTRAR PRÉSTAMO (NUEVO) ---
+    // Si el estado de pago es PENDIENTE, se registra el préstamo
+    if ($estado_pago_final === 'PENDIENTE') {
+        // Se calcula el monto restante a pagar
+        $monto_restante = $monto_total - $monto_recibido_final;
+        
+        if ($monto_restante > 0) {
+            $sql_prestamo = "INSERT INTO prestamos (paciente_id, total, estado, fecha) 
+                             VALUES (:paciente_id, :total, 'PENDIENTE', :fecha)";
+            $stmt_prestamo = $pdo->prepare($sql_prestamo);
+            $stmt_prestamo->execute([
+                ':paciente_id' => $paciente_id,
+                ':total' => $monto_restante,
+                ':fecha' => $fecha
+            ]);
+        }
+    }
+    // --- FIN DE LÓGICA NUEVA ---
 
     // Si todo ha ido bien, se confirma la transacción.
     $pdo->commit();
