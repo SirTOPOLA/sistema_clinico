@@ -100,7 +100,7 @@ CREATE TABLE
 -- ========================
 -- CREATE TABLE pacientes (
 --   Paciente ya esta en el modulo de la clinica
--- );
+--);
  
 -- Cabecera de ventas
 CREATE TABLE

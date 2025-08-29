@@ -48,7 +48,13 @@ $iconos_por_rol = [
   ],
   'farmacia' => [
     'dashboard_farmacia' => 'bi-eyedropper',
-    'analiticas' => 'bi-clipboard-pulse',
+    'productos_farmacia' => 'bi-capsule',
+    'proveedores_farmacia' => 'bi-truck',
+    'compras_farmacia' => 'bi-cart-check',
+    'unidadesMedida_farmacia' => 'bi-bounding-box',
+    'categorias_farmacia' => 'bi-tags',
+    'pasivos_farmacia' => 'bi-journal-minus',
+    'ventas_farmacia' => 'bi-basket',
   ],
 ];
 
@@ -62,45 +68,43 @@ $menu = [
     'Usuarios' => 'usuarios',
     'Pacientes' => 'pacientes',
     'Recetas' => 'recetas',
-    'salas' => 'salas',
+    'Salas' => 'salas',
     'Pruebas' => 'tipo_prueba',
-    'ingresos' => 'ingresos',
-    'analiticas' => 'analiticas',
-    'pagos de Pruebas' => 'pagos',
+    'Ingresos' => 'ingresos',
+    'Analíticas' => 'analiticas',
+    'Pagos de Pruebas' => 'pagos',
     'Consultas' => 'consultas',
     'Reportes' => 'reportes',
-    /* 'Detalles_consultas' => 'detalles_consultas', */
+    // 'Detalles_consultas' => 'detalles_consultas',
     'Empleados' => 'empleados',
-    // 'Configuración' => 'configuracion',
-  ],
-  'laboratorio' => [
-    'Dashboard' => 'dashboard_laboratorio',
-    'analiticas' => 'analiticas',
   ],
   'secretaria' => [
     'Dashboard' => 'dashboard_secretaria',
     'Pacientes' => 'pacientes',
-    'ingresos' => 'ingresos',
+    'Ingresos' => 'ingresos',
     'Consultas' => 'consultas',
   ],
   'doctor' => [
     'Dashboard' => 'dashboard_doctor',
     'Recetas' => 'recetas',
-    'ingresos' => 'ingresos',
+    'Ingresos' => 'ingresos',
     'Consultas' => 'consultas',
-    'analiticas' => 'analiticas',
+    'Analíticas' => 'analiticas',
+  ],
+  'laboratorio' => [
+    'Dashboard' => 'dashboard_laboratorio',
+    'Analíticas' => 'analiticas',
   ],
   'farmacia' => [
     'Dashboard' => 'dashboard_farmacia',
-    'Productos' => 'productos_farmacia', 
+    'Productos' => 'productos_farmacia',
     'Proveedores' => 'proveedores_farmacia',
     'Compras' => 'compras_farmacia',
     'Unidades' => 'unidadesMedida_farmacia',
-    'Categorias' => 'categorias_farmacia',
+    'Categorías' => 'categorias_farmacia',
     'Pasivos' => 'pasivos_farmacia',
     'Ventas' => 'ventas_farmacia',
-    'Inventario' => 'inventario_farmacia',
-  ] 
+  ],
 ];
 ?>
 <div class="wrapper">
