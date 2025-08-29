@@ -10,13 +10,13 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 try {
     // Sanitización y validación de los datos
-    $pago_id      = isset($_POST['pago_id']) ? (int) $_POST['pago_id'] : null;
+    $pago_id      = isset($_POST['id']) ? (int) $_POST['id'] : null;
     $monto_nuevo  = isset($_POST['monto']) ? floatval($_POST['monto']) : null;
     $fecha_pago   = $_POST['fecha'] ?? null;
     $metodo_pago  = trim($_POST['metodo_pago'] ?? '');
 
     if (!$pago_id || !$monto_nuevo || !$fecha_pago || empty($metodo_pago)) {
-        $_SESSION['error'] = 'Todos los campos son obligatorios.';
+        $_SESSION['error'] = 'Todos los campos son obligatorios. ID: '.htmlspecialchars( $pago_id ).' MONTO NUEVO: '.htmlspecialchars( $monto_nuevo).' FECHA: '.htmlspecialchars($fecha_pago ).' METODO: '.htmlspecialchars(   $metodo_pago);
         header('Location: ../index.php?vista=pasivos_farmacia');
         exit;
     }

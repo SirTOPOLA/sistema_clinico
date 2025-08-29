@@ -97,7 +97,7 @@ $menu = [
     'Compras' => 'compras_farmacia',
     'Unidades' => 'unidadesMedida_farmacia',
     'Categorias' => 'categorias_farmacia',
-    'Pasovos' => 'pasivos_farmacia',
+    'Pasivos' => 'pasivos_farmacia',
     'Ventas' => 'ventas_farmacia',
     'Inventario' => 'inventario_farmacia',
   ] 
