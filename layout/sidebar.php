@@ -75,7 +75,7 @@ $menu = [
     'Pagos de Pruebas' => 'pagos',
     'Consultas' => 'consultas',
     'Reportes' => 'reportes',
-    // 'Detalles_consultas' => 'detalles_consultas',
+     'Asegurado' => 'seguros',
     'Empleados' => 'empleados',
   ],
   'secretaria' => [

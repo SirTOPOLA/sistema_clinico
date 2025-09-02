@@ -8,8 +8,6 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-
 ?>
 <div id="content" class="container-fluid">
   <div class="row mb-3">
@@ -24,11 +22,7 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
   </div>
 
-
-
   <?php
-
-
   if (isset($_SESSION['error'])) {
     echo '<div id="mensaje" class="alert alert-danger">' . $_SESSION['error'] . '</div>';
     unset($_SESSION['error']);
@@ -38,12 +32,6 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     unset($_SESSION['success']);
   }
   ?>
-
-
-
-
-
-
 
   <div class="card shadow-sm border-0">
     <div class="card-body">
@@ -56,7 +44,7 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <th>DIP</th>
               <th>CODIGO</th>
               <th>Sexo</th>
-              <th>Teléfono</th> 
+              <th>Teléfono</th>
               <th>Registro</th>
               <th>Acciones</th>
             </tr>
@@ -80,19 +68,17 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <td><?= htmlspecialchars($p['dip']) ?></td>
                 <td><?= htmlspecialchars($p['codigo']) ?></td>
                 <td><?= htmlspecialchars($p['sexo']) ?></td>
-                <td><?= htmlspecialchars($p['telefono']) ?></td> 
+                <td><?= htmlspecialchars($p['telefono']) ?></td>
                 <td><?= date('d/m/Y H:i', strtotime($p['fecha_registro'])) ?></td>
                 <td class="text-nowrap">
                   <button class="btn btn-sm btn-outline-primary btn-editar" data-bs-toggle="modal"
                     data-bs-target="#modalEditar">
                     <i class="bi bi-pencil-square"></i>
                   </button>
-                  <!-- Botón dentro del listado de pacientes -->
                   <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalHistorial"
                     onclick="cargarHistorialMedico(<?= $p['id'] ?>)">
                     <i class="bi bi-journal-text"></i> Historial
                   </button>
-
                   <a href="eliminar_paciente.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-danger"
                     onclick="return confirm('¿Deseas eliminar este paciente?')">
                     <i class="bi bi-trash"></i>
@@ -107,92 +93,157 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
   </div>
 </div>
 
-
 <!-- Modal Crear -->
 <div class="modal fade" id="modalCrear" tabindex="-1" aria-labelledby="modalCrearLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
     <form action="api/guardar_paciente.php" method="POST" class="modal-content">
       <div class="modal-header bg-success text-white">
-        <h5 class="modal-title">Registrar Nuevo Paciente</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="modalCrearLabel">Registrar Nuevo Paciente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body row g-3">
+      <div class="modal-body">
         <input type="hidden" name="id_usuario" value="<?= $_SESSION['usuario']['id'] ?>">
-        <div class="col-md-6"><label>Nombre</label><input type="text" name="nombre" class="form-control" required></div>
-        <div class="col-md-6"><label>Apellidos</label><input type="text" name="apellidos" class="form-control" required>
+        
+        <!-- Sección de Información General -->
+        <h6 class="mb-3 border-bottom pb-2 text-primary">Información General</h6>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label for="crear_nombre" class="form-label">Nombre</label>
+            <input type="text" name="nombre" id="crear_nombre" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label for="crear_apellidos" class="form-label">Apellidos</label>
+            <input type="text" name="apellidos" id="crear_apellidos" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <label for="crear_fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+            <input type="date" name="fecha_nacimiento" id="crear_fecha_nacimiento" class="form-control">
+          </div>
+          
+          <div class="col-md-4">
+            <label for="crear_sexo" class="form-label">Sexo</label>
+            <select name="sexo" id="crear_sexo" class="form-select">
+              <option value="">Seleccionar</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="crear_direccion" class="form-label">Dirección</label> 
+            <input type="text" name="direccion" id="crear_direccion" class="form-control">
+          </div>
         </div>
-        <div class="col-md-4"><label>Fecha de Nacimiento</label><input type="date" name="fecha_nacimiento"
-            class="form-control"></div>
-        <div class="col-md-4"><label>DIP</label><input type="text" name="dip" class="form-control"></div>
-        <div class="col-md-4"><label>Sexo</label>
-          <select name="sexo" class="form-select">
-            <option value="">Seleccionar</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option> 
-          </select>
+
+        <!-- Sección de Información Adicional -->
+        <h6 class="mb-3 border-bottom pb-2 text-primary">Información Adicional</h6>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="crear_tutor_nombre" class="form-label">Tutor</label>
+            <input type="text" name="tutor_nombre" id="crear_tutor_nombre" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="crear_dip" class="form-label">DIP</label>
+            <input type="text" name="dip" id="crear_dip" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="crear_telefono" class="form-label">Teléfono</label>
+            <input type="text" name="telefono" id="crear_telefono" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="crear_ocupacion" class="form-label">Ocupación (Opcional)</label>
+            <input type="text" name="ocupacion" id="crear_ocupacion" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="crear_profesion" class="form-label">Profesión (Opcional)</label>
+            <input type="text" name="profesion" id="crear_profesion" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label for="crear_telefono_tutor" class="form-label">Teléfono del Tutor (Opcional)</label>
+            <input type="text" name="telefono_tutor" id="crear_telefono_tutor" class="form-control">
+          </div>
         </div>
-       <!--  <div class="col-md-6"><label>Email (OPCIONAL)</label><input type="email" name="email" class="form-control"></div> -->
-        <div class="col-md-6"><label>Teléfono</label><input type="text" name="telefono" class="form-control"></div>
-        <div class="col-md-6"><label>Profesión</label><input type="text" name="profesion" class="form-control"></div>
-        <div class="col-md-6"><label>Ocupación</label><input type="text" name="ocupacion" class="form-control"></div>
-        <div class="col-md-6"><label>Nombre del Tutor</label><input type="text" name="tutor_nombre"
-            class="form-control"></div>
-        <div class="col-md-6"><label>Teléfono del Tutor</label><input type="text" name="telefono_tutor"
-            class="form-control"></div>
-        <div class="col-md-6"><label>Dirección</label><textarea name="direccion" class="form-control"></textarea></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="submit" class="btn btn-success">Guardar</button>
       </div>
     </form>
   </div>
 </div>
 
-
-
 <!-- Modal Editar -->
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
     <form action="api/actualizar_paciente.php" method="POST" class="modal-content">
       <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Editar Paciente</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="modalEditarLabel">Editar Paciente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body row g-3">
+      <div class="modal-body">
         <input type="hidden" name="id" id="edit_id">
         <input type="hidden" name="id_usuario" value="<?= $_SESSION['usuario']['id'] ?>">
-        <div class="col-md-6"><label>Nombre</label><input type="text" name="nombre" id="edit_nombre"
-            class="form-control" required></div>
-        <div class="col-md-6"><label>Apellidos</label><input type="text" name="apellidos" id="edit_apellidos"
-            class="form-control" required></div>
-        <div class="col-md-4"><label>Fecha de Nacimiento</label><input type="date" name="fecha_nacimiento"
-            id="edit_fecha_nacimiento" class="form-control"></div>
-        <div class="col-md-4"><label>DIP</label><input type="text" name="dip" id="edit_dip" class="form-control"></div>
-        <div class="col-md-4"><label>Sexo</label>
-          <select name="sexo" id="edit_sexo" class="form-select">
-            <option value="">Seleccionar</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option> 
-          </select>
+        
+        <!-- Sección de Información General -->
+        <h6 class="mb-3 border-bottom pb-2 text-primary">Información General</h6>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label for="edit_nombre" class="form-label">Nombre</label>
+            <input type="text" name="nombre" id="edit_nombre" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label for="edit_apellidos" class="form-label">Apellidos</label>
+            <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <label for="edit_fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+            <input type="date" name="fecha_nacimiento" id="edit_fecha_nacimiento" class="form-control">
+          </div>
+         
+          <div class="col-md-4">
+            <label for="edit_sexo" class="form-label">Sexo</label>
+            <select name="sexo" id="edit_sexo" class="form-select">
+              <option value="">Seleccionar</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label for="edit_direccion" class="form-label">Dirección</label>
+            <textarea name="direccion" id="edit_direccion" class="form-control" rows="2"></textarea>
+          </div>
         </div>
-        <!-- <div class="col-md-6"><label>Email</label><input type="email" name="email" id="edit_email" class="form-control">
-        </div> -->
-        <div class="col-md-6"><label>Teléfono</label><input type="text" name="telefono" id="edit_telefono"
-            class="form-control"></div>
-        <div class="col-md-6"><label>Profesión</label><input type="text" name="profesion" id="edit_profesion"
-            class="form-control"></div>
-        <div class="col-md-6"><label>Ocupación</label><input type="text" name="ocupacion" id="edit_ocupacion"
-            class="form-control"></div>
-        <div class="col-md-6"><label>Nombre del Tutor</label><input type="text" name="tutor_nombre"
-            id="edit_tutor_nombre" class="form-control"></div>
-        <div class="col-md-6"><label>Teléfono del Tutor</label><input type="text" name="telefono_tutor"
-            id="edit_telefono_tutor" class="form-control"></div>
-        <div class="col-md-6"><label>Dirección</label><textarea name="direccion" id="edit_direccion"
-            class="form-control"></textarea></div>
+
+        <!-- Sección de Información Adicional -->
+        <h6 class="mb-3 border-bottom pb-2 text-primary">Información Adicional</h6>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="edit_tutor_nombre" class="form-label">Tutor</label>
+            <input type="text" name="tutor_nombre" id="edit_tutor_nombre" class="form-control">
+          </div>
+           <div class="col-md-4">
+            <label for="edit_dip" class="form-label">DIP</label>
+            <input type="text" name="dip" id="edit_dip" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label for="edit_telefono" class="form-label">Teléfono</label>
+            <input type="text" name="telefono" id="edit_telefono" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label for="edit_ocupacion" class="form-label">Ocupación</label>
+            <input type="text" name="ocupacion" id="edit_ocupacion" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label for="edit_profesion" class="form-label">Profesión</label>
+            <input type="text" name="profesion" id="edit_profesion" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label for="edit_telefono_tutor" class="form-label">Segundo Teléfono del Tutor</label>
+            <input type="text" name="telefono_tutor" id="edit_telefono_tutor" class="form-control">
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="submit" class="btn btn-primary">Actualizar</button>
       </div>
     </form>
@@ -222,7 +273,7 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <div class="col-md-4 d-flex align-items-end justify-content-center gap-2">
             <button onclick="filtrarHistorial()" class="btn btn-success"><i class="bi bi-search"></i> Buscar</button>
             <button onclick="generarPDF()" class="btn btn-danger"><i class="bi bi-file-earmark-pdf-fill"></i> PDF</button>
-             
+
           </div>
         </div>
 
@@ -237,120 +288,125 @@ $pacientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 <script>
-let id_paciente = 0;
+  let id_paciente = 0;
 
-function cargarHistorialMedico(id) {
-  if (!id || isNaN(id)) {
-    console.warn("ID de paciente inválido");
-    return;
+  function cargarHistorialMedico(id) {
+    if (!id || isNaN(id)) {
+      console.warn("ID de paciente inválido");
+      return;
+    }
+
+    id_paciente = id;
+    const contenedor = document.getElementById('historialContenido');
+    if (!contenedor) return;
+
+    contenedor.innerHTML = '<p class="text-center text-muted">Cargando historial...</p>';
+
+    fetch(`api/obtener_historial.php?id_paciente=${id}`)
+      .then(response => {
+        if (!response.ok) throw new Error('Respuesta inválida del servidor');
+        return response.text();
+      })
+      .then(html => {
+        contenedor.innerHTML = html || '<div class="alert alert-info">No se encontró historial.</div>';
+      })
+      .catch(error => {
+        contenedor.innerHTML = `<div class="alert alert-danger">Error al cargar historial</div>`;
+        console.error('Error al cargar historial:', error);
+      });
   }
 
-  id_paciente = id;
-  const contenedor = document.getElementById('historialContenido');
-  if (!contenedor) return;
+  function filtrarHistorial() {
+    const inicioEl = document.getElementById('fecha_inicio');
+    const finEl = document.getElementById('fecha_fin');
+    const contenedor = document.getElementById('historialContenido');
 
-  contenedor.innerHTML = '<p class="text-center text-muted">Cargando historial...</p>';
+    if (!inicioEl || !finEl || !contenedor) return;
 
-  fetch(`api/obtener_historial.php?id_paciente=${id}`)
-    .then(response => {
-      if (!response.ok) throw new Error('Respuesta inválida del servidor');
-      return response.text();
-    })
-    .then(html => {
-      contenedor.innerHTML = html || '<div class="alert alert-info">No se encontró historial.</div>';
-    })
-    .catch(error => {
-      contenedor.innerHTML = `<div class="alert alert-danger">Error al cargar historial</div>`;
-      console.error('Error al cargar historial:', error);
+    const inicio = inicioEl.value;
+    const fin = finEl.value;
+
+    if (!id_paciente || isNaN(id_paciente)) {
+      alert("Seleccione un paciente antes de filtrar.");
+      return;
+    }
+
+    if (!inicio || !fin) {
+      alert("Debe seleccionar un rango de fechas válido.");
+      return;
+    }
+
+    if (new Date(inicio) > new Date(fin)) {
+      alert("La fecha de inicio no puede ser mayor que la fecha de fin.");
+      return;
+    }
+
+    contenedor.innerHTML = '<p class="text-center text-muted">Filtrando...</p>';
+
+    const params = new URLSearchParams({
+      id_paciente,
+      inicio,
+      fin
     });
-}
 
-function filtrarHistorial() {
-  const inicioEl = document.getElementById('fecha_inicio');
-  const finEl = document.getElementById('fecha_fin');
-  const contenedor = document.getElementById('historialContenido');
-
-  if (!inicioEl || !finEl || !contenedor) return;
-
-  const inicio = inicioEl.value;
-  const fin = finEl.value;
-
-  if (!id_paciente || isNaN(id_paciente)) {
-    alert("Seleccione un paciente antes de filtrar.");
-    return;
+    fetch(`api/obtener_historial.php?${params.toString()}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Respuesta inválida del servidor');
+        return res.text();
+      })
+      .then(html => {
+        contenedor.innerHTML = html || '<div class="alert alert-info">No se encontraron registros.</div>';
+      })
+      .catch(err => {
+        contenedor.innerHTML = `<div class="alert alert-danger">Error al filtrar historial</div>`;
+        console.error('Error al filtrar:', err);
+      });
   }
 
-  if (!inicio || !fin) {
-    alert("Debe seleccionar un rango de fechas válido.");
-    return;
+  function generarPDF() {
+    const inicio = document.getElementById('fecha_inicio')?.value;
+    const fin = document.getElementById('fecha_fin')?.value;
+
+    if (!id_paciente || isNaN(id_paciente)) {
+      alert("Seleccione un paciente antes de generar el PDF.");
+      return;
+    }
+
+    if (!inicio || !fin) {
+      alert("Debe seleccionar un rango de fechas para generar el PDF.");
+      return;
+    }
+
+    const url = `fpdf/generar_pdf.php?id_paciente=${id_paciente}&inicio=${inicio}&fin=${fin}`;
+    window.open(url, '_blank');
   }
 
-  if (new Date(inicio) > new Date(fin)) {
-    alert("La fecha de inicio no puede ser mayor que la fecha de fin.");
-    return;
-  }
+  // Eventos DOM
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.btn-editar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tr = btn.closest('tr');
+        const fields = ['id', 'nombre', 'apellidos', 'fecha_nacimiento', 'dip', 'sexo', 'email',
+          'telefono', 'profesion', 'ocupacion', 'tutor_nombre', 'telefono_tutor', 'direccion'
+        ];
 
-  contenedor.innerHTML = '<p class="text-center text-muted">Filtrando...</p>';
-
-  const params = new URLSearchParams({ id_paciente, inicio, fin });
-
-  fetch(`api/obtener_historial.php?${params.toString()}`)
-    .then(res => {
-      if (!res.ok) throw new Error('Respuesta inválida del servidor');
-      return res.text();
-    })
-    .then(html => {
-      contenedor.innerHTML = html || '<div class="alert alert-info">No se encontraron registros.</div>';
-    })
-    .catch(err => {
-      contenedor.innerHTML = `<div class="alert alert-danger">Error al filtrar historial</div>`;
-      console.error('Error al filtrar:', err);
-    });
-}
-
-function generarPDF() {
-  const inicio = document.getElementById('fecha_inicio')?.value;
-  const fin = document.getElementById('fecha_fin')?.value;
-
-  if (!id_paciente || isNaN(id_paciente)) {
-    alert("Seleccione un paciente antes de generar el PDF.");
-    return;
-  }
-
-  if (!inicio || !fin) {
-    alert("Debe seleccionar un rango de fechas para generar el PDF.");
-    return;
-  }
-
-  const url = `fpdf/generar_pdf.php?id_paciente=${id_paciente}&inicio=${inicio}&fin=${fin}`;
-  window.open(url, '_blank');
-}
-
-// Eventos DOM
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.btn-editar').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tr = btn.closest('tr');
-      const fields = ['id', 'nombre', 'apellidos', 'fecha_nacimiento', 'dip', 'sexo', 'email',
-        'telefono', 'profesion', 'ocupacion', 'tutor_nombre', 'telefono_tutor', 'direccion'];
-
-      fields.forEach(f => {
-        const el = document.getElementById('edit_' + f);
-        if (el && tr.dataset[f]) {
-          el.value = tr.dataset[f];
-        }
+        fields.forEach(f => {
+          const el = document.getElementById('edit_' + f);
+          if (el && tr.dataset[f]) {
+            el.value = tr.dataset[f];
+          }
+        });
       });
     });
   });
-});
 
-// Ocultar mensajes de éxito/error después de 10s
-setTimeout(() => {
-  const mensaje = document.getElementById('mensaje');
-  if (mensaje) {
-    mensaje.style.transition = 'opacity 1s ease';
-    mensaje.style.opacity = '0';
-    setTimeout(() => mensaje.remove(), 1000);
-  }
-}, 10000);
+  // Ocultar mensajes de éxito/error después de 10s
+  setTimeout(() => {
+    const mensaje = document.getElementById('mensaje');
+    if (mensaje) {
+      mensaje.style.transition = 'opacity 1s ease';
+      mensaje.style.opacity = '0';
+      setTimeout(() => mensaje.remove(), 1000);
+    }
+  }, 10000);
 </script>

@@ -13,35 +13,49 @@ $consultas = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 // Obtener pacientes para selects
 $pacientes = $pdo->query("SELECT id, nombre, apellidos FROM pacientes ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 
-// Define $campos here, so it's available for both modals
+// Definir campos y sus placeholders
 $campos = [
-    "temperatura" => "Temperatura (°C)",
-    "control_cada_horas" => "Control cada (horas)",
-    "frecuencia_cardiaca" => "Frecuencia cardíaca",
-    "frecuencia_respiratoria" => "Frecuencia respiratoria",
-    "tension_arterial" => "Tensión arterial",
-    "pulso" => "Pulso",
-    "saturacion_oxigeno" => "Saturación O₂ (%)",
-    "peso_anterior" => "Peso anterior (kg)",
-    "peso_actual" => "Peso actual (kg)",
-    "peso_ideal" => "Peso ideal (kg)",
-    "imc" => "IMC"
+    "temperatura" => ["label" => "Temperatura (°C)", "placeholder" => "Ej: 36.5"],
+    "control_cada_horas" => ["label" => "Control cada (horas)", "placeholder" => "Ej: 8 horas"],
+    "frecuencia_cardiaca" => ["label" => "Frecuencia cardíaca (bpm)", "placeholder" => "Ej: 75"],
+    "frecuencia_respiratoria" => ["label" => "Frecuencia respiratoria (rpm)", "placeholder" => "Ej: 16"],
+    "tension_arterial" => ["label" => "Tensión arterial (mmHg)", "placeholder" => "Ej: 120/80"],
+    "pulso" => ["label" => "Pulso (bpm)", "placeholder" => "Ej: 72"],
+    "saturacion_oxigeno" => ["label" => "Saturación O₂ (%)", "placeholder" => "Ej: 98"],
+    "peso_anterior" => ["label" => "Peso anterior (kg)", "placeholder" => "Ej: 70"],
+    "peso_actual" => ["label" => "Peso actual (kg)", "placeholder" => "Ej: 69.8"],
+    "peso_ideal" => ["label" => "Peso ideal (kg)", "placeholder" => "Ej: 72"],
+    "imc" => ["label" => "IMC", "placeholder" => "Ej: 22.5"]
+];
+
+// Campos booleanos
+$campos_booleanos = [
+    "operacion" => "Operación",
+    "orina" => "Orina",
+    "defeca" => "Defeca",
+    "duerme" => "Duerme",
+    "antecedentes_patologicos" => "Antecedentes Patológicos",
+    "antecedentes_familiares" => "Antecedentes Familiares",
+    "antecedentes_conyuge" => "Antecedentes del Cónyuge",
+    "control_signos_vitales" => "Control de signos vitales",
+    "alergico" => "Alergias"
 ];
 ?>
 
 <div class="container-fluid" id="content">
-    <div class="row mb-3">
-        <div class="col-md-6 d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0"><i class="bi bi-clipboard-pulse me-2"></i>Listado de Consultas</h3>
-            <?php if ($rol === 'administrador'): ?>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0"><i class="bi bi-clipboard-pulse me-2"></i>Listado de Consultas</h3>
+        <?php if ($rol === 'administrador'): ?>
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrear">
                 <i class="bi bi-plus-circle me-1"></i> Nueva Consulta
             </button>
+        <?php endif;?>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4 ms-auto">
+            <input type="text" id="buscador" class="form-control" placeholder="Buscar consulta...">
         </div>
-            <?php endif;?>
-            <div class="col-md-4">
-                <input type="text" id="buscador" class="form-control" placeholder="Buscar consulta...">
-            </div>
     </div>
 
     <?php if (isset($_SESSION['success'])): ?>
@@ -90,28 +104,19 @@ $campos = [
                                 <td><?= date('d/m/Y H:i', strtotime($c['fecha_registro'])) ?></td>
                                 <td class="text-nowrap">
                                     <?php if ($rol === 'administrador'): ?>
-                                    <button class="btn btn-sm btn-primary editar-consulta" data-id="<?= $c['id'] ?>"
-                                        data-bs-toggle="modal" data-bs-target="#modal-editar">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <a href="eliminar_consulta.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger"
-                                        onclick="return confirm('¿Eliminar esta consulta?')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                <?php endif;?>
+                                        <button class="btn btn-sm btn-primary editar-consulta" data-id="<?= $c['id'] ?>"
+                                                data-bs-toggle="modal" data-bs-target="#modal-editar">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <a href="eliminar_consulta.php?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('¿Eliminar esta consulta?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    <?php endif;?>
                                     <button class="btn btn-sm btn-info ver-detalles-consulta" data-id="<?= $c['id'] ?>"
-                                        data-bs-toggle="modal" data-bs-target="#modalDetallesConsulta">
+                                            data-bs-toggle="modal" data-bs-target="#modalDetallesConsulta">
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
-
-                                   <!--  <?php if ($c['pagado'] == 0): ?>
-                                        <button class="btn btn-sm btn-secondary ver-detalles-consulta btn-pago"
-                                            data-id="<?= $c['id'] ?>" id="btnPagar-<?= $c['id'] ?>"
-                                            data-bs-toggle="modal" data-bs-target="#modalPagoConsulta">
-                                            <i class="bi bi-credit-card-2-front-fill me-2"></i>
-                                        </button>
-                                    <?php endif; ?> -->
-
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -122,6 +127,7 @@ $campos = [
     </div>
 </div>
 
+ 
 <div class="modal fade" id="modal-editar" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <form action="api/actualizar_consulta.php" method="POST" class="modal-content">
@@ -145,74 +151,37 @@ $campos = [
 
                 <div class="col-md-12">
                     <label>Motivo de consulta</label>
-                    <textarea name="motivo_consulta" id="edit-motivo" class="form-control" rows="2" required></textarea>
+                    <textarea name="motivo_consulta" id="edit-motivo" class="form-control" rows="2" placeholder="Describa el motivo de la consulta..." required></textarea>
                 </div>
 
-                <?php
-                // $campos is now defined above, so it's available here
-                foreach ($campos as $name => $label): ?>
+                <?php foreach ($campos as $name => $vals): ?>
                     <div class="col-md-4">
-                        <label><?= $label ?></label>
+                        <label><?= $vals['label'] ?></label>
                         <input type="<?= in_array($name, ['tension_arterial']) ? 'text' : 'number' ?>" step="any" name="<?= $name ?>"
-                            id="edit-<?= $name ?>" class="form-control">
+                               id="edit-<?= $name ?>" class="form-control" placeholder="<?= $vals['placeholder'] ?>">
                     </div>
                 <?php endforeach; ?>
 
                 <hr class="my-4">
                 <h5 class="text-primary">Detalles Clínicos</h5>
 
-                <div class="col-md-6">
-                    <label>Operación</label>
-                    <input type="text" name="operacion" id="edit-operacion" class="form-control">
-                </div>
-
-                <div class="col-md-3">
-                    <label>Orina</label>
-                    <input type="text" name="orina" id="edit-orina" class="form-control">
-                </div>
-
-                <div class="col-md-3">
-                    <label>Defeca</label>
-                    <input type="text" name="defeca" id="edit-defeca" class="form-control">
-                </div>
-
+                <?php foreach ($campos_booleanos as $name => $label): ?>
+                    <div class="col-md-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" name="<?= $name ?>" id="edit-<?= $name ?>">
+                            <label class="form-check-label" for="edit-<?= $name ?>"><?= $label ?></label>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                
                 <div class="col-md-3">
                     <label>Días que defeca</label>
-                    <input type="number" name="defeca_dias" id="edit-defeca_dias" class="form-control" min="0">
-                </div>
-
-                <div class="col-md-3">
-                    <label>Duerme</label>
-                    <input type="text" name="duerme" id="edit-duerme" class="form-control">
+                    <input type="number" name="defeca_dias" id="edit-defeca_dias" class="form-control" min="0" placeholder="Ej: 1, 2, 3...">
                 </div>
 
                 <div class="col-md-3">
                     <label>Horas que duerme</label>
-                    <input type="number" name="duerme_horas" id="edit-duerme_horas" class="form-control" min="0" max="24">
-                </div>
-
-                <div class="col-md-6">
-                    <label>Antecedentes Patológicos</label>
-                    <input type="text" name="antecedentes_patologicos" id="edit-antecedentes_patologicos" class="form-control">
-                </div>
-
-                <div class="col-md-6">
-                    <label>Antecedentes Familiares</label>
-                    <input type="text" name="antecedentes_familiares" id="edit-antecedentes_familiares" class="form-control">
-                </div>
-
-                <div class="col-md-6">
-                    <label>Antecedentes del Cónyuge</label>
-                    <input type="text" name="antecedentes_conyuge" id="edit-antecedentes_conyuge" class="form-control">
-                </div>
-
-                <div class="col-md-6">
-                    <label>Control de signos vitales</label>
-                    <input type="text" name="control_signos_vitales" id="edit-control_signos_vitales" class="form-control">
-                </div>
-                <div class="col-md-12">
-                    <label>Alergias</label>
-                    <textarea name="alergico" id="edit-alergico" class="form-control" rows="2"></textarea>
+                    <input type="number" name="duerme_horas" id="edit-duerme_horas" class="form-control" min="0" max="24" placeholder="Ej: 8 horas">
                 </div>
             </div>
 
@@ -223,6 +192,7 @@ $campos = [
     </div>
 </div>
 
+ 
 <div class="modal fade" id="modalCrear" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <form action="api/guardar_consulta.php" method="POST" class="modal-content shadow-lg border-0 rounded-4">
@@ -238,26 +208,25 @@ $campos = [
 
                 <div class="mb-4">
                     <label class="form-label fw-semibold"><i class="bi bi-person-badge-fill me-2"></i>Paciente <span
-                            class="text-danger">*</span></label>
+                                class="text-danger">*</span></label>
                     <input type="text" id="buscador-paciente" class="form-control" placeholder="Buscar por nombre...">
                     <div id="resultado-paciente" class="mt-2 border rounded bg-white p-2 overflow-auto"
-                        style="max-height: 200px;"></div>
+                         style="max-height: 200px;"></div>
                     <input type="hidden" name="id_paciente" id="input-id-paciente" required>
                 </div>
 
                 <div class="mb-4">
                     <label class="form-label fw-semibold"><i class="bi bi-chat-text-fill me-2"></i>Motivo de Consulta</label>
-                    <textarea name="motivo_consulta" class="form-control" rows="2" required></textarea>
+                    <textarea name="motivo_consulta" class="form-control" rows="2" required placeholder="Ej: Dolor abdominal, chequeo de rutina, etc."></textarea>
                 </div>
 
                 <div class="row g-3">
                     <?php
-                    // $campos is already defined globally
-                    foreach ($campos as $name => $label): ?>
+                    foreach ($campos as $name => $vals): ?>
                         <div class="col-md-3">
-                            <label class="form-label fw-medium"><i class="bi bi-clipboard-pulse me-1"></i><?= $label ?></label>
+                            <label class="form-label fw-medium"><i class="bi bi-clipboard-pulse me-1"></i><?= $vals['label'] ?></label>
                             <input type="<?= in_array($name, ['tension_arterial']) ? 'text' : 'number' ?>" step="any"
-                                name="<?= $name ?>" class="form-control">
+                                   name="<?= $name ?>" class="form-control" placeholder="<?= $vals['placeholder'] ?>">
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -266,49 +235,22 @@ $campos = [
                 <h5 class="text-success"><i class="bi bi-file-medical me-2"></i>Detalles Clínicos</h5>
 
                 <div class="row g-3 mt-2">
-                    <div class="col-md-3">
-                        <label class="form-label">Operación</label>
-                        <input type="text" name="operacion" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Orina</label>
-                        <input type="text" name="orina" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Defeca</label>
-                        <input type="text" name="defeca" class="form-control">
-                    </div>
+                    <?php foreach ($campos_booleanos as $name => $label): ?>
+                        <div class="col-md-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" name="<?= $name ?>" id="create-<?= $name ?>">
+                                <label class="form-check-label" for="create-<?= $name ?>"><?= $label ?></label>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+
                     <div class="col-md-3">
                         <label class="form-label">Días que defeca</label>
-                        <input type="number" name="defeca_dias" class="form-control" min="0">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Duerme</label>
-                        <input type="text" name="duerme" class="form-control">
+                        <input type="number" name="defeca_dias" class="form-control" min="0" placeholder="Ej: 1, 2, 3...">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Horas que duerme</label>
-                        <input type="number" name="duerme_horas" class="form-control" min="0" max="24">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Antecedentes Patológicos</label>
-                        <input type="text" name="antecedentes_patologicos" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Antecedentes Familiares</label>
-                        <input type="text" name="antecedentes_familiares" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Antecedentes del Cónyuge</label>
-                        <input type="text" name="antecedentes_conyuge" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Control de signos vitales</label>
-                        <input type="text" name="control_signos_vitales" class="form-control">
-                    </div>
-                    <div class="col-md-12">
-                        <label class="form-label">Alergias</label>
-                        <textarea name="alergico" class="form-control" rows="2"></textarea>
+                        <input type="number" name="duerme_horas" class="form-control" min="0" max="24" placeholder="Ej: 8 horas">
                     </div>
                 </div>
             </div>
@@ -320,6 +262,7 @@ $campos = [
     </div>
 </div>
 
+ 
 <div class="modal fade" id="modalDetallesConsulta" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
@@ -341,6 +284,7 @@ $campos = [
     </div>
 </div>
 
+ 
 <div class="modal fade" id="modalPagoConsulta" tabindex="-1" aria-labelledby="modalPagoConsultaLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -351,13 +295,11 @@ $campos = [
             <form id="formPagoConsulta">
                 <div class="modal-body">
                     <input type="hidden" id="consulta_id" name="consulta_id">
-
                     <div class="mb-3">
                         <label for="monto" class="form-label">Monto a pagar</label>
                         <input type="number" class="form-control" id="monto" name="monto" min="500" step="0.01" required>
                     </div>
                 </div>
-
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-1"></i>Pagar</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -366,6 +308,9 @@ $campos = [
         </div>
     </div>
 </div>
+
+ 
+ 
 
 <script>
     // Detectar clic en botón de pago
@@ -483,9 +428,7 @@ $campos = [
             resultadoPaciente.innerHTML = '<div class="text-danger">Error al buscar pacientes.</div>';
         }
     });
-</script>
 
-<script>
     document.addEventListener('DOMContentLoaded', () => {
         const botones = document.querySelectorAll('.editar-consulta');
 
@@ -520,7 +463,13 @@ $campos = [
                     ];
                     detalleCampos.forEach(campo => {
                         const input = document.getElementById('edit-' + campo);
-                        if (input) input.value = data.detalle[campo] ?? '';
+                        if (input) {
+                            if (input.type === 'checkbox') {
+                                input.checked = data.detalle[campo] === 1;
+                            } else {
+                                input.value = data.detalle[campo] ?? '';
+                            }
+                        }
                     });
 
                 } catch (error) {
@@ -531,9 +480,7 @@ $campos = [
             });
         });
     });
-</script>
 
-<script>
     setTimeout(() => {
         const alert = document.querySelector('.alert');
         if (alert) {

@@ -26,6 +26,7 @@ function verificarAcceso($vista)
             'reportes',
             'analiticas',
             'ingresos',
+            'seguros',
             'empleados'
         ],
 
