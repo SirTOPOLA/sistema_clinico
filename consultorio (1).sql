@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 29-08-2025 a las 14:42:34
+-- Tiempo de generación: 05-09-2025 a las 16:53:02
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -38,16 +38,20 @@ CREATE TABLE `analiticas` (
   `id_paciente` int(11) NOT NULL,
   `codigo_paciente` varchar(50) DEFAULT NULL,
   `pagado` tinyint(1) DEFAULT 0,
-  `valores_refencia` text DEFAULT NULL
+  `valores_refencia` text DEFAULT NULL,
+  `tipo_pago` enum('EFECTIVO','SEGURO','ADEUDO','SIN PAGAR') DEFAULT 'SIN PAGAR'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Volcado de datos para la tabla `analiticas`
 --
 
-INSERT INTO `analiticas` (`id`, `resultado`, `estado`, `id_tipo_prueba`, `id_consulta`, `fecha_registro`, `id_usuario`, `id_paciente`, `codigo_paciente`, `pagado`, `valores_refencia`) VALUES
-(2, NULL, '0', 1, 1, '2025-06-13 15:22:02', 1, 2, 'SM2007060636698143', 1, NULL),
-(3, 'POSITIVO', '1', 2, 1, '2025-06-13 15:22:02', 1, 2, 'SM2007060636698143', 1, 'bajo de 0-30 normal 30-60 Riesgo 60-100');
+INSERT INTO `analiticas` (`id`, `resultado`, `estado`, `id_tipo_prueba`, `id_consulta`, `fecha_registro`, `id_usuario`, `id_paciente`, `codigo_paciente`, `pagado`, `valores_refencia`, `tipo_pago`) VALUES
+(2, NULL, '0', 1, 1, '2025-06-13 15:22:02', 1, 2, 'SM2007060636698143', 1, NULL, 'SIN PAGAR'),
+(3, 'POSITIVO', '1', 2, 1, '2025-06-13 15:22:02', 1, 2, 'SM2007060636698143', 1, 'bajo de 0-30 normal 30-60 Riesgo 60-100', 'SIN PAGAR'),
+(4, NULL, '0', 1, 2, '2025-09-02 10:35:24', 1, 4, 'CM100201', 0, NULL, 'SIN PAGAR'),
+(5, NULL, '0', 1, 4, '2025-09-02 11:55:54', 1, 3, 'MC061545', 1, NULL, 'EFECTIVO'),
+(6, NULL, '0', 1, 3, '2025-09-02 12:04:31', 1, 2, 'SM2007060636698143', 0, NULL, 'SIN PAGAR');
 
 -- --------------------------------------------------------
 
@@ -99,7 +103,7 @@ INSERT INTO `compras` (`id`, `proveedor_id`, `codigo_factura`, `personal_id`, `f
 (1, 1, 'CDO-20250826-162920-68adc4c037301', 4, '2025-08-25', 10000.00, 10000.00, 0.00, 0.00, 10000.00, 'PAGADO'),
 (2, 1, 'CDO-20250826-163613-68adc65db2fc1', 2, '2025-08-26', 12500.00, 15000.00, 0.00, 2500.00, 15000.00, 'PARCIAL'),
 (3, 1, 'FAC-20250826-a5d4e390', 3, '2025-08-18', 10000.00, 10000.00, 0.00, 0.00, 10000.00, 'PAGADO'),
-(4, 1, 'FAC-20250826-d0563bdd', 3, '2025-08-26', 25000.00, 25000.00, 0.00, 0.00, 25000.00, 'PAGADO');
+(4, 1, 'FAC-20250826-d0563bdd', 1, '2025-08-26', 25000.00, 25000.00, 0.00, 0.00, 25000.00, 'PAGADO');
 
 -- --------------------------------------------------------
 
@@ -120,10 +124,10 @@ CREATE TABLE `compras_detalle` (
 --
 
 INSERT INTO `compras_detalle` (`id`, `compra_id`, `producto_id`, `cantidad`, `precio_compra`) VALUES
-(6, 4, 1, 25, 1000.00),
 (7, 3, 1, 10, 1000.00),
 (8, 1, 1, 10, 1000.00),
-(9, 2, 1, 15, 1000.00);
+(9, 2, 1, 15, 1000.00),
+(10, 4, 1, 25, 1000.00);
 
 -- --------------------------------------------------------
 
@@ -157,7 +161,10 @@ CREATE TABLE `consultas` (
 --
 
 INSERT INTO `consultas` (`id`, `motivo_consulta`, `temperatura`, `control_cada_horas`, `frecuencia_cardiaca`, `frecuencia_respiratoria`, `tension_arterial`, `pulso`, `saturacion_oxigeno`, `peso_anterior`, `peso_actual`, `peso_ideal`, `imc`, `id_paciente`, `id_usuario`, `fecha_registro`, `pagado`, `precio`) VALUES
-(1, 'dolor desde hace 2 dias', 36, 2, 45, 65, '456', 34, 35, 69, 67, 66, 5, 2, 1, '2025-06-12 16:12:39', 1, 1000);
+(1, 'dolor desde hace 2 dias', 36, 2, 45, 65, '456', 34, 35, 69, 67, 66, 5, 2, 1, '2025-06-12 16:12:39', 1, 1000),
+(2, 'dolor de cabeza', 37, 8, 75, 16, '120/80', 70, 98, 70, 68, 70, 22, 4, 1, '2025-09-02 11:29:01', 0, 0),
+(3, 'fiebre de 3 noches', 38, 8, 75, 16, '120/80', 72, 98, 70, 68, 70, 23, 2, 1, '2025-09-02 11:33:08', 0, 0),
+(4, 'dolor de cuerpo', 38, 8, 75, 16, '120/80', 72, 98, 70, 68, 70, 23, 3, 1, '2025-09-02 12:54:04', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -188,7 +195,10 @@ CREATE TABLE `detalle_consulta` (
 --
 
 INSERT INTO `detalle_consulta` (`id`, `operacion`, `orina`, `defeca`, `defeca_dias`, `duerme`, `duerme_horas`, `antecedentes_patologicos`, `alergico`, `antecedentes_familiares`, `antecedentes_conyuge`, `control_signos_vitales`, `id_consulta`, `id_usuario`, `fecha_registro`) VALUES
-(1, 'no', 'si', 'si', 4, 'si', 6, 'TB', 'NO', 'NO', 'NO', '4', 1, 1, '2025-06-12 16:12:39');
+(1, 'no', 'si', 'si', 4, 'si', 6, 'TB', 'NO', 'NO', 'NO', '4', 1, 1, '2025-06-12 16:12:39'),
+(2, 'on', '', '', 1, 'on', 8, '', '', '', '', '', 2, 1, '2025-09-02 11:29:01'),
+(3, '0', '1', '1', 1, '1', 8, '0', '1', '0', '0', '1', 3, 1, '2025-09-02 11:33:08'),
+(4, '', 'on', 'on', 1, 'on', 8, '', '', '', '', '', 4, 1, '2025-09-02 12:54:04');
 
 -- --------------------------------------------------------
 
@@ -213,7 +223,8 @@ CREATE TABLE `ingresos` (
 --
 
 INSERT INTO `ingresos` (`id`, `id_paciente`, `id_sala`, `fecha_ingreso`, `fecha_alta`, `token`, `fecha_registro`, `id_usuario`, `numero_cama`) VALUES
-(1, 2, 1, '2025-06-16 15:30:00', '2025-06-17 16:10:00', '1', '2025-06-17 12:27:31', 3, 2);
+(1, 2, 1, '2025-06-16 15:30:00', '2025-06-17 16:10:00', '1', '2025-06-17 12:27:31', 3, 2),
+(2, 2, 1, '2025-09-03 11:22:00', NULL, NULL, '2025-09-03 11:22:34', 1, 2);
 
 -- --------------------------------------------------------
 
@@ -247,6 +258,13 @@ CREATE TABLE `movimientos_seguro` (
   `descripcion` varchar(150) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `movimientos_seguro`
+--
+
+INSERT INTO `movimientos_seguro` (`id`, `seguro_id`, `paciente_id`, `venta_id`, `tipo`, `monto`, `fecha`, `descripcion`) VALUES
+(1, 1, 2, NULL, 'CREDITO', 100000.00, '2025-09-01 14:17:40', 'Depósito inicial del seguro');
+
 -- --------------------------------------------------------
 
 --
@@ -278,7 +296,8 @@ CREATE TABLE `pacientes` (
 
 INSERT INTO `pacientes` (`id`, `codigo`, `nombre`, `apellidos`, `fecha_nacimiento`, `dip`, `sexo`, `direccion`, `email`, `telefono`, `profesion`, `ocupacion`, `tutor_nombre`, `telefono_tutor`, `id_usuario`, `fecha_registro`) VALUES
 (2, 'SM2007060636698143', 'salvador 2', 'mete bijeri', '2007-06-06', '3776539', 'Masculino', 'Buena esperanza I', 'salvadormete@gmail.com', '555432345', 'estudiante', 'estudiante', 'no tiene', 'no tiene', 1, '2025-06-12 11:14:13'),
-(3, 'MC061545', 'Maximiliano', 'Compe Puye', '2005-06-15', '8963542', 'Masculino', 'Ela Nguema', 'maxicomoe@gmail.com', '555667809', 'estudiante', 'estudiante', 'no tiene', 'no tiene', 1, '2025-06-17 13:16:03');
+(3, 'MC061545', 'Maximiliano', 'Compe Puye', '2005-06-15', '8963542', 'Masculino', 'Ela Nguema', 'maxicomoe@gmail.com', '555667809', 'estudiante', 'estudiante', 'no tiene', 'no tiene', 1, '2025-06-17 13:16:03'),
+(4, 'CM100201', 'Carlos Luis', 'Mete Boko', '2012-10-02', '000000000', 'Masculino', 'Ela-Nguema', NULL, '222555777', 'Informático', 'informatico', 'Carlos Luis', '222555777', 1, '2025-09-02 09:57:37');
 
 -- --------------------------------------------------------
 
@@ -301,7 +320,9 @@ CREATE TABLE `pagos` (
 
 INSERT INTO `pagos` (`id`, `cantidad`, `id_analitica`, `id_tipo_prueba`, `fecha_registro`, `id_usuario`) VALUES
 (2, 5000.00, 2, 1, '2025-06-24 15:40:58', 1),
-(3, 9000.00, 3, 2, '2025-06-24 15:40:58', 1);
+(3, 9000.00, 3, 2, '2025-06-24 15:40:58', 1),
+(4, 5000.00, 5, 1, '2025-09-02 12:22:12', 1),
+(5, 3000.00, 4, 1, '2025-09-05 15:40:06', 1);
 
 -- --------------------------------------------------------
 
@@ -369,6 +390,15 @@ CREATE TABLE `prestamos` (
   `fecha` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `prestamos`
+--
+
+INSERT INTO `prestamos` (`id`, `paciente_id`, `total`, `estado`, `fecha`) VALUES
+(1, 2, 500.00, 'PENDIENTE', '2025-08-29'),
+(2, 3, 2000.00, 'PENDIENTE', '2025-08-29'),
+(3, 4, 2000.00, 'PARCIAL', '2025-09-05');
+
 -- --------------------------------------------------------
 
 --
@@ -393,7 +423,7 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id`, `nombre`, `concentracion`, `forma_farmaceutica`, `presentacion`, `categoria_id`, `unidad_id`, `precio_unitario`, `stock_actual`, `stock_minimo`) VALUES
-(1, 'Paracetamol', NULL, NULL, 'Tabletas', 1, 1, 1500.00, 50, 5);
+(1, 'Paracetamol', NULL, NULL, 'Tabletas', 1, 1, 1500.00, 44, 5);
 
 -- --------------------------------------------------------
 
@@ -499,6 +529,13 @@ CREATE TABLE `seguros` (
   `metodo_pago` enum('EFECTIVO','TARJETA','TRANSFERENCIA','OTRO') DEFAULT 'EFECTIVO'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `seguros`
+--
+
+INSERT INTO `seguros` (`id`, `titular_id`, `monto_inicial`, `saldo_actual`, `fecha_deposito`, `metodo_pago`) VALUES
+(1, 2, 100000.00, 100000.00, '2025-09-01', 'EFECTIVO');
+
 -- --------------------------------------------------------
 
 --
@@ -511,6 +548,13 @@ CREATE TABLE `seguros_beneficiarios` (
   `paciente_id` int(11) NOT NULL,
   `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `seguros_beneficiarios`
+--
+
+INSERT INTO `seguros_beneficiarios` (`id`, `seguro_id`, `paciente_id`, `fecha_registro`) VALUES
+(1, 1, 3, '2025-09-01 14:20:59');
 
 -- --------------------------------------------------------
 
@@ -609,7 +653,9 @@ INSERT INTO `ventas` (`id`, `paciente_id`, `usuario_id`, `fecha`, `monto_total`,
 (1, 2, 4, '2025-08-29', 1500.00, 2000.00, 500.00, NULL, 0.00, 0, 'PAGADO', 'EFECTIVO'),
 (4, 3, 4, '2025-08-29', 5700.00, 6000.00, 300.00, NULL, 0.00, 0, 'PAGADO', 'EFECTIVO'),
 (5, 2, 4, '2025-08-29', 6000.00, 6000.00, 0.00, NULL, 0.00, 0, 'PAGADO', 'EFECTIVO'),
-(6, 3, 4, '2025-08-29', 3000.00, 4000.00, 1000.00, NULL, 0.00, 0, 'PAGADO', 'EFECTIVO');
+(6, 3, 4, '2025-08-29', 3000.00, 4000.00, 1000.00, NULL, 0.00, 0, 'PAGADO', 'EFECTIVO'),
+(9, 3, 4, '2025-08-29', 6000.00, 4000.00, 0.00, NULL, 0.00, 0, 'PENDIENTE', 'EFECTIVO'),
+(10, 2, 4, '2025-08-29', 3000.00, 2500.00, 0.00, NULL, 0.00, 0, 'PENDIENTE', 'EFECTIVO');
 
 -- --------------------------------------------------------
 
@@ -634,7 +680,9 @@ INSERT INTO `ventas_detalle` (`id`, `venta_id`, `producto_id`, `cantidad`, `prec
 (1, 1, 1, 1, 1500.00, 0.00),
 (2, 4, 1, 4, 0.00, 5.00),
 (3, 5, 1, 4, 0.00, 0.00),
-(4, 6, 1, 2, 0.00, 0.00);
+(4, 6, 1, 2, 0.00, 0.00),
+(7, 9, 1, 4, 1500.00, 0.00),
+(8, 10, 1, 2, 1500.00, 0.00);
 
 --
 -- Índices para tablas volcadas
@@ -847,7 +895,7 @@ ALTER TABLE `ventas_detalle`
 -- AUTO_INCREMENT de la tabla `analiticas`
 --
 ALTER TABLE `analiticas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `categorias`
@@ -865,25 +913,25 @@ ALTER TABLE `compras`
 -- AUTO_INCREMENT de la tabla `compras_detalle`
 --
 ALTER TABLE `compras_detalle`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `consultas`
 --
 ALTER TABLE `consultas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_consulta`
 --
 ALTER TABLE `detalle_consulta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `ingresos`
 --
 ALTER TABLE `ingresos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `movimientos_inventario`
@@ -895,19 +943,19 @@ ALTER TABLE `movimientos_inventario`
 -- AUTO_INCREMENT de la tabla `movimientos_seguro`
 --
 ALTER TABLE `movimientos_seguro`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `pacientes`
 --
 ALTER TABLE `pacientes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos_proveedores`
@@ -925,7 +973,7 @@ ALTER TABLE `personal`
 -- AUTO_INCREMENT de la tabla `prestamos`
 --
 ALTER TABLE `prestamos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
@@ -961,13 +1009,13 @@ ALTER TABLE `salas_ingreso`
 -- AUTO_INCREMENT de la tabla `seguros`
 --
 ALTER TABLE `seguros`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `seguros_beneficiarios`
 --
 ALTER TABLE `seguros_beneficiarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `tipo_pruebas`
@@ -991,13 +1039,13 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas_detalle`
 --
 ALTER TABLE `ventas_detalle`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restricciones para tablas volcadas
