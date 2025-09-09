@@ -77,6 +77,7 @@ $menu = [
     'Reportes' => 'reportes',
      'Asegurado' => 'seguros',
     'Empleados' => 'empleados',
+    'Contabiliad' => 'contabilidad',
   ],
   'secretaria' => [
     'Dashboard' => 'dashboard_secretaria',

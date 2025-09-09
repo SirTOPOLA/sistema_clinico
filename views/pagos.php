@@ -6,17 +6,17 @@
 // session_start();
 
 // Consulta para obtener las analíticas, incluyendo el campo tipo_pago
-$sql = "SELECT 
-    a.id, 
-    a.resultado, 
-    a.estado, 
-    a.codigo_paciente, 
+$sql = "SELECT
+    a.id,
+    a.resultado,
+    a.estado,
+    a.codigo_paciente,
     a.pagado,
-    a.tipo_pago,                 -- <--- CAMBIO: Se agrega el tipo de pago
-    tp.id AS id_tipo_prueba,       
+    a.tipo_pago,            -- <--- CAMBIO: Se agrega el tipo de pago
+    tp.id AS id_tipo_prueba,
     tp.nombre AS tipo_prueba,
     tp.precio,
-    p.id AS id_paciente,           
+    p.id AS id_paciente,
     CONCAT(p.nombre,' ',p.apellidos) AS paciente,
     a.fecha_registro,
     DATE(a.fecha_registro) AS fecha_solo
@@ -56,7 +56,6 @@ foreach ($analiticas as $a) {
     $grupos[$clave]['pagos'][] = $a['pagado'];
 }
 ?>
-
 <div class="container-fluid" id="content">
 
     <div class="row mb-3">
@@ -134,7 +133,7 @@ foreach ($analiticas as $a) {
                                 if (isset($grupo['registros'][0]['tipo_pago'])) {
                                     $estado_pago = $grupo['registros'][0]['tipo_pago'];
                                 }
-                                
+
                                 switch ($estado_pago) {
                                     case 'EFECTIVO':
                                     case 'SEGURO':
@@ -154,29 +153,29 @@ foreach ($analiticas as $a) {
                             <td>
                                 <?php if ($estado_pago == 'SIN PAGAR' ): ?>
                                     <button class="btn btn-sm btn-outline-success btn-pagar" data-bs-toggle="modal"
-                                        data-bs-target="#modalPagar"
-                                        data-grupo='<?= json_encode(array_filter($grupo['registros'], fn($r) => $r['pagado'] == 0)) ?>'
-                                        data-paciente="<?= htmlspecialchars($grupo['paciente']) ?>"
-                                        data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>"
-                                        data-paciente-id="<?= htmlspecialchars($grupo['id_paciente']) ?>" title="Pagar pruebas">
+                                            data-bs-target="#modalPagar"
+                                            data-grupo='<?= json_encode(array_filter($grupo['registros'], fn($r) => $r['pagado'] == 0)) ?>'
+                                            data-paciente="<?= htmlspecialchars($grupo['paciente']) ?>"
+                                            data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>"
+                                            data-paciente-id="<?= htmlspecialchars($grupo['id_paciente']) ?>" title="Pagar pruebas">
                                         <i class="bi bi-cash-coin me-1"></i> Pagar
                                     </button>
                                 <?php else: ?>
                                     <a href="fpdf/generar_factura.php?id=<?= $grupo['registros'][0]['id'] ?>&fecha=<?= $grupo['fecha'] ?>"
-                                        target="_blank" class="btn btn-outline-secondary btn-sm" title="Imprimir Factura">
+                                            target="_blank" class="btn btn-outline-secondary btn-sm" title="Imprimir Factura">
                                         <i class="bi bi-printer"></i> Imprimir Factura
                                     </a>
                                     <button class="btn btn-sm btn-outline-primary btn-editar-pago mt-1" data-bs-toggle="modal"
-                                        data-bs-target="#modalEditarPago"
-                                        data-grupo='<?= json_encode($grupo['registros']) ?>'
-                                        data-paciente="<?= htmlspecialchars($grupo['paciente']) ?>"
-                                        data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>"
-                                        data-paciente-id="<?= htmlspecialchars($grupo['id_paciente']) ?>" title="Editar Pago">
+                                            data-bs-target="#modalEditarPago"
+                                            data-grupo='<?= json_encode($grupo['registros']) ?>'
+                                            data-paciente="<?= htmlspecialchars($grupo['paciente']) ?>"
+                                            data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>"
+                                            data-paciente-id="<?= htmlspecialchars($grupo['id_paciente']) ?>" title="Editar Pago">
                                         <i class="bi bi-pencil-square"></i> Editar
                                     </button>
                                 <?php endif; ?>
                                 <a href="fpdf/imprimir_pruebas.php?id=<?= $grupo['id_paciente'] ?>&fecha=<?= $grupo['fecha'] ?>"
-                                    target="_blank" class="btn btn-outline-primary btn-sm mt-1" title="Imprimir Pruebas Médicas">
+                                        target="_blank" class="btn btn-outline-primary btn-sm mt-1" title="Imprimir Pruebas Médicas">
                                     <i class="bi bi-file-earmark-medical"></i> Ver Pruebas
                                 </a>
                             </td>
@@ -187,7 +186,6 @@ foreach ($analiticas as $a) {
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="modalPagar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <form action="api/guardar_pago.php" method="POST" class="modal-content">
@@ -247,8 +245,7 @@ foreach ($analiticas as $a) {
         </form>
     </div>
 </div>
-
-<div class="modal fade" id="modalEditarPago" tabindex="-1">
+<div class="modal fade" id="modalEditarPago" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <form action="api/actualizar_pago.php" method="POST" class="modal-content">
             <div class="modal-header bg-primary text-white">
@@ -268,25 +265,53 @@ foreach ($analiticas as $a) {
                 <table class="table table-sm table-bordered align-middle">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Tipo de Prueba</th>
+                            <th>Prueba</th>
                             <th>Precio</th>
-                            <th>Estado de Pago</th>
+                            <th>Estado Actual</th>
                         </tr>
                     </thead>
                     <tbody id="tablaPruebasEditar">
                     </tbody>
                 </table>
+
+                <div class="text-end mb-3">
+                    <strong>Total del Grupo: </strong><span id="editTotalGrupo" class="fs-5">0 FCFA</span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="editTipoPago" class="form-label">Nuevo Tipo de Pago</label>
+                    <select class="form-select" id="editTipoPago" name="tipo_pago" required>
+                    </select>
+                </div>
+
+                <div id="editContenedorMontoAPagar" class="mb-3" style="display:none;">
+                    <label for="editMontoPagar" class="form-label">Monto Pagado</label>
+                    <input type="number" class="form-control" id="editMontoPagar" name="monto_pagar" min="0">
+                </div>
+
+                <div id="editContenedorMontoPendiente" class="mb-3" style="display:none;">
+                    <strong>Monto Pendiente:</strong> <span id="editMontoPendiente" class="fs-5 text-danger">0 FCFA</span>
+                </div>
+
+                <div id="editContenedorSeguro" class="mb-3" style="display:none;">
+                    <label for="editIdSeguro" class="form-label">Seleccionar Seguro</label>
+                    <select class="form-select" id="editIdSeguro" name="id_seguro">
+                    </select>
+                </div>
+
+                <div class="alert alert-info mt-3" role="alert">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Al actualizar el pago, se aplicará el nuevo tipo de pago y monto a **todas las pruebas del grupo** que no estén pagadas.
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Actualizar</button>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Actualizar Pago</button>
             </div>
         </form>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+<script src="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js](https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js)"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // Manejar clics en el botón de "Pagar"
@@ -302,12 +327,12 @@ foreach ($analiticas as $a) {
 
         // Manejar clics en el botón de "Editar Pago"
         document.querySelectorAll('.btn-editar-pago').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 const grupo = JSON.parse(btn.dataset.grupo);
                 const paciente = btn.dataset.paciente;
                 const fecha = btn.dataset.fecha;
                 const idPaciente = btn.dataset.pacienteId;
-                setupEditModal(grupo, paciente, fecha, idPaciente);
+                await handleEditModalLogic(idPaciente, grupo, paciente, fecha);
             });
         });
 
@@ -323,22 +348,25 @@ foreach ($analiticas as $a) {
             
             tipoPagoSelect.innerHTML = '';
             
+            // Opciones de tipo de pago
             const efectivoOption = document.createElement('option');
             efectivoOption.value = 'EFECTIVO';
             efectivoOption.textContent = '💰 Efectivo';
             tipoPagoSelect.appendChild(efectivoOption);
 
-            const adeberOption = document.createElement('option');
-            adeberOption.value = 'ADEBER';
-            adeberOption.textContent = '📝 A Deber (Préstamo)';
-            tipoPagoSelect.appendChild(adeberOption);
+            const adeudoOption = document.createElement('option');
+            adeudoOption.value = 'ADEUDO';
+            adeudoOption.textContent = '📝 A Deber (Adeudo)';
+            tipoPagoSelect.appendChild(adeudoOption);
 
-            // Ocultar inicialmente los campos de monto a pagar y monto pendiente
+            // Ocultar secciones no aplicables inicialmente
             contenedorSeguro.style.display = 'none';
             contenedorMontoAPagar.style.display = 'none';
             contenedorMontoPendiente.style.display = 'none';
             montoPagarInput.value = '';
+            montoPagarInput.required = false;
 
+            // Verificar si el paciente tiene seguro activo
             const hasInsurance = await checkPatientInsurance(idPaciente);
 
             if (hasInsurance) {
@@ -348,10 +376,12 @@ foreach ($analiticas as $a) {
                 tipoPagoSelect.appendChild(seguroOption);
             }
             
+            // Llenar datos del paciente y fecha
             document.getElementById('nombrePacientePago').textContent = paciente;
             document.getElementById('fechaPacientePago').textContent = fecha;
             document.getElementById('idPacientePago').value = idPaciente;
             
+            // Llenar tabla de pruebas
             const tabla = document.getElementById('tablaPruebasPago');
             tabla.innerHTML = '';
             let total = 0;
@@ -378,6 +408,7 @@ foreach ($analiticas as $a) {
             
             totalPagoSpan.textContent = total.toFixed(0) + ' FCFA';
             
+            // Función para actualizar el monto pendiente
             const actualizarMontoPendiente = () => {
                 const totalAPagar = parseFloat(totalPagoSpan.textContent.replace(' FCFA', ''));
                 const montoPagado = parseFloat(montoPagarInput.value || 0);
@@ -385,6 +416,7 @@ foreach ($analiticas as $a) {
                 montoPendienteSpan.textContent = pendiente.toFixed(0) + ' FCFA';
             };
 
+            // Event listener para cambios en el tipo de pago
             tipoPagoSelect.addEventListener('change', () => {
                 const tipoSeleccionado = tipoPagoSelect.value;
                 contenedorSeguro.style.display = 'none';
@@ -395,17 +427,19 @@ foreach ($analiticas as $a) {
 
                 if (tipoSeleccionado === 'SEGURO') {
                     contenedorSeguro.style.display = 'block';
-                    cargarSeguros(idPaciente);
-                } else if (tipoSeleccionado === 'ADEBER') {
+                    cargarSeguros(idPaciente, 'idSeguro'); // Cargar seguros del paciente
+                } else if (tipoSeleccionado === 'ADEUDO') {
                     contenedorMontoAPagar.style.display = 'block';
                     contenedorMontoPendiente.style.display = 'block';
-                    montoPagarInput.required = true;
+                    montoPagarInput.required = true; // Hacer obligatorio el monto a pagar si es a deber
                 }
                 actualizarMontoPendiente();
             });
 
+            // Event listener para cambios en el monto a pagar
             montoPagarInput.addEventListener('input', actualizarMontoPendiente);
 
+            // Event listener para cambios en los checkboxes de selección de pruebas
             tabla.querySelectorAll('.pagar-checkbox').forEach(check => {
                 check.addEventListener('change', () => {
                     let nuevoTotal = 0;
@@ -421,96 +455,156 @@ foreach ($analiticas as $a) {
             });
         }
 
-        // Lógica del modal de Editar Pago
-        function setupEditModal(grupo, paciente, fecha, idPaciente) {
+        // --- Lógica del nuevo modal de edición ---
+        async function handleEditModalLogic(idPaciente, grupo, paciente, fecha) {
+            const tipoPagoSelect = document.getElementById('editTipoPago');
+            const contenedorSeguro = document.getElementById('editContenedorSeguro');
+            const contenedorMontoAPagar = document.getElementById('editContenedorMontoAPagar');
+            const contenedorMontoPendiente = document.getElementById('editContenedorMontoPendiente');
+            const montoPagarInput = document.getElementById('editMontoPagar');
+            const montoPendienteSpan = document.getElementById('editMontoPendiente');
+            const totalGrupoSpan = document.getElementById('editTotalGrupo');
+            
+            // Llenar datos del paciente y fecha en el modal de edición
             document.getElementById('editNombrePaciente').textContent = paciente;
             document.getElementById('editFechaPaciente').textContent = fecha;
             document.getElementById('editIdPaciente').value = idPaciente;
             document.getElementById('editFecha').value = fecha;
 
+            tipoPagoSelect.innerHTML = '';
+            
+            // Opciones de tipo de pago para edición
+            const efectivoOption = document.createElement('option');
+            efectivoOption.value = 'EFECTIVO';
+            efectivoOption.textContent = '💰 Efectivo';
+            tipoPagoSelect.appendChild(efectivoOption);
+
+            const adeudoOption = document.createElement('option');
+            adeudoOption.value = 'ADEUDO';
+            adeudoOption.textContent = '📝 A Deber (Adeudo)';
+            tipoPagoSelect.appendChild(adeudoOption);
+
+            // Ocultar secciones no aplicables inicialmente en edición
+            contenedorSeguro.style.display = 'none';
+            contenedorMontoAPagar.style.display = 'none';
+            contenedorMontoPendiente.style.display = 'none';
+            montoPagarInput.value = '';
+            montoPagarInput.required = false;
+
+            // Verificar seguro para el paciente en edición
+            const hasInsurance = await checkPatientInsurance(idPaciente);
+
+            if (hasInsurance) {
+                const seguroOption = document.createElement('option');
+                seguroOption.value = 'SEGURO';
+                seguroOption.textContent = '🛡️ Seguro';
+                tipoPagoSelect.appendChild(seguroOption);
+            }
+            
+            // Llenar tabla de pruebas en el modal de edición
             const tabla = document.getElementById('tablaPruebasEditar');
             tabla.innerHTML = '';
+            let totalGrupo = 0;
 
-            grupo.forEach(prueba => {
+            grupo.forEach((prueba) => {
                 const id = prueba.id;
                 const tipo = prueba.tipo_prueba;
                 const precio = parseFloat(prueba.precio || 0);
-                const pagado = prueba.pagado;
-
-                const estadoPagado = pagado === "1";
-                const options = estadoPagado
-                    ? `<option value="1" selected>Pagado</option><option value="0">Pendiente</option>`
-                    : `<option value="0" selected>Pendiente</option><option value="1">Pagado</option>`;
-
+                const pagado = prueba.pagado; // 0 si no está pagado, 1 si está pagado
+                const id_tipo_prueba = prueba.id_tipo_prueba;
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${id}</td>
                     <td>${tipo}</td>
                     <td>${precio.toFixed(0)} FCFA</td>
                     <td>
-                        <select name="pagos[${id}][pagado]" class="form-select" required>
-                            ${options}
-                        </select>
-                        <input type="hidden" name="pagos[${id}][id_tipo_prueba]" value="${prueba.id_tipo_prueba}">
+                        <span class="badge ${pagado == 1 ? 'bg-success' : 'bg-danger'}">${pagado == 1 ? 'Pagado' : 'Pendiente'}</span>
+                        <input type="hidden" name="pruebas[${id}][id]" value="${id}">
+                        <input type="hidden" name="pruebas[${id}][precio]" value="${precio}">
+                        <input type="hidden" name="pruebas[${id}][pagado_actual]" value="${pagado}">
+                        <input type="hidden" name="pruebas[${id}][id_tipo_prueba]" value="${id_tipo_prueba}">
                     </td>
                 `;
                 tabla.appendChild(row);
+                totalGrupo += precio;
             });
-        }
-        
-        // Función para el mensaje de alerta
-        setTimeout(() => {
-            const alert = document.querySelector('.alert');
-            if (alert) {
-                alert.classList.remove('show');
-                alert.classList.add('fade');
-            }
-        }, 10000); // 10 segundos
-    });
+            
+            totalGrupoSpan.textContent = totalGrupo.toFixed(0) + ' FCFA';
 
-    // Funciones de la API (para cargar seguros)
-    async function checkPatientInsurance(idPaciente) {
-        try {
-            const response = await fetch(`api/verificar_seguro.php?id_paciente=${idPaciente}`);
-            if (!response.ok) {
-                throw new Error('Error de red al verificar el seguro.');
-            }
-            const data = await response.json();
-            return data.has_insurance;
-        } catch (error) {
-            console.error('Error al verificar el seguro del paciente:', error);
-            return false;
-        }
-    }
+            // Función para actualizar el monto pendiente en edición
+            const actualizarMontoPendienteEdit = () => {
+                const totalDelGrupo = parseFloat(totalGrupoSpan.textContent.replace(' FCFA', ''));
+                const montoPagado = parseFloat(montoPagarInput.value || 0);
+                const pendiente = totalDelGrupo - montoPagado;
+                montoPendienteSpan.textContent = pendiente.toFixed(0) + ' FCFA';
+            };
 
-    function cargarSeguros(idPaciente) {
-        const idSeguroSelect = document.getElementById('idSeguro');
-        idSeguroSelect.innerHTML = '<option value="">Cargando...</option>';
+            // Event listener para cambios en el tipo de pago en edición
+            tipoPagoSelect.addEventListener('change', () => {
+                const tipoSeleccionado = tipoPagoSelect.value;
+                contenedorSeguro.style.display = 'none';
+                contenedorMontoAPagar.style.display = 'none';
+                contenedorMontoPendiente.style.display = 'none';
+                montoPagarInput.value = '';
+                montoPagarInput.required = false;
 
-        fetch(`api/obtener_seguros_paciente.php?id_paciente=${idPaciente}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                if (tipoSeleccionado === 'SEGURO') {
+                    contenedorSeguro.style.display = 'block';
+                    cargarSeguros(idPaciente, 'editIdSeguro'); // Cargar seguros del paciente
+                } else if (tipoSeleccionado === 'ADEUDO') {
+                    contenedorMontoAPagar.style.display = 'block';
+                    contenedorMontoPendiente.style.display = 'block';
+                    montoPagarInput.required = true; // Hacer obligatorio el monto a pagar si es a deber
                 }
-                return response.json();
-            })
-            .then(seguros => {
-                idSeguroSelect.innerHTML = '';
-                if (seguros.length > 0) {
-                    seguros.forEach(seguro => {
+                actualizarMontoPendienteEdit();
+            });
+
+            // Event listener para cambios en el monto a pagar en edición
+            montoPagarInput.addEventListener('input', actualizarMontoPendienteEdit);
+        }
+
+        // Función auxiliar para cargar los seguros de un paciente (implementación pendiente)
+        async function cargarSeguros(idPaciente, selectId) {
+            // Aquí deberías hacer una llamada AJAX a tu backend para obtener los seguros del paciente
+            // y llenar el select con id 'selectId'.
+            // Ejemplo:
+            /*
+            fetch('api/obtener_seguros.php?paciente_id=' + idPaciente)
+                .then(response => response.json())
+                .then(data => {
+                    const selectElement = document.getElementById(selectId);
+                    selectElement.innerHTML = ''; // Limpiar opciones existentes
+                    data.forEach(seguro => {
                         const option = document.createElement('option');
                         option.value = seguro.id;
-                        option.textContent = `ID: ${seguro.id} - Saldo: ${parseFloat(seguro.saldo_actual).toFixed(0)} FCFA`;
-                        idSeguroSelect.appendChild(option);
+                        option.textContent = `${seguro.nombre} - Saldo: ${seguro.saldo_actual} FCFA`;
+                        selectElement.appendChild(option);
                     });
-                } else {
-                    idSeguroSelect.innerHTML = '<option value="">No hay seguros disponibles</option>';
-                }
-            })
-            .catch(error => {
-                console.error('Error al cargar seguros:', error);
-                idSeguroSelect.innerHTML = '<option value="">Error al cargar seguros</option>';
-            });
-    }
+                });
+            */
+            console.log(`Cargando seguros para el paciente ${idPaciente} en el select ${selectId}`);
+            // Placeholder: añadir opciones manualmente si no se implementa AJAX
+             const selectElement = document.getElementById(selectId);
+             selectElement.innerHTML = `
+                 <option value="1">Seguro Médico Principal - Saldo: 50000 FCFA</option>
+                 <option value="2">Seguro Familiar - Saldo: 30000 FCFA</option>
+             `;
+        }
+
+        // Función auxiliar para verificar si un paciente tiene seguro (implementación pendiente)
+        async function checkPatientInsurance(idPaciente) {
+            // Aquí deberías hacer una llamada AJAX a tu backend para verificar si el paciente tiene seguro
+            // y devolver true o false.
+            // Ejemplo:
+            /*
+            return fetch('api/verificar_seguro.php?paciente_id=' + idPaciente)
+                .then(response => response.json())
+                .then(data => data.has_insurance);
+            */
+            console.log(`Verificando seguro para el paciente ${idPaciente}`);
+            // Placeholder: devolver true para probar la funcionalidad
+            return true; 
+        }
+
+    });
 </script>
- 

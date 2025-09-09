@@ -27,7 +27,8 @@ function verificarAcceso($vista)
             'analiticas',
             'ingresos',
             'seguros',
-            'empleados'
+            'empleados',
+            'contabilidad'
         ],
 
         'laboratorio' => [
