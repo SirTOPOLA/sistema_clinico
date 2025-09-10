@@ -6,7 +6,7 @@ try {
     // Validar campos obligatorios
     if (empty($_POST['nombre']) || empty($_POST['apellidos'])) {
         $_SESSION['error'] = 'El nombre y los apellidos son obligatorios.';
-        header("Location: ../index.php?vista=empleados");
+        header("Location: ../index.php?vista=usuarios");
         exit;
     }
 
@@ -53,5 +53,5 @@ try {
     $_SESSION['error'] = "Error al guardar: " . $e->getMessage();
 }
 
-header("Location: ../index.php?vista=empleados");
+header("Location: ../index.php?vista=usuarios");
 exit;

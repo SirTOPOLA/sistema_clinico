@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tutor = htmlspecialchars(trim($_POST['tutor_nombre']));
         $telefono_tutor = htmlspecialchars(trim($_POST['telefono_tutor']));
         $residencia = htmlspecialchars(trim($_POST['direccion']));
-        $id_usuario = (int) $_POST['id_usuario'];
+        $id_usuario = (int) $_SESSION['usuario']['id'];
 
         $fecha_registro= date('Y-m-d H:i:s');
 
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        
         if ($validacion !== true) {
             $_SESSION['error'] = $validacion;
-            header('Location: ../index.php?vista=pacientes');
+            header('Location: ../index.php?vista=usuarios');
             exit;
         }
 
@@ -97,16 +97,16 @@ $codigo_paciente = $base . $fechaPart . $aleatorio; // Total 2 + 4 + 2 = 8 carac
         ]);
 
         $_SESSION['success'] = 'Paciente registrado correctamente.';
-        header('Location: ../index.php?vista=pacientes');
+        header('Location: ../index.php?vista=usuarios');
         exit;
     } catch (Exception $e) {
         $_SESSION['error'] = 'Error al registrar paciente: ' . $e->getMessage();
-        header('Location: ../index.php?vista=pacientes');
+        header('Location: ../index.php?vista=usuarios');
         exit;
     }
 } else {
     $_SESSION['error'] = 'Método de solicitud no permitido.';
-    header('Location: ../index.php?vista=pacientes');
+    header('Location: ../index.php?vista=usuarios');
     exit;
 }
 ?>

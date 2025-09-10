@@ -25,7 +25,7 @@ try {
         throw new Exception('El nombre de usuario debe tener entre 3 y 25 caracteres.');
     }
 
-    if (strlen($contrasena) < 6) {
+    if (strlen($contrasena) < 5) {
         throw new Exception('La contraseña debe tener al menos 6 caracteres.');
     }
 

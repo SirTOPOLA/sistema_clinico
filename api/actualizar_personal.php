@@ -6,7 +6,7 @@ try {
     // Validar existencia de ID
     if (empty($_POST['id'])) {
         $_SESSION['error'] = 'ID de personal no proporcionado.';
-        header("Location: ../index.php?vista=empleados");
+        header("Location: ../index.php?vista=usuarios");
         exit;
     }
 
@@ -50,5 +50,5 @@ try {
     $_SESSION['error'] = 'Error al actualizar: ' . $e->getMessage();
 }
 
-header("Location: ../index.php?vista=empleados");
+header("Location: ../index.php?vista=usuarios");
 exit;

@@ -2,7 +2,8 @@
 session_start();
 require '../config/conexion.php';
 
-function validar_campos($datos) {
+function validar_campos($datos)
+{
     foreach ($datos as $campo => $valor) {
         if (empty(trim($valor))) {
             return "El campo $campo es obligatorio.";
@@ -19,14 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fecha_nacimiento = $_POST['fecha_nacimiento'];
         $dip = htmlspecialchars(trim($_POST['dip']));
         $sexo = htmlspecialchars(trim($_POST['sexo']));
-        $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
         $telefono = htmlspecialchars(trim($_POST['telefono']));
         $profesion = htmlspecialchars(trim($_POST['profesion']));
         $ocupacion = htmlspecialchars(trim($_POST['ocupacion']));
         $tutor = htmlspecialchars(trim($_POST['tutor_nombre']));
         $telefono_tutor = htmlspecialchars(trim($_POST['telefono_tutor']));
         $residencia = htmlspecialchars(trim($_POST['direccion']));
-        $id_usuario = (int) $_POST['id_usuario'];
+        $id_usuario =  $_SESSION['usuario']['id'];
 
         // Validar campos obligatorios
         $validacion = validar_campos([
@@ -43,15 +43,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($validacion !== true) {
             $_SESSION['error'] = $validacion;
-            header('Location: ../index.php?vista=pacientes');
+            header('Location: ../index.php?vista=usuarios');
             exit;
         }
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $email = isset($_POST['email']) ? trim($_POST['email']) : null;
+
+        // Si el email está vacío después de trim(), lo consideramos null
+        if ($email === '' || $email === null) {
+            $email = null;
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
             $_SESSION['error'] = 'El correo electrónico no es válido.';
-            header('Location: ../index.php?vista=pacientes');
+            header('Location: ../index.php?vista=usuarios');
             exit;
         }
+
 
         $sql = "UPDATE pacientes SET
                     nombre = :nombre,
@@ -88,16 +95,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         $_SESSION['success'] = 'Paciente actualizado correctamente.';
-        header('Location: ../index.php?vista=pacientes');
+        header('Location: ../index.php?vista=usuarios');
         exit;
     } catch (Exception $e) {
         $_SESSION['error'] = 'Error al actualizar paciente: ' . $e->getMessage();
-        header('Location: ../index.php?vista=pacientes');
+        header('Location: ../index.php?vista=usuarios');
         exit;
     }
 } else {
     $_SESSION['error'] = 'Método de solicitud no permitido.';
-    header('Location: ../index.php?vista=pacientes');
+    header('Location: ../index.php?vista=usuarios');
     exit;
 }
 ?>

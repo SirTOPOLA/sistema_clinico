@@ -1,414 +1,531 @@
 <?php
-// Asegurar que la sesión esté iniciada (esto ya lo tienes)
-// session_start();
-// if (!isset($_SESSION['usuario'])) {
-//     header("Location: login.php"); // Redirige si no hay sesión
-//     exit();
-// }
 
-// Incluir tu archivo de conexión a la base de datos (si 'pdo' viene de ahí)
-// require_once 'ruta/a/tu/conexion.php'; 
+// Funciones para obtener datos
+function getKpis($pdo)
+{
+    $kpis = [
+        'personal' => 0,
+        'usuarios' => 0,
+        'pacientes' => 0,
+    ];
 
-// Para selects del modal (se seguirán obteniendo con PHP, ya que son estáticos para los modales)
-// Si estos datos pueden cambiar frecuentemente, también podrías cargarlos vía AJAX al abrir el modal.
-// Para este ejemplo, los mantendremos cargados en PHP.
-$empleados = $pdo->query("SELECT id, nombre, especialidad FROM personal")->fetchAll(PDO::FETCH_ASSOC);
-$roles = $pdo->query("SELECT id, nombre FROM roles")->fetchAll(PDO::FETCH_ASSOC);
+    $kpis['personal'] = $pdo->query("SELECT COUNT(*) FROM personal")->fetchColumn();
+    $kpis['usuarios'] = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
+    $kpis['pacientes'] = $pdo->query("SELECT COUNT(*) FROM pacientes")->fetchColumn();
+
+    return $kpis;
+}
+
+function getTableData($pdo, $table, $limit = 20)
+{
+    $stmt = $pdo->prepare("SELECT * FROM `$table` ORDER BY id DESC LIMIT :limit");
+    $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
+function getPacienteHistorial($pdo, $pacienteId)
+{
+    $historial = [];
+
+    // Datos generales del paciente
+    $stmt = $pdo->prepare("SELECT * FROM pacientes WHERE id = ?");
+    $stmt->execute([$pacienteId]);
+    $historial['paciente'] = $stmt->fetch();
+
+    if (!$historial['paciente']) {
+        return null;
+    }
+
+    // Consultas y detalles
+    $stmt = $pdo->prepare("SELECT
+        c.fecha_registro AS fecha,
+        c.motivo_consulta,
+        c.temperatura,
+        c.frecuencia_cardiaca,
+        c.peso_actual,
+        c.pagado,
+        c.precio,
+        dc.operacion,
+        dc.antecedentes_patologicos,
+        dc.alergico,
+        u.nombre_usuario AS usuario_atencion
+    FROM consultas c
+    JOIN detalle_consulta dc ON c.id = dc.id_consulta
+    JOIN usuarios u ON c.id_usuario = u.id
+    WHERE c.id_paciente = ?
+    ORDER BY c.fecha_registro DESC");
+    $stmt->execute([$pacienteId]);
+    $historial['consultas'] = $stmt->fetchAll();
+
+    // Ventas y consumos
+    $stmt = $pdo->prepare("SELECT
+        v.fecha AS fecha_venta,
+        v.monto_total,
+        v.metodo_pago,
+        vd.cantidad,
+        p.nombre AS producto_nombre
+    FROM ventas v
+    JOIN ventas_detalle vd ON v.id = vd.venta_id
+    JOIN productos p ON vd.producto_id = p.id
+    WHERE v.paciente_id = ?
+    ORDER BY v.fecha DESC");
+    $stmt->execute([$pacienteId]);
+    $historial['consumos'] = $stmt->fetchAll();
+
+    // Ingresos y egresos hospitalarios
+    $stmt = $pdo->prepare("SELECT
+        fecha_ingreso,
+        fecha_alta,
+        s.nombre AS sala_nombre
+    FROM ingresos i
+    JOIN salas_ingreso s ON i.id_sala = s.id
+    WHERE i.id_paciente = ?
+    ORDER BY fecha_ingreso DESC");
+    $stmt->execute([$pacienteId]);
+    $historial['ingresos'] = $stmt->fetchAll();
+
+    return $historial;
+}
+
+// usuarios
+$sql = "SELECT u.id,
+            r.id AS id_rol,
+            p.id AS id_personal,
+            u.nombre_usuario,
+            CONCAT(p.nombre, ' ',p.apellidos) AS personal, 
+            p.correo,
+            r.nombre AS rol
+        FROM 
+            usuarios u
+        JOIN 
+            personal p ON u.id_personal = p.id
+        LEFT JOIN 
+            roles r ON u.id_rol = r.id
+        ORDER BY
+            u.nombre_usuario ASC";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$usuariosData = $stmt->fetchAll();
+
+// Obtener datos para la vista
+$kpis = getKpis($pdo);
+$personalData = getTableData($pdo, 'personal');
+//$usuariosData = getTableData($pdo, 'usuarios');
+$pacientesData = getTableData($pdo, 'pacientes');
+
+
+
 ?>
 
+<style>
+    :root {
+        --bs-body-bg: #f8f9fa;
+        /* Fondo claro */
+        --bs-body-color: #c2bfbfff;
+        /* Texto oscuro */
+    }
+
+
+
+    .card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .nav-pills .nav-link {
+        /* color: var(--bs-body-color); */
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    .table thead th {
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-action {
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .offcanvas {
+        background-color: #fff;
+        border-left: 1px solid #e9ecef;
+        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .offcanvas-header,
+    .offcanvas-body {
+        /*  color: #333; */
+    }
+
+    .a4-document {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 20mm;
+        margin: 0 auto;
+        background: white;
+        box-shadow: 0 0 5mm rgba(0, 0, 0, 0.1);
+        font-family: 'Roboto', sans-serif;
+        /*  color: #000; */
+    }
+
+    .a4-document h1,
+    .a4-document h2,
+    .a4-document h3 {
+        font-weight: 500;
+        color: #007bff;
+    }
+
+    .a4-document .section {
+        margin-bottom: 20px;
+    }
+
+    .a4-document .section-title {
+        font-weight: 500;
+        /* color: #555; */
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .a4-document,
+        .a4-document * {
+            visibility: visible;
+        }
+
+        .a4-document {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 10mm;
+        }
+    }
+</style>
+
+
 <div id="content" class="container-fluid py-4">
-    <div class="thead sticky-top bg-white pb-2" style="top: 60px; z-index: 1040; border-bottom: 1px solid #dee2e6;">
-        <div class="d-flex justify-content-between align-items-center flex-wrap">
-            <h3 class="mb-3 mb-md-0">
-                <i class="bi bi-person-gear me-2 text-primary"></i> Gestión de Usuarios
-            </h3>
-            <div class="d-flex gap-2 align-items-center">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text"><i class="bi bi-search"></i></span>
-                    <input type="text" id="buscadorUsuarios" class="form-control" placeholder="Buscar usuario...">
-                </div>
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalRegistro">
-                    <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
-                </button>
+    <header class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="fw-light text-primary"><i class="bi bi-hospital me-2"></i> Gestión Clínica del Personal y Pacientes
+        </h2>
+        <button class="btn btn-outline-primary rounded-pill" data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasAcciones"><i class="bi bi-plus-circle me-2"></i> Nuevo Registro</button>
+    </header>
+
+    <!-- KPIs -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card p-4 text-center">
+                <h5 class="card-title text-muted">Total Personal</h5>
+                <h2 class="card-text fw-bold text-primary"><?php echo $kpis['personal']; ?></h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 text-center">
+                <h5 class="card-title text-muted">Usuarios Activos</h5>
+                <h2 class="card-text fw-bold text-success"><?php echo $kpis['usuarios']; ?></h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 text-center">
+                <h5 class="card-title text-muted">Pacientes Registrados</h5>
+                <h2 class="card-text fw-bold text-warning"><?php echo $kpis['pacientes']; ?></h2>
             </div>
         </div>
     </div>
 
+    <hr>
+
+    <!-- Navegación y Tablas -->
+    <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pills-personal-tab" data-bs-toggle="pill"
+                data-bs-target="#pills-personal" type="button"><i class="bi bi-people me-2"></i>Personal</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-usuarios-tab" data-bs-toggle="pill" data-bs-target="#pills-usuarios"
+                type="button"><i class="bi bi-person-badge me-2"></i>Usuarios</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-pacientes-tab" data-bs-toggle="pill" data-bs-target="#pills-pacientes"
+                type="button"><i class="bi bi-person-hearts me-2"></i>Pacientes</button>
+        </li>
+    </ul>
     <?php
-    // Mostrar mensajes de sesión (si los hay)
     if (isset($_SESSION['error'])) {
-        echo '<div id="mensaje" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">' . $_SESSION['error'] . '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+        echo '<div id="mensaje" class="alert alert-danger">' . $_SESSION['error'] . '</div>';
         unset($_SESSION['error']);
     }
     if (isset($_SESSION['success'])) {
-        echo '<div id="mensaje" class="alert alert-success alert-dismissible fade show mt-3" role="alert">' . $_SESSION['success'] . '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+        echo '<div id="mensaje" class="alert alert-success">' . $_SESSION['success'] . '</div>';
         unset($_SESSION['success']);
     }
     ?>
-
-    <div class="card shadow-sm border-0 mt-3">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="tablaUsuarios" class="table table-hover table-bordered align-middle table-sm">
-                    <thead class="table-light text-nowrap">
-                        <tr>
-                            <th><i class="bi bi-hash me-1 text-muted"></i>ID</th>
-                            <th><i class="bi bi-person-badge me-1 text-muted"></i>Empleado</th>
-                            <th><i class="bi bi-person me-1 text-muted"></i>Usuario</th>
-                            <th><i class="bi bi-shield-lock me-1 text-muted"></i>Rol</th> 
-                            <th><i class="bi bi-calendar-check me-1 text-muted"></i>Ingreso</th>
-                            <th><i class="bi bi-tools me-1 text-muted"></i>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usuariosTableBody">
-                        <tr>
-                            <td colspan="7" class="text-center text-muted">Cargando usuarios...</td>
-                        </tr>
-                    </tbody>
-                </table>
+    <div class="tab-content" id="pills-tabContent">
+        <!-- Personal -->
+        <div class="tab-pane fade show active" id="pills-personal" role="tabpanel">
+            <div class="card p-4">
+                <h4 class="mb-3 text-muted">Últimos registros de Personal</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Especialidad</th>
+                                <th>Teléfono</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($personalData as $personal): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($personal['id']); ?></td>
+                                    <td><?php echo htmlspecialchars($personal['nombre'] . ' ' . $personal['apellidos']); ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($personal['especialidad']); ?></td>
+                                    <td><?php echo htmlspecialchars($personal['telefono']); ?></td>
+                                    <td>
+                                        <button class="btn btn-outline-warning btn-sm btn-action"
+                                            onclick='showEditPersonalModal(<?php echo json_encode($personal); ?>)'><i
+                                                class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-outline-danger btn-sm btn-action"><i
+                                                class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        </div>
 
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <div>
-                    Mostrando <span id="currentUsersRecords">0</span> de <span id="totalUsersRecords">0</span> registros
+        <!-- Usuarios -->
+        <div class="tab-pane fade" id="pills-usuarios" role="tabpanel">
+            <div class="card p-4">
+                <h4 class="mb-3 text-muted">Últimos registros de Usuarios</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Rol</th>
+                                <th>Personal</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($usuariosData as $usuario): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($usuario['id']); ?></td>
+                                    <td><?php echo htmlspecialchars($usuario['nombre_usuario']); ?></td>
+                                    <td><?php echo htmlspecialchars($usuario['rol']); ?></td>
+                                    <td><?php echo htmlspecialchars($usuario['personal']); ?></td>
+                                    <td>
+                                        <button class="btn btn-outline-warning btn-sm btn-action"
+                                            onclick='showEditUsuarioModal(<?php echo json_encode($usuario); ?>)'><i
+                                                class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-outline-danger btn-sm btn-action"><i
+                                                class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0" id="paginationUsersControls">
-                        </ul>
-                </nav>
-                <div class="d-flex align-items-center">
-                    <label for="usersRecordsPerPage" class="me-2">Registros por página:</label>
-                    <select class="form-select form-select-sm w-auto" id="usersRecordsPerPage">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                    </select>
+            </div>
+        </div>
+
+        <!-- Pacientes -->
+        <div class="tab-pane fade" id="pills-pacientes" role="tabpanel">
+            <div class="card p-4">
+                <h4 class="mb-3 text-muted">Últimos registros de Pacientes</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Sexo</th>
+                                <th>Teléfono</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($pacientesData as $paciente): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($paciente['id']); ?></td>
+                                    <td><?php echo htmlspecialchars($paciente['nombre'] . ' ' . $paciente['apellidos']); ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($paciente['sexo']); ?></td>
+                                    <td><?php echo htmlspecialchars($paciente['telefono']); ?></td>
+                                    <td>
+                                        <button class="btn btn-outline-warning btn-sm btn-action"
+                                            onclick='showEditPacienteModal(<?php echo json_encode($paciente); ?>)'><i
+                                                class="bi bi-pencil"></i></button>
+                                        <!-- Botón original (con evento JS) -->
+                                        <button onclick="seleccionarFechas(<?php echo $paciente['id']; ?>)"
+                                            class="btn btn-outline-info btn-sm btn-action">
+                                            <i class="bi bi-file-earmark-text"></i>
+                                        </button>
+                                        </a>
+                                        <button class="btn btn-outline-danger btn-sm btn-action"><i
+                                                class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offcanvas Acciones -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAcciones">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-muted">Acciones rápidas</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#modalPersonal"><i
+                    class="bi bi-person-plus me-2"></i> Registrar Personal</button>
+            <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#modalUsuario"><i
+                    class="bi bi-person-badge me-2"></i> Registrar Usuario</button>
+            <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#modalPaciente"><i
+                    class="bi bi-person-hearts me-2"></i> Registrar Paciente</button>
+        </div>
+    </div>
+
+    <!-- Toast de notificación -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <!-- El mensaje se insertará aquí con JavaScript -->
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalRegistro" tabindex="-1" aria-labelledby="registroUsuarioLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <form class="modal-content needs-validation" novalidate action="api/guardar_usuario.php" method="POST" id="formNuevoUsuario">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="registroUsuarioLabel"><i class="bi bi-person-plus-fill me-2"></i>Registrar Usuario</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-person-vcard me-1"></i>Empleado</label>
-                    <select class="form-select" name="id_personal" required>
-                        <option value="">Seleccione...</option>
-                        <?php foreach ($empleados as $e): ?>
-                            <option value="<?= $e['id'] ?>"><?= htmlspecialchars($e['nombre']) ?> (<?= htmlspecialchars($e['especialidad']) ?>)</option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="invalid-feedback">Por favor, seleccione un empleado.</div>
-                </div>
+<!-- Modales de para solicitar pdf de historial de paciente -->
+<?php require 'modals/modals_historial_fpdf.php'; ?>
+<!-- Modales de Registro -->
+<?php require 'modals/modals_registro_usuarios.php'; ?>
+<!-- Modales de Edición y Historial -->
+<?php require 'modals/modals_edicion_usuarios.php'; ?>
 
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-person me-1"></i>Nombre de usuario</label>
-                    <input type="text" name="nombre_usuario" class="form-control" required maxlength="25">
-                    <div class="invalid-feedback">Ingrese un nombre de usuario.</div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-lock-fill me-1"></i>Contraseña</label>
-                    <input type="password" name="contrasena" class="form-control" required minlength="6">
-                    <div class="invalid-feedback">La contraseña debe tener al menos 6 caracteres.</div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-shield-lock-fill me-1"></i>Rol</label>
-                    <select name="id_rol" class="form-select" required>
-                        <option value="">Seleccione...</option>
-                        <?php foreach ($roles as $r): ?>
-                            <option value="<?= $r['id'] ?>"><?= htmlspecialchars($r['nombre']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="invalid-feedback">Por favor, seleccione un rol.</div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success w-100">
-                    <i class="bi bi-save me-1"></i>Guardar
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="editarUsuarioLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <form class="modal-content needs-validation" novalidate action="api/editar_usuario.php" method="POST" id="formEditarUsuario">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="editarUsuarioLabel"><i class="bi bi-pencil-square me-2"></i>Editar Usuario</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="id" id="edit-id">
-
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-person me-1"></i>Nombre de usuario</label>
-                    <input type="text" name="nombre_usuario" id="edit-nombre-usuario" class="form-control" required>
-                    <div class="invalid-feedback">Ingrese un nombre de usuario.</div>
-                </div> 
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-shield-lock me-1"></i>Rol</label>
-                    <select name="id_rol" id="edit-rol" class="form-select" required>
-                        <?php foreach ($roles as $r): ?>
-                            <option value="<?= $r['id'] ?>"><?= htmlspecialchars($r['nombre']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="invalid-feedback">Seleccione un rol.</div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-arrow-repeat me-1"></i>Actualizar
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        let currentPage = 1;
-        let recordsPerPage = document.getElementById('usersRecordsPerPage').value;
-        let searchQuery = '';
+    // Script para mostrar el toast
+    function showToast(message, isError = false) {
+        const toastElement = document.getElementById('liveToast');
+        const toastBody = toastElement.querySelector('.toast-body');
 
-        const usuariosTableBody = document.getElementById('usuariosTableBody');
-        const paginationUsersControls = document.getElementById('paginationUsersControls');
-        const buscadorUsuariosInput = document.getElementById('buscadorUsuarios');
-        const usersRecordsPerPageSelect = document.getElementById('usersRecordsPerPage');
-        const formNuevoUsuario = document.getElementById('formNuevoUsuario');
-        const formEditarUsuario = document.getElementById('formEditarUsuario');
-        const modalRegistro = new bootstrap.Modal(document.getElementById('modalRegistro'));
-        const modalEditar = new bootstrap.Modal(document.getElementById('modalEditar'));
-        const contentContainer = document.querySelector('.container-fluid.py-4');
-
-        // Función para mostrar alertas de éxito/error
-        function showAlert(message, type) {
-            const existingAlert = document.getElementById('mensaje');
-            if (existingAlert) {
-                existingAlert.remove();
-            }
-
-            const alertDiv = document.createElement('div');
-            alertDiv.id = 'mensaje';
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show mt-3`;
-            alertDiv.setAttribute('role', 'alert');
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-            contentContainer.prepend(alertDiv);
-
-            setTimeout(() => {
-                const bsAlert = bootstrap.Alert.getInstance(alertDiv);
-                if (bsAlert) {
-                    bsAlert.close();
-                } else {
-                    alertDiv.remove();
-                }
-            }, 10000);
+        if (isError) {
+            toastElement.classList.remove('bg-success');
+            toastElement.classList.add('bg-danger');
+            toastBody.innerHTML = '<i class="bi bi-x-circle me-2"></i> ' + message;
+        } else {
+            toastElement.classList.remove('bg-danger');
+            toastElement.classList.add('bg-success');
+            toastBody.innerHTML = '<i class="bi bi-check-circle me-2"></i> ' + message;
         }
 
-        // Función para escapar HTML
-        function escapeHTML(str) {
-            const div = document.createElement('div');
-            div.appendChild(document.createTextNode(str));
-            return div.innerHTML;
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
+    }
+
+    // Lógica para mostrar los modales de edición
+    function showEditPersonalModal(personal) {
+        document.getElementById('edit_personal_id').value = personal.id;
+        document.getElementById('edit_nombrePersonal').value = personal.nombre;
+        document.getElementById('edit_apellidosPersonal').value = personal.apellidos;
+        document.getElementById('edit_fechaNacimientoPersonal').value = personal.fecha_nacimiento;
+        document.getElementById('edit_telefonoPersonal').value = personal.telefono;
+        document.getElementById('edit_especialidadPersonal').value = personal.especialidad;
+        document.getElementById('edit_direccionPersonal').value = personal.direccion;
+        document.getElementById('edit_correoPersonal').value = personal.correo;
+        const modal = new bootstrap.Modal(document.getElementById('modalEditPersonal'));
+        modal.show();
+    }
+
+    function showEditUsuarioModal(usuario) {
+        document.getElementById('edit_usuario_id').value = usuario.id;
+        document.getElementById('edit_nombreUsuario').value = usuario.nombre_usuario;
+        document.getElementById('edit_rolUsuario').value = usuario.id_rol;
+        document.getElementById('edit_personalAsociado').value = usuario.id_personal;
+       
+        const modal = new bootstrap.Modal(document.getElementById('modalEditUsuario'));
+        modal.show();
+    }
+
+    function showEditPacienteModal(paciente) {
+        document.getElementById('edit_paciente_id').value = paciente.id;
+        document.getElementById('edit_nombrePaciente').value = paciente.nombre;
+        document.getElementById('edit_apellidosPaciente').value = paciente.apellidos;
+        document.getElementById('edit_fechaNacimientoPaciente').value = paciente.fecha_nacimiento;
+        document.getElementById('edit_sexoPaciente').value = paciente.sexo;
+        document.getElementById('edit_telefonoPaciente').value = paciente.telefono;
+        document.getElementById('edit_emailPaciente').value = paciente.email;
+        document.getElementById('edit_dipPaciente').value = paciente.dip;
+        document.getElementById('edit_profesionPaciente').value = paciente.profesion;
+        document.getElementById('edit_ocupacionPaciente').value = paciente.ocupacion;
+        document.getElementById('edit_tutorNombrePaciente').value = paciente.tutor_nombre;
+        document.getElementById('edit_telefonoTutorPaciente').value = paciente.telefono_tutor;
+        document.getElementById('edit_direccionPaciente').value = paciente.direccion;
+        const modal = new bootstrap.Modal(document.getElementById('modalEditPaciente'));
+        modal.show();
+    }
+
+    // Chequear al cargar la página si hay mensajes en la URL
+    window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('success')) {
+            showToast(decodeURIComponent(urlParams.get('message')), false);
+        } else if (urlParams.has('error')) {
+            showToast(decodeURIComponent(urlParams.get('message')), true);
         }
+    };
 
-        // Función para cargar los datos de usuarios
-        async function loadUsuarios(page, search, perPage) {
-            usuariosTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">
-                <div class="spinner-border text-primary spinner-border-sm me-2" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>Cargando usuarios...
-            </td></tr>`;
-
-            const url = `api/obtener_usuarios.php?page=${page}&search=${encodeURIComponent(search)}&per_page=${perPage}`;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-
-                usuariosTableBody.innerHTML = '';
-                if (data.success && data.usuarios.length > 0) {
-                    data.usuarios.forEach(u => {
-                       
-                        const fechaIngreso = new Date(u.ingreso).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-                        const row = `
-                            <tr>
-                                <td>${parseInt(u.id)}</td>
-                                <td>${escapeHTML(u.personal)}</td>
-                                <td>${escapeHTML(u.usuario)}</td>
-                                <td>${escapeHTML(u.rol)}</td>
-                              
-                                <td>${fechaIngreso}</td>
-                                <td class="text-nowrap">
-                                    <button class="btn btn-sm btn-outline-warning me-1 edit-user-btn"
-                                        data-bs-toggle="modal" data-bs-target="#modalEditar"
-                                        data-id="${u.id}" 
-                                        data-nombre-usuario="${escapeHTML(u.usuario)}"
-                                      
-                                        data-rol-id="${u.id_rol}"
-                                        title="Editar">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <a href="eliminar_usuario.php?id=${u.id}" class="btn btn-sm btn-outline-danger delete-user-btn" title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        `;
-                        usuariosTableBody.insertAdjacentHTML('beforeend', row);
-                    });
-                } else {
-                    usuariosTableBody.innerHTML = '<tr><td colspan="7" class="text-center">No se encontraron usuarios.</td></tr>';
-                }
-                updatePaginationControls(data.totalPages, data.currentPage, data.totalRecords, data.usuarios.length, perPage);
-
-            } catch (error) {
-                console.error("Error al cargar usuarios:", error);
-                usuariosTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error al cargar los datos. Inténtelo de nuevo.</td></tr>';
-            }
+    // Ocultar mensajes de éxito/error después de 10s
+    setTimeout(() => {
+        const mensaje = document.getElementById('mensaje');
+        if (mensaje) {
+            mensaje.style.transition = 'opacity 1s ease';
+            mensaje.style.opacity = '0';
+            setTimeout(() => mensaje.remove(), 1000);
         }
-
-        // Función para actualizar los controles de paginación
-        function updatePaginationControls(totalPages, currentPage, totalRecords, recordsDisplayed, perPage) {
-            let paginationHtml = '';
-            const maxPagesToShow = 5;
-
-            paginationHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                                <a class="page-link" href="#" data-page="${currentPage - 1}">Anterior</a>
-                               </li>`;
-
-            let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-            let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-            if (endPage - startPage + 1 < maxPagesToShow) {
-                startPage = Math.max(1, endPage - maxPagesToShow + 1);
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-                                    <a class="page-link" href="#" data-page="${i}">${i}</a>
-                                   </li>`;
-            }
-
-            paginationHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                                <a class="page-link" href="#" data-page="${currentPage + 1}">Siguiente</a>
-                               </li>`;
-
-            paginationUsersControls.innerHTML = paginationHtml;
-
-            const startRecord = (currentPage - 1) * perPage + 1;
-            const endRecord = startRecord + recordsDisplayed - 1;
-            document.getElementById('currentUsersRecords').textContent = `${totalRecords > 0 ? startRecord : 0}-${endRecord}`;
-            document.getElementById('totalUsersRecords').textContent = totalRecords;
-        }
-
-        // --- Event Listeners ---
-
-        // Evento click para botones de paginación
-        paginationUsersControls.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = e.target.closest('.page-link');
-            if (target && !target.parentElement.classList.contains('disabled')) {
-                currentPage = parseInt(target.dataset.page);
-                loadUsuarios(currentPage, searchQuery, recordsPerPage);
-            }
-        });
-
-        // Evento para el buscador (con debounce)
-        let searchTimeout;
-        buscadorUsuariosInput.addEventListener('keyup', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                searchQuery = buscadorUsuariosInput.value;
-                currentPage = 1;
-                loadUsuarios(currentPage, searchQuery, recordsPerPage);
-            }, 300);
-        });
-
-        // Evento para cambiar registros por página
-        usersRecordsPerPageSelect.addEventListener('change', () => {
-            recordsPerPage = usersRecordsPerPageSelect.value;
-            currentPage = 1;
-            loadUsuarios(currentPage, searchQuery, recordsPerPage);
-        });
-
-        // Lógica para llenar el modal de edición (delegación de eventos)
-        usuariosTableBody.addEventListener('click', (e) => {
-            const btn = e.target.closest('.edit-user-btn');
-            if (btn) {
-                document.getElementById('edit-id').value = btn.dataset.id;
-                document.getElementById('edit-nombre-usuario').value = btn.dataset.nombreUsuario; 
-                document.getElementById('edit-rol').value = btn.dataset.rolId; // Asegúrate de que el data-attribute sea 'data-rol-id'
-            }
-        });
-
-        // Para el botón de eliminar (delegación de eventos)
-        usuariosTableBody.addEventListener('click', async (e) => {
-            const btn = e.target.closest('.delete-user-btn');
-            if (btn) {
-                e.preventDefault();
-                if (confirm('¿Deseas eliminar este usuario? Esta acción es irreversible.')) {
-                    const deleteUrl = btn.href;
-                    try {
-                        const response = await fetch(deleteUrl, { method: 'GET' }); // Ajusta a POST si tu script lo espera
-                        const data = await response.json();
-
-                        if (response.ok && data.success) {
-                            showAlert(data.message, 'success');
-                            loadUsuarios(currentPage, searchQuery, recordsPerPage);
-                        } else {
-                            showAlert('Error al eliminar: ' + (data.message || 'Error desconocido al eliminar usuario.'), 'danger');
-                        }
-                    } catch (error) {
-                        console.error("Error al eliminar usuario:", error);
-                        showAlert('Error de conexión o servidor al eliminar el usuario. Inténtelo de nuevo.', 'danger');
-                    }
-                }
-            }
-        });
-
-        // Cargar usuarios al inicio
-        loadUsuarios(currentPage, searchQuery, recordsPerPage);
-
-        // Ocultar mensajes de sesión existentes al cargar (ej. si vienen de una redirección)
-        const initialMessage = document.getElementById('mensaje');
-        if (initialMessage) {
-            setTimeout(() => {
-                const bsAlert = bootstrap.Alert.getInstance(initialMessage);
-                if (bsAlert) {
-                    bsAlert.close();
-                } else {
-                    initialMessage.remove();
-                }
-            }, 10000);
-        }
-
-        // Validación de Bootstrap para formularios
-        const forms = document.querySelectorAll('.needs-validation');
-        forms.forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    });
+    }, 10000);
 </script>
