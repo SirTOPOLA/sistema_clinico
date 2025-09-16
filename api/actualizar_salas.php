@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $id = (int) $_POST['id'];
         $nombre = htmlspecialchars(trim($_POST['nombre']));
-        $id_usuario = (int) $_POST['id_usuario'];
+        $id_usuario = (int) $_SESSION['usuario']['id'];
 
         // Validar campos
         if (empty($nombre)) {
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([':id' => $id]);
         if (!$stmt->fetch()) {
             $_SESSION['error'] = 'La sala no existe.';
-            header('Location: ../index.php?vista=salas');
+            header('Location: ../index.php?vista=salas_pruebas');
             exit;
         }
 
@@ -34,16 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         $_SESSION['success'] = 'Sala actualizada correctamente.';
-        header('Location: ../index.php?vista=salas');
+        header('Location: ../index.php?vista=salas_pruebas');
         exit;
 
     } catch (Exception $e) {
         $_SESSION['error'] = 'Error al actualizar la sala: ' . $e->getMessage();
-        header('Location: ../index.php?vista=salas');
+        header('Location: ../index.php?vista=salas_pruebas');
         exit;
     }
 } else {
     $_SESSION['error'] = 'Solicitud no válida.';
-    header('Location: ../index.php?vista=salas');
+    header('Location: ../index.php?vista=salas_pruebas');
     exit;
 }

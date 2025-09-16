@@ -10,12 +10,12 @@ try {
         throw new Exception('Acceso no permitido.');
     }
 
-    // ID del usuario a actualizar (debe venir del formulario)
+    //  
     $usuario_id = filter_input(INPUT_POST, 'id_usuario', FILTER_VALIDATE_INT);
     $empleado_id = filter_input(INPUT_POST, 'id_personal', FILTER_VALIDATE_INT);
-    $rol_id      = filter_input(INPUT_POST, 'id_rol', FILTER_VALIDATE_INT);
-    $nombre      = trim($_POST['nombre_usuario'] ?? '');
-    $contrasena  = trim($_POST['contrasena'] ?? '');
+    $rol_id = filter_input(INPUT_POST, 'id_rol', FILTER_VALIDATE_INT);
+    $nombre = trim($_POST['nombre_usuario'] ?? '');
+    $contrasena = trim($_POST['contrasena'] ?? '');
 
     if (!$usuario_id || !$empleado_id || !$rol_id) {
         throw new Exception('Faltan datos obligatorios.');
@@ -53,10 +53,10 @@ try {
         ");
         $stmt->execute([
             ':empleado_id' => $empleado_id,
-            ':rol_id'      => $rol_id,
-            ':nombre'      => $nombre,
-            ':password'    => $hash,
-            ':id'          => $usuario_id
+            ':rol_id' => $rol_id,
+            ':nombre' => $nombre,
+            ':password' => $hash,
+            ':id' => $usuario_id
         ]);
     } else {
         // Actualizar sin cambiar la contraseña
@@ -69,9 +69,9 @@ try {
         ");
         $stmt->execute([
             ':empleado_id' => $empleado_id,
-            ':rol_id'      => $rol_id,
-            ':nombre'      => $nombre,
-            ':id'          => $usuario_id
+            ':rol_id' => $rol_id,
+            ':nombre' => $nombre,
+            ':id' => $usuario_id
         ]);
     }
 

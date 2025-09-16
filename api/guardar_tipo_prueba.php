@@ -6,12 +6,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $nombre = htmlspecialchars(trim($_POST['nombre']));
         $precio = filter_var($_POST['precio'], FILTER_VALIDATE_FLOAT);
-        $id_usuario = (int) $_POST['id_usuario'];
+        $id_usuario = (int) $_SESSION['usuario']['id'];
 
         // Validar campos obligatorios
         if (empty($nombre) || $precio === false) {
             $_SESSION['error'] = 'El nombre y un precio válido son obligatorios.';
-            header('Location: ../index.php?vista=tipo_prueba');
+            header('Location: ../index.php?vista=salas_pruebas');
             exit;
         }
 
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([':nombre' => $nombre]);
         if ($stmt->fetch()) {
             $_SESSION['error'] = 'Ya existe un tipo de prueba con ese nombre.';
-            header('Location: ../index.php?vista=tipo_prueba');
+            header('Location: ../index.php?vista=salas_pruebas');
             exit;
         }
 
@@ -35,16 +35,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         $_SESSION['success'] = 'Tipo de prueba registrado correctamente.';
-        header('Location: ../index.php?vista=tipo_prueba');
+        header('Location: ../index.php?vista=salas_pruebas');
         exit;
 
     } catch (Exception $e) {
         $_SESSION['error'] = 'Error al guardar el tipo de prueba: ' . $e->getMessage();
-        header('Location: ../index.php?vista=tipo_prueba');
+        header('Location: ../index.php?vista=salas_pruebas');
         exit;
     }
 } else {
     $_SESSION['error'] = 'Método no permitido.';
-    header('Location: ../index.php?vista=tipo_prueba');
+    header('Location: ../index.php?vista=salas_pruebas');
     exit;
 }

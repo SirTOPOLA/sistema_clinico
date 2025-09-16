@@ -9,7 +9,7 @@ $claseRol = match ($rol) {
   'laboratorio' => 'sidebar-laboratorio',
   'doctor' => 'sidebar-doctor',
   'farmacia' => 'sidebar-doctor',
-  default => 'sidebar-generico',
+  default => 'sidebar-generico'
 };
 
 $iconos_por_rol = [
@@ -20,7 +20,7 @@ $iconos_por_rol = [
     'tipo_prueba' => 'bi-activity',
     'analiticas' => 'bi-clipboard-pulse',
     'recetas' => 'bi-journal-text',
-    'salas' => 'bi-hospital',
+    'farmacia' => 'bi-hospital',
     'ingresos' => 'bi-door-open',
     'pagos' => 'bi-cash-coin',
     'consultas' => 'bi-clipboard-check',
@@ -67,8 +67,8 @@ $menu = [
     'Dashboard' => 'dashboard_administrador',
     'Usuarios' => 'usuarios', 
     'Recetas' => 'recetas',
-    'Salas' => 'salas',
-    'Pruebas' => 'tipo_prueba',
+    'Farmacia' => 'farmacia',
+    'Pruebas/salas' => 'salas_pruebas',
     'Ingresos' => 'ingresos',
     'Analíticas' => 'analiticas',
     'Pagos de Pruebas' => 'pagos',
@@ -102,7 +102,7 @@ $menu = [
     'Unidades' => 'unidadesMedida_farmacia',
     'Categorías' => 'categorias_farmacia',
     'Acreedores' => 'pasivos_farmacia',
-    'Ventas' => 'ventas_farmacia',
+    'Ventas' => 'ventas_farmacia'
   ],
 ];
 ?>

@@ -28,6 +28,8 @@ function verificarAcceso($vista)
             'ingresos',
             'seguros',
             'empleados',
+            'salas_pruebas',
+            'farmacia',
             'contabilidad'
         ],
 

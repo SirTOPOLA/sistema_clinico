@@ -60,7 +60,7 @@
       <div class="modal-body">
         <form id="formEditUsuario" action="api/actualizar_usuarios.php" method="post">
           <input type="hidden" name="action" value="edit_usuario">
-          <input type="hidden" name="id_usuario" id="edit_usuario_id">
+          <input type="hidden" name="id_usuario" value="<?= (int) htmlspecialchars($_SESSION['usuario']['id']); ?>" id="edit_usuario_id">
           <div class="mb-3">
             <label for="edit_nombreUsuario" class="form-label">Nombre de Usuario</label>
             <input type="text" class="form-control" id="edit_nombreUsuario" name="nombre_usuario" required>

@@ -2,7 +2,8 @@
 session_start();
 require '../config/conexion.php';
 
-function validar_campos($datos) {
+function validar_campos($datos)
+{
     foreach ($datos as $campo => $valor) {
         if (empty(trim($valor))) {
             return "El campo $campo es obligatorio.";
@@ -17,18 +18,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $apellidos = htmlspecialchars(trim($_POST['apellidos']));
         $fecha_nacimiento = $_POST['fecha_nacimiento'];
         $dip = htmlspecialchars(trim($_POST['dip']));
-        $sexo = htmlspecialchars (trim($_POST['sexo']));
-     
+        $sexo = htmlspecialchars(trim($_POST['sexo']));
+
         $telefono = htmlspecialchars(trim($_POST['telefono']));
         $profesion = htmlspecialchars(trim($_POST['profesion']));
-      
+
         $ocupacion = htmlspecialchars(trim($_POST['ocupacion']));
         $tutor = htmlspecialchars(trim($_POST['tutor_nombre']));
         $telefono_tutor = htmlspecialchars(trim($_POST['telefono_tutor']));
         $residencia = htmlspecialchars(trim($_POST['direccion']));
         $id_usuario = (int) $_SESSION['usuario']['id'];
 
-        $fecha_registro= date('Y-m-d H:i:s');
+        $fecha_registro = date('Y-m-d H:i:s');
 
         // Validar campos obligatorios
         $validacion = validar_campos([
@@ -42,29 +43,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'telefono_tutor' => $telefono_tutor,
             'direccion' => $residencia,
         ]);
- 
-       
+
+
         if ($validacion !== true) {
             $_SESSION['error'] = $validacion;
             header('Location: ../index.php?vista=usuarios');
             exit;
         }
 
-         
 
-      
-        
+
+
+
         // Obtener las iniciales del nombre y apellidos (2 caracteres)
-$base = strtoupper(substr($nombre, 0, 1) . substr($apellidos, 0, 1));
+        $base = strtoupper(substr($nombre, 0, 1) . substr($apellidos, 0, 1));
 
-// Extraer números de la fecha (YYYYMMDD) pero solo usar parte para acortar (ejemplo: último día y mes)
-$fechaPart = date('md', strtotime($fecha_nacimiento)); // mes y día, 4 dígitos
+        // Extraer números de la fecha (YYYYMMDD) pero solo usar parte para acortar (ejemplo: último día y mes)
+        $fechaPart = date('md', strtotime($fecha_nacimiento)); // mes y día, 4 dígitos
 
-// Generar un número aleatorio de 2 dígitos
-$aleatorio = str_pad(rand(0, 99), 2, '0', STR_PAD_LEFT);
+        // Generar un número aleatorio de 2 dígitos
+        $aleatorio = str_pad(rand(0, 99), 2, '0', STR_PAD_LEFT);
 
-// Concatenar y limitar a 8 caracteres
-$codigo_paciente = $base . $fechaPart . $aleatorio; // Total 2 + 4 + 2 = 8 caracteres
+        // Concatenar y limitar a 8 caracteres
+        $codigo_paciente = $base . $fechaPart . $aleatorio; // Total 2 + 4 + 2 = 8 caracteres
 
 
 
@@ -83,9 +84,9 @@ $codigo_paciente = $base . $fechaPart . $aleatorio; // Total 2 + 4 + 2 = 8 carac
             ':nombre' => $nombre,
             ':apellidos' => $apellidos,
             ':fecha_nacimiento' => $fecha_nacimiento,
-            ':dip' =>$dip,
-            'sexo'=> $sexo,
-            ':direccion' =>$residencia,
+            ':dip' => $dip,
+            'sexo' => $sexo,
+            ':direccion' => $residencia,
             ':email' => $email ?? null,
             ':telefono' => $telefono,
             ':profesion' => $profesion,
@@ -93,7 +94,7 @@ $codigo_paciente = $base . $fechaPart . $aleatorio; // Total 2 + 4 + 2 = 8 carac
             ':tutor_nombre' => $tutor,
             ':telefono_tutor' => $telefono_tutor,
             ':id_usuario' => $id_usuario
-           
+
         ]);
 
         $_SESSION['success'] = 'Paciente registrado correctamente.';

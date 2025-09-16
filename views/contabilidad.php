@@ -296,103 +296,103 @@ $proveedores = $pdo->query("SELECT id, nombre FROM proveedores ORDER BY nombre A
 $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(apellidos,'')) AS nom FROM pacientes ORDER BY nom ASC LIMIT 200")->fetchAll();
 
 ?>
- 
-  <style>
-        body {
-            background: #0f172a;
-        }
 
-        /* slate-900 */
-        .app-shell {
-            min-height: 100vh;
-        }
+<style>
+    body {
+        background: #0f172a;
+    }
 
-        .glass {
-            background: rgba(255, 255, 255, .05);
-            backdrop-filter: blur(8px);
-        }
+    /* slate-900 */
+    .app-shell {
+        min-height: 100vh;
+    }
 
-        .card {
-            border: 0;
-            border-radius: 1rem;
-        }
+    .glass {
+        background: rgba(255, 255, 255, .05);
+        backdrop-filter: blur(8px);
+    }
 
-        .card-header {
-            border: 0;
-            border-bottom: 1px solid rgba(255, 255, 255, .08);
-        }
+    .card {
+        border: 0;
+        border-radius: 1rem;
+    }
 
-        .nav-pills .nav-link {
-            border-radius: 0.75rem;
-        }
+    .card-header {
+        border: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, .08);
+    }
 
-        .nav-pills .nav-link.active {
-            background: linear-gradient(135deg, #2563eb, #22c55e);
-        }
+    .nav-pills .nav-link {
+        border-radius: 0.75rem;
+    }
 
-        /* azul->verde */
-        .kpi {
-            color: #e2e8f0;
-        }
+    .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, #2563eb, #22c55e);
+    }
 
-        .kpi .value {
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
+    /* azul->verde */
+    .kpi {
+        color: #e2e8f0;
+    }
 
-        .kpi .label {
-            font-size: .85rem;
-            color: #94a3b8;
-        }
+    .kpi .value {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
 
-        .table thead th {
-            color: #94a3b8;
-        }
+    .kpi .label {
+        font-size: .85rem;
+        color: #94a3b8;
+    }
 
-        .table {
-            --bs-table-bg: transparent;
-            color: #e2e8f0;
-        }
+    .table thead th {
+        color: #94a3b8;
+    }
 
-        .table-hover tbody tr:hover {
-            background: rgba(255, 255, 255, .04);
-        }
+    .table {
+        --bs-table-bg: transparent;
+        color: #e2e8f0;
+    }
 
-        .btn-soft {
-            background: rgba(255, 255, 255, .08);
-            color: #e2e8f0;
-            border: 0;
-        }
+    .table-hover tbody tr:hover {
+        background: rgba(255, 255, 255, .04);
+    }
 
-        .btn-soft:hover {
-            background: rgba(255, 255, 255, .12);
-            color: #fff;
-        }
+    .btn-soft {
+        background: rgba(255, 255, 255, .08);
+        color: #e2e8f0;
+        border: 0;
+    }
 
-        .form-control,
-        .form-select {
-            background: #0b1220;
-            border: 1px solid #1f2937;
-            color: #e5e7eb;
-        }
+    .btn-soft:hover {
+        background: rgba(255, 255, 255, .12);
+        color: #fff;
+    }
 
-        .form-control:focus,
-        .form-select:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 .2rem rgba(37, 99, 235, .25)
-        }
+    .form-control,
+    .form-select {
+        background: #0b1220;
+        border: 1px solid #1f2937;
+        color: #e5e7eb;
+    }
 
-        .badge-soft {
-            background: rgba(255, 255, 255, .08);
-            color: #cbd5e1
-        }
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 .2rem rgba(37, 99, 235, .25)
+    }
 
-        .offcanvas {
-            background: #0b1220;
-            color: #e5e7eb
-        }
-    </style>
- <div id="content" class="container-fluid">
+    .badge-soft {
+        background: rgba(255, 255, 255, .08);
+        color: #cbd5e1
+    }
+
+    .offcanvas {
+        background: #0b1220;
+        color: #e5e7eb
+    }
+</style>
+<div id="content" class="container-fluid">
     <div class="app-shell d-flex flex-column">
         <!-- Topbar -->
         <nav class="navbar navbar-dark glass sticky-top shadow-sm">
@@ -720,7 +720,8 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                     <select class="form-select" id="fpaciente">
                         <option value="">Todos</option>
                         <?php foreach ($pacientes as $p): ?>
-                            <option value="<?php echo (int) $p['id']; ?>"><?php echo htmlspecialchars($p['nom']); ?></option>
+                            <option value="<?php echo (int) $p['id']; ?>"><?php echo htmlspecialchars($p['nom']); ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -850,7 +851,8 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                     <option value="">Sin paciente</option>
                                     <?php foreach ($pacientes as $p): ?>
                                         <option value="<?php echo (int) $p['id']; ?>">
-                                            <?php echo htmlspecialchars($p['nom']); ?></option>
+                                            <?php echo htmlspecialchars($p['nom']); ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -941,7 +943,8 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                     <option value="">Selecciona proveedor...</option>
                                     <?php foreach ($proveedores as $pv): ?>
                                         <option value="<?php echo (int) $pv['id']; ?>">
-                                            <?php echo htmlspecialchars($pv['nombre']); ?></option>
+                                            <?php echo htmlspecialchars($pv['nombre']); ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -975,7 +978,8 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                                 <?php foreach ($productos as $pr): ?>
                                                     <option value="<?php echo (int) $pr['id']; ?>"
                                                         data-precio="<?php echo (float) $pr['precio_unitario']; ?>">
-                                                        <?php echo htmlspecialchars($pr['nombre']); ?></option>
+                                                        <?php echo htmlspecialchars($pr['nombre']); ?>
+                                                    </option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </td>
@@ -1027,7 +1031,8 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                 <option value="">Selecciona...</option>
                                 <?php foreach ($proveedores as $pv): ?>
                                     <option value="<?php echo (int) $pv['id']; ?>">
-                                        <?php echo htmlspecialchars($pv['nombre']); ?></option>
+                                        <?php echo htmlspecialchars($pv['nombre']); ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -1078,144 +1083,143 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
         </footer>
     </div>
 </div>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Utilidades UI
-        const money = n => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(n || 0));
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Utilidades UI
+    const money = n => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(n || 0));
 
-        // Toast si hay flash
-        <?php if ($flash): ?>
-            const t = new bootstrap.Toast(document.getElementById('appToast'), { delay: 3000 });
-            t.show();
-        <?php endif; ?>
+    // Toast si hay flash
+    <?php if ($flash): ?>
+        const t = new bootstrap.Toast(document.getElementById('appToast'), { delay: 3000 });
+        t.show();
+    <?php endif; ?>
 
-        // Pasar datos a modal Cobrar Consulta
-        const modalCC = document.getElementById('modalCobrarConsulta');
-        modalCC?.addEventListener('show.bs.modal', ev => {
-            const btn = ev.relatedTarget;
-            document.getElementById('cc_consulta_id').value = btn?.dataset.id || '';
-            document.getElementById('cc_monto').value = btn?.dataset.monto || '';
-        });
+    // Pasar datos a modal Cobrar Consulta
+    const modalCC = document.getElementById('modalCobrarConsulta');
+    modalCC?.addEventListener('show.bs.modal', ev => {
+        const btn = ev.relatedTarget;
+        document.getElementById('cc_consulta_id').value = btn?.dataset.id || '';
+        document.getElementById('cc_monto').value = btn?.dataset.monto || '';
+    });
 
-        // Pasar datos a modal Cobrar Analítica
-        const modalCA = document.getElementById('modalCobrarAnalitica');
-        modalCA?.addEventListener('show.bs.modal', ev => {
-            const id = ev.relatedTarget?.dataset.id || '';
-            document.getElementById('ca_analitica_id').value = id;
-        });
+    // Pasar datos a modal Cobrar Analítica
+    const modalCA = document.getElementById('modalCobrarAnalitica');
+    modalCA?.addEventListener('show.bs.modal', ev => {
+        const id = ev.relatedTarget?.dataset.id || '';
+        document.getElementById('ca_analitica_id').value = id;
+    });
 
-        // Pasar compra_id a Pago Proveedor
-        const modalPP = document.getElementById('modalPagoProveedor');
-        modalPP?.addEventListener('show.bs.modal', ev => {
-            const id = ev.relatedTarget?.dataset.id || '';
-            document.getElementById('pp_compra_id').value = id;
-        });
+    // Pasar compra_id a Pago Proveedor
+    const modalPP = document.getElementById('modalPagoProveedor');
+    modalPP?.addEventListener('show.bs.modal', ev => {
+        const id = ev.relatedTarget?.dataset.id || '';
+        document.getElementById('pp_compra_id').value = id;
+    });
 
-        // ------------------- Construcción dinámica de items (Venta/Compra) -------------------
-        function addRow(tableId) {
-            const table = document.getElementById(tableId || 'tablaVentaItems');
-            const tr = table.tBodies[0].rows[0].cloneNode(true);
-            tr.querySelectorAll('input').forEach(i => { i.value = i.classList.contains('cantidad') ? 1 : '' });
-            tr.querySelector('.subtotal').textContent = 'XAF 0,00';
-            table.tBodies[0].appendChild(tr);
-        }
-        function removeRow(btn) {
-            const tr = btn.closest('tr');
-            const tbody = tr.parentElement;
-            if (tbody.rows.length > 1) tr.remove();
+    // ------------------- Construcción dinámica de items (Venta/Compra) -------------------
+    function addRow(tableId) {
+        const table = document.getElementById(tableId || 'tablaVentaItems');
+        const tr = table.tBodies[0].rows[0].cloneNode(true);
+        tr.querySelectorAll('input').forEach(i => { i.value = i.classList.contains('cantidad') ? 1 : '' });
+        tr.querySelector('.subtotal').textContent = 'XAF 0,00';
+        table.tBodies[0].appendChild(tr);
+    }
+    function removeRow(btn) {
+        const tr = btn.closest('tr');
+        const tbody = tr.parentElement;
+        if (tbody.rows.length > 1) tr.remove();
+        updateTotals();
+    }
+
+    // Auto-set precio cuando eliges producto
+    document.addEventListener('change', (e) => {
+        if (e.target.matches('.prod-select')) {
+            const opt = e.target.selectedOptions[0];
+            const precio = opt?.dataset.precio || 0;
+            const tr = e.target.closest('tr');
+            tr.querySelector('.precio').value = precio;
             updateTotals();
         }
+        if (e.target.matches('.cantidad, .precio')) updateTotals();
+    });
 
-        // Auto-set precio cuando eliges producto
-        document.addEventListener('change', (e) => {
-            if (e.target.matches('.prod-select')) {
-                const opt = e.target.selectedOptions[0];
-                const precio = opt?.dataset.precio || 0;
-                const tr = e.target.closest('tr');
-                tr.querySelector('.precio').value = precio;
-                updateTotals();
-            }
-            if (e.target.matches('.cantidad, .precio')) updateTotals();
-        });
-
-        function updateTotals() {
-            // Ventas
-            const tv = document.getElementById('tablaVentaItems');
-            if (tv) {
-                let total = 0;
-                tv.tBodies[0].querySelectorAll('tr').forEach(tr => {
-                    const cant = Number(tr.querySelector('.cantidad')?.value || 0);
-                    const precio = Number(tr.querySelector('.precio')?.value || 0);
-                    const sub = cant * precio;
-                    tr.querySelector('.subtotal').textContent = 'XAF ' + money(sub);
-                    total += sub;
-                });
-                document.getElementById('ventaTotal').textContent = 'XAF ' + money(total);
-            }
-            // Compras
-            const tc = document.getElementById('tablaCompraItems');
-            if (tc) {
-                let total = 0;
-                tc.tBodies[0].querySelectorAll('tr').forEach(tr => {
-                    const cant = Number(tr.querySelector('.cantidad')?.value || 0);
-                    const precio = Number(tr.querySelector('.precio')?.value || 0);
-                    const sub = cant * precio;
-                    tr.querySelector('.subtotal').textContent = 'XAF ' + money(sub);
-                    total += sub;
-                });
-                document.getElementById('compraTotal').textContent = 'XAF ' + money(total);
-            }
-        }
-
-        function buildVentaItemsJson() {
-            const rows = document.querySelectorAll('#tablaVentaItems tbody tr');
-            const items = [];
-            for (const tr of rows) {
-                const prod = tr.querySelector('.prod-select')?.value;
+    function updateTotals() {
+        // Ventas
+        const tv = document.getElementById('tablaVentaItems');
+        if (tv) {
+            let total = 0;
+            tv.tBodies[0].querySelectorAll('tr').forEach(tr => {
                 const cant = Number(tr.querySelector('.cantidad')?.value || 0);
                 const precio = Number(tr.querySelector('.precio')?.value || 0);
-                if (!prod || cant <= 0 || precio <= 0) {
-                    alert('Verifica producto, cantidad y precio en todos los renglones');
-                    return false;
-                }
-                items.push({ producto_id: Number(prod), cantidad: cant, precio: precio });
-            }
-            document.getElementById('venta_items_json').value = JSON.stringify(items);
-            return true;
+                const sub = cant * precio;
+                tr.querySelector('.subtotal').textContent = 'XAF ' + money(sub);
+                total += sub;
+            });
+            document.getElementById('ventaTotal').textContent = 'XAF ' + money(total);
         }
-
-        function buildCompraItemsJson() {
-            const rows = document.querySelectorAll('#tablaCompraItems tbody tr');
-            const items = [];
-            for (const tr of rows) {
-                const prod = tr.querySelector('.prod-select')?.value;
+        // Compras
+        const tc = document.getElementById('tablaCompraItems');
+        if (tc) {
+            let total = 0;
+            tc.tBodies[0].querySelectorAll('tr').forEach(tr => {
                 const cant = Number(tr.querySelector('.cantidad')?.value || 0);
                 const precio = Number(tr.querySelector('.precio')?.value || 0);
-                if (!prod || cant <= 0 || precio <= 0) {
-                    alert('Verifica producto, cantidad y precio en todos los renglones');
-                    return false;
-                }
-                items.push({ producto_id: Number(prod), cantidad: cant, precio_compra: precio });
-            }
-            document.getElementById('compra_items_json').value = JSON.stringify(items);
-            return true;
+                const sub = cant * precio;
+                tr.querySelector('.subtotal').textContent = 'XAF ' + money(sub);
+                total += sub;
+            });
+            document.getElementById('compraTotal').textContent = 'XAF ' + money(total);
         }
+    }
 
-        // Búsquedas rápidas (sólo cliente)
-        document.getElementById('searchConsultas')?.addEventListener('input', function () {
-            const val = this.value.trim();
-            document.querySelectorAll('#tbodyConsultas tr').forEach(tr => {
-                const pac = tr.children[1]?.textContent || '';
-                tr.style.display = pac.includes(val) ? '' : 'none';
-            });
+    function buildVentaItemsJson() {
+        const rows = document.querySelectorAll('#tablaVentaItems tbody tr');
+        const items = [];
+        for (const tr of rows) {
+            const prod = tr.querySelector('.prod-select')?.value;
+            const cant = Number(tr.querySelector('.cantidad')?.value || 0);
+            const precio = Number(tr.querySelector('.precio')?.value || 0);
+            if (!prod || cant <= 0 || precio <= 0) {
+                alert('Verifica producto, cantidad y precio en todos los renglones');
+                return false;
+            }
+            items.push({ producto_id: Number(prod), cantidad: cant, precio: precio });
+        }
+        document.getElementById('venta_items_json').value = JSON.stringify(items);
+        return true;
+    }
+
+    function buildCompraItemsJson() {
+        const rows = document.querySelectorAll('#tablaCompraItems tbody tr');
+        const items = [];
+        for (const tr of rows) {
+            const prod = tr.querySelector('.prod-select')?.value;
+            const cant = Number(tr.querySelector('.cantidad')?.value || 0);
+            const precio = Number(tr.querySelector('.precio')?.value || 0);
+            if (!prod || cant <= 0 || precio <= 0) {
+                alert('Verifica producto, cantidad y precio en todos los renglones');
+                return false;
+            }
+            items.push({ producto_id: Number(prod), cantidad: cant, precio_compra: precio });
+        }
+        document.getElementById('compra_items_json').value = JSON.stringify(items);
+        return true;
+    }
+
+    // Búsquedas rápidas (sólo cliente)
+    document.getElementById('searchConsultas')?.addEventListener('input', function () {
+        const val = this.value.trim();
+        document.querySelectorAll('#tbodyConsultas tr').forEach(tr => {
+            const pac = tr.children[1]?.textContent || '';
+            tr.style.display = pac.includes(val) ? '' : 'none';
         });
-        document.getElementById('searchAnaliticas')?.addEventListener('input', function () {
-            const val = this.value.trim();
-            document.querySelectorAll('#tbodyAnaliticas tr').forEach(tr => {
-                const pac = tr.children[1]?.textContent || '';
-                tr.style.display = pac.includes(val) ? '' : 'none';
-            });
+    });
+    document.getElementById('searchAnaliticas')?.addEventListener('input', function () {
+        const val = this.value.trim();
+        document.querySelectorAll('#tbodyAnaliticas tr').forEach(tr => {
+            const pac = tr.children[1]?.textContent || '';
+            tr.style.display = pac.includes(val) ? '' : 'none';
         });
-    </script>
- 
+    });
+</script>

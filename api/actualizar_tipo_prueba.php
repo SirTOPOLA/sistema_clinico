@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int) $_POST['id'];
         $nombre = htmlspecialchars(trim($_POST['nombre']));
         $precio = filter_var($_POST['precio'], FILTER_VALIDATE_FLOAT);
-        $id_usuario = (int) $_POST['id_usuario'];
+        $id_usuario = (int) $_SESSION['usuario']['id'];
 
         // Validar campos
         if ($id <= 0 || empty($nombre) || $precio === false) {
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([':id' => $id]);
         if (!$stmt->fetch()) {
             $_SESSION['error'] = 'Tipo de prueba no encontrado.';
-            header('Location: ../index.php?vista=tipo_prueba');
+            header('Location: ../index.php?vista=salas_pruebas');
             exit;
         }
 
@@ -38,16 +38,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         $_SESSION['success'] = 'Tipo de prueba actualizado correctamente.';
-        header('Location: ../index.php?vista=tipo_prueba');
+        header('Location: ../index.php?vista=salas_pruebas');
         exit;
 
     } catch (Exception $e) {
         $_SESSION['error'] = 'Error al actualizar: ' . $e->getMessage();
-        header('Location: ../index.php?vista=tipo_prueba');
+        header('Location: ../index.php?vista=salas_pruebas');
         exit;
     }
 } else {
     $_SESSION['error'] = 'Método de solicitud no permitido.';
-    header('Location: ../index.php?vista=tipo_prueba');
+    header('Location: ../index.php?vista=salas_pruebas');
     exit;
 }

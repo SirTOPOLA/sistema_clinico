@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($nombre)) {
             $_SESSION['error'] = "El nombre de la sala es obligatorio.";
-            header('Location: ../index.php?vista=salas');
+            header('Location: ../index.php?vista=salas_pruebas');
             exit;
         }
 
@@ -19,20 +19,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':nombre' => $nombre,
-            ':id_usuario' => $id_usuario
+            ':id_usuario' => $_SESSION['usuario']['id']
         ]);
 
         $_SESSION['success'] = "Sala registrada correctamente.";
-        header('Location: ../index.php?vista=salas');
+        header('Location: ../index.php?vista=salas_pruebas');
         exit;
 
     } catch (Exception $e) {
         $_SESSION['error'] = "Error al registrar la sala: " . $e->getMessage();
-        header('Location: ../index.php?vista=salas');
+        header('Location: ../index.php?vista=salas_pruebas');
         exit;
     }
 } else {
     $_SESSION['error'] = "Solicitud no válida.";
-    header('Location: ../index.php?vista=salas');
+    header('Location: ../index.php?vista=salas_pruebas');
     exit;
 }
