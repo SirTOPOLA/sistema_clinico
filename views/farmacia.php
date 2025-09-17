@@ -138,35 +138,101 @@ $proveedoresData = getTableData($pdo, 'proveedores');
                 <h4 class="mb-3 text-muted">Lista de Productos</h4>
                 <div class="table-responsive">
                     <table class="table table-striped align-middle">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Concentración</th>
-                                <th>Categoría</th>
-                                <th>Unidad</th>
-                                <th>Precio</th>
-                                <th>Stock</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($productosData as $producto): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($producto['id']); ?></td>
-                                    <td><?php echo htmlspecialchars($producto['nombre']); ?></td>
-                                    <td><?php echo htmlspecialchars($producto['concentracion']); ?></td>
-                                    <td><?php echo htmlspecialchars($producto['categoria_nombre']); ?></td>
-                                    <td><?php echo htmlspecialchars($producto['unidad_nombre']); ?></td>
-                                    <td><?php echo 'XAF ' . number_format($producto['precio_unitario'], 2, '.', ','); ?></td>
-                                    <td><?php echo htmlspecialchars($producto['stock_actual']); ?></td>
-                                    <td>
-                                        <button class="btn btn-outline-warning btn-sm btn-action" onclick='showEditProductoModal(<?php echo json_encode($producto); ?>, <?php echo json_encode($categoriasData); ?>, <?php echo json_encode($unidadesData); ?>)'><i class="bi bi-pencil"></i></button>
-                                        <button class="btn btn-outline-danger btn-sm btn-action"><i class="bi bi-trash"></i></button>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
+                     <thead class="table-light text-nowrap">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Concentración</th>
+                        <th>Forma Farmacéutica</th>
+                        <th>Presentación</th>
+                        <th>Precio Unitario</th>
+                        <th>Stock Actual</th>
+                        <th>Stock Mínimo</th>
+                        <th>Categoría</th>
+                        <th>Unidad Medida</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($productosData as $producto): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($producto['id']) ?></td>
+                            <td><?= htmlspecialchars($producto['nombre']) ?></td>
+                            <td>
+                                <?php if ($producto['concentracion']): ?>
+                                    <?= htmlspecialchars($producto['concentracion']) ?>
+                                <?php else: ?>
+                                    <i class="bi bi-lock-fill text-muted" title="Sin concentración"></i>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($producto['forma_farmaceutica']): ?>
+                                    <?= htmlspecialchars($producto['forma_farmaceutica']) ?>
+                                <?php else: ?>
+                                    <i class="bi bi-lock-fill text-muted" title="Sin forma farmacéutica"></i>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($producto['presentacion']): ?>
+                                    <?= htmlspecialchars($producto['presentacion']) ?>
+                                <?php else: ?>
+                                    <i class="bi bi-lock-fill text-muted" title="Sin presentación"></i>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($producto['precio_unitario'] !== NULL): ?>
+                                    XAF <?= number_format($producto['precio_unitario'], 0) ?>
+                                <?php else: ?>
+                                    <i class="bi bi-lock-fill text-muted" title="Sin precio unitario"></i>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php
+                                $stock_actual = (int)$producto['stock_actual'];
+                                $stock_minimo = (int)$producto['stock_minimo'];
+                                $porcentaje = ($stock_minimo > 0) ? min(100, ($stock_actual / $stock_minimo) * 100) : 100;
+                                $color = '';
+                                if ($porcentaje <= 25) {
+                                    $color = 'bg-danger';
+                                } elseif ($porcentaje <= 50) {
+                                    $color = 'bg-warning';
+                                } else {
+                                    $color = 'bg-success';
+                                }
+                                ?>
+                                <?= htmlspecialchars($stock_actual) ?>
+                                <div class="progress mt-1" style="height: 5px;">
+                                    <div class="progress-bar <?= $color ?>" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </td>
+                            <td><?= htmlspecialchars($stock_minimo) ?></td>
+                            <td><?= htmlspecialchars($producto['categoria_nombre']) ?></td>
+                            <td><?= htmlspecialchars($producto['unidad_nombre']) ?></td>
+                            <td class="text-nowrap">
+                                <button class="btn btn-sm btn-outline-primary btn-editar-producto"
+                                    data-id="<?= htmlspecialchars($producto['id']) ?>"
+                                    data-nombre="<?= htmlspecialchars($producto['nombre']) ?>"
+                                    data-concentracion="<?= htmlspecialchars($producto['concentracion']) ?>"
+                                    data-forma-farmaceutica="<?= htmlspecialchars($producto['forma_farmaceutica']) ?>"
+                                    data-presentacion="<?= htmlspecialchars($producto['presentacion']) ?>"
+                                    data-precio-unitario="<?= htmlspecialchars($producto['precio_unitario']) ?>"
+                                    data-stock-minimo="<?= htmlspecialchars($producto['stock_minimo']) ?>"
+                                    data-categoria-id="<?= htmlspecialchars($producto['categoria_id']) ?>"
+                                    data-unidad-id="<?= htmlspecialchars($producto['unidad_id']) ?>"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEditarProducto">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <a href="api/eliminar_producto.php?id=<?= htmlspecialchars($producto['id']) ?>"
+                                    class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('¿Está seguro de eliminar este producto? Esta acción no se puede deshacer.')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>    
+                     
                     </table>
                 </div>
             </div>
