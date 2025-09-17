@@ -6,7 +6,7 @@ session_start();
 require_once '../config/conexion.php';
 
 // Redirecciona al usuario a la vista de productos.
-$redirect_url = "../index.php?vista=productos_farmacia";
+$redirect_url = "../index.php?vista=farmacia";
 
 /**
  * Función para obtener un valor de un array POST y devolver NULL si está vacío.

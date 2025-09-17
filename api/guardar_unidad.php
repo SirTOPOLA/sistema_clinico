@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($nombre) || empty($abreviatura)) {
         $_SESSION['error'] = "El nombre y la abreviatura no pueden estar vacíos.";
-        header("Location: ../index.php?vista=unidadesMedida_farmacia");
+        header("Location: ../index.php?vista=farmacia");
         exit();
     }
 
@@ -37,6 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Redireccionar a la vista principal
-header("Location: ../index.php?vista=unidadesMedida_farmacia");
+header("Location: ../index.php?vista=farmacia");
 exit();
 ?>

@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($id) || empty($nombre) || empty($abreviatura)) {
         $_SESSION['error'] = "Todos los campos son obligatorios.";
-        header("Location: ../index.php?vista=unidadesMedida_farmacia");
+        header("Location: ../index.php?vista=farmacia");
         exit();
     }
 
@@ -39,6 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Redireccionar a la vista principal
-header("Location: ../index.php?vista=unidadesMedida_farmacia");
+header("Location: ../index.php?vista=farmacia");
 exit();
 ?>

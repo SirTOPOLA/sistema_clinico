@@ -1,5 +1,6 @@
 <!-- Modal para editar Producto -->
-<div class="modal fade" id="modalEditProducto" tabindex="-1" aria-labelledby="modalEditProductoLabel" aria-hidden="true">
+<div class="modal fade" id="modalEditProducto" tabindex="-1" aria-labelledby="modalEditProductoLabel"
+    aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -7,7 +8,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="procesar_edicion.php?tabla=productos" method="post">
+                <form action="api/actualizar_producto.php" method="post">
                     <input type="hidden" id="edit_producto_id" name="id">
                     <div class="mb-3">
                         <label for="edit_nombreProducto" class="form-label">Nombre</label>
@@ -41,7 +42,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="edit_precioProducto" class="form-label">Precio Unitario</label>
-                        <input type="number" step="0.01" class="form-control" id="edit_precioProducto" name="precio_unitario" required>
+                        <input type="number" step="0.01" class="form-control" id="edit_precioProducto"
+                            name="precio_unitario" required>
                     </div>
                     <div class="mb-3">
                         <label for="edit_stockActual" class="form-label">Stock Actual</label>
@@ -59,7 +61,8 @@
 </div>
 
 <!-- Modal para editar Categoría -->
-<div class="modal fade" id="modalEditCategoria" tabindex="-1" aria-labelledby="modalEditCategoriaLabel" aria-hidden="true">
+<div class="modal fade" id="modalEditCategoria" tabindex="-1" aria-labelledby="modalEditCategoriaLabel"
+    aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -67,7 +70,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="procesar_edicion.php?tabla=categorias" method="post">
+                <form action="api/actualizar_categoria.php" method="post">
                     <input type="hidden" id="edit_categoria_id" name="id">
                     <div class="mb-3">
                         <label for="edit_nombreCategoria" class="form-label">Nombre</label>
@@ -75,7 +78,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="edit_descripcionCategoria" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="edit_descripcionCategoria" name="descripcion" rows="3"></textarea>
+                        <textarea class="form-control" id="edit_descripcionCategoria" name="descripcion"
+                            rows="3"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Actualizar Categoría</button>
                 </form>
@@ -93,7 +97,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="procesar_edicion.php?tabla=unidades" method="post">
+                <form action="api/actualizar_unidad.php" method="post">
                     <input type="hidden" id="edit_unidad_id" name="id">
                     <div class="mb-3">
                         <label for="edit_nombreUnidad" class="form-label">Nombre</label>
@@ -111,7 +115,8 @@
 </div>
 
 <!-- Modal para editar Proveedor -->
-<div class="modal fade" id="modalEditProveedor" tabindex="-1" aria-labelledby="modalEditProveedorLabel" aria-hidden="true">
+<div class="modal fade" id="modalEditProveedor" tabindex="-1" aria-labelledby="modalEditProveedorLabel"
+    aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -119,7 +124,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="procesar_edicion.php?tabla=proveedores" method="post">
+                <form action="api/actualizar_proveedor.php" method="post">
                     <input type="hidden" id="edit_proveedor_id" name="id">
                     <div class="mb-3">
                         <label for="edit_nombreProveedor" class="form-label">Nombre</label>

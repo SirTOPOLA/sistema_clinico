@@ -77,7 +77,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="api/categoria.php" method="post">
+                <form action="api/guardar_categoria.php" method="post">
                     <div class="mb-3">
                         <label for="nombreCategoria" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombreCategoria" name="nombre" required>
