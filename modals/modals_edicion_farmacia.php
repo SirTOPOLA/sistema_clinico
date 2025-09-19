@@ -1,6 +1,6 @@
 <!-- Modal para editar Producto -->
-<div class="modal fade" id="modalEditProducto" tabindex="-1" aria-labelledby="modalEditProductoLabel"
-    aria-hidden="true">
+<div class="modal fade" id="modalEditarProducto" tabindex="-1" aria-labelledby="modalEditarProductoLabel" aria-hidden="true">
+  
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

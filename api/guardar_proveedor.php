@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($nombre)) {
         $_SESSION['error'] = "El nombre del proveedor no puede estar vacío.";
-        header("Location: ../index.php?vista=proveedores_farmacia");
+        header("Location: ../index.php?vista=farmacia");
         exit();
     }
 
@@ -41,6 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Redireccionar a la vista principal
-header("Location: ../index.php?vista=proveedores_farmacia");
+header("Location: ../index.php?vista=farmacia");
 exit();
 ?>

@@ -1,73 +1,4 @@
 <!-- Modal para registrar Producto -->
-<!-- <div class="modal fade" id="modalProducto" tabindex="-1" aria-labelledby="modalProductoLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalProductoLabel">Registrar Producto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="api/guardar_producto.php" method="post">
-                    <div class="mb-3">
-                        <label for="nombreProducto" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombreProducto" name="nombre" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="concentracionProducto" class="form-label">Concentración</label>
-                        <input type="text" class="form-control" id="concentracionProducto" name="concentracion">
-                    </div>
-                    <div class="mb-3">
-                        <label for="formaFarmaceutica" class="form-label">Forma Farmacéutica</label>
-                        <input type="text" class="form-control" id="formaFarmaceutica" name="forma_farmaceutica">
-                    </div>
-                    <div class="mb-3">
-                        <label for="presentacionProducto" class="form-label">Presentación</label>
-                        <input type="text" class="form-control" id="presentacionProducto" name="presentacion">
-                    </div>
-                    <div class="mb-3">
-                        <label for="categoriaProducto" class="form-label">Categoría</label>
-                        <select class="form-select" id="categoriaProducto" name="categoria_id" required>
-                            <option value="">Seleccione una categoría</option>
-                           <?php 
-                            foreach ($categoriasData as $r): ?>
-                                <option value="<?php echo htmlspecialchars($r['id']); ?>">
-                                    <?php echo htmlspecialchars($r['nombre']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="unidadProducto" class="form-label">Unidad de Medida</label>
-                        <select class="form-select" id="unidadProducto" name="unidad_id" required>
-                            <option value="">Seleccione una unidad</option>
-                            <?php 
-                            foreach ($unidadesData as $r): ?>
-                                <option value="<?php echo htmlspecialchars($r['id']); ?>">
-                                    <?php echo htmlspecialchars($r['nombre']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="precioProducto" class="form-label">Precio Unitario</label>
-                        <input type="number" step="0.01" class="form-control" id="precioProducto" name="precio_unitario"
-                        required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="stockActual" class="form-label">Stock Actual</label>
-                        <input type="number" class="form-control" id="stockActual" name="stock_actual" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="stockMinimo" class="form-label">Stock Mínimo</label>
-                        <input type="number" class="form-control" id="stockMinimo" name="stock_minimo" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Guardar Producto</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="modalCrearProducto" tabindex="-1" aria-labelledby="modalCrearProductoLabel" aria-hidden="true">
-</div> -->
 
  <div class="modal fade" id="modalProducto" tabindex="-1" aria-labelledby="modalProductoLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -140,7 +71,7 @@
                     <label for="categoria_crear" class="form-label">Categoría</label>
                     <select name="categoria_id" id="categoria_crear" class="form-select" required>
                         <option value="">Seleccione...</option>
-                        <?php foreach ($categorias as $cat): ?>
+                        <?php foreach ($categoriasData as $cat): ?>
                             <option value="<?= htmlspecialchars($cat['id']) ?>"><?= htmlspecialchars($cat['nombre']) ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -149,7 +80,7 @@
                     <label for="unidad_crear" class="form-label">Unidad de Medida</label>
                     <select name="unidad_id" id="unidad_crear" class="form-select" required>
                         <option value="">Seleccione...</option>
-                        <?php foreach ($unidadesMedida as $uni): ?>
+                        <?php foreach ($unidadesData as $uni): ?>
                             <option value="<?= htmlspecialchars($uni['id']) ?>"><?= htmlspecialchars($uni['nombre']) ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -161,6 +92,8 @@
         </form>
     </div>
 </div>
+
+
 <!-- Modal para registrar Categoría -->
 <div class="modal fade" id="modalCategoria" tabindex="-1" aria-labelledby="modalCategoriaLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -220,7 +153,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="api/proveedor.php" method="post">
+                <form action="api/guardar_proveedor.php" method="post">
                     <div class="mb-3">
                         <label for="nombreProveedor" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombreProveedor" name="nombre" required>
