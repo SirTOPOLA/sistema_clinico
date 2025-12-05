@@ -287,10 +287,34 @@ try {
 }
 
 // Listados cortos (últimos 20)
-$consultas = $pdo->query("SELECT id, id_paciente, precio, pagado, fecha_registro FROM consultas ORDER BY id DESC LIMIT 20")->fetchAll();
-$analiticas = $pdo->query("SELECT id, id_paciente, id_tipo_prueba, estado, pagado, tipo_pago, fecha_registro FROM analiticas ORDER BY id DESC LIMIT 20")->fetchAll();
-$ventas = $pdo->query("SELECT id, paciente_id, fecha, monto_total, estado_pago, metodo_pago FROM ventas ORDER BY id DESC LIMIT 20")->fetchAll();
-$compras = $pdo->query("SELECT id, proveedor_id, fecha, total, estado_pago, monto_pendiente FROM compras ORDER BY id DESC LIMIT 20")->fetchAll();
+/* $consultas = $pdo->query("SELECT id, id_paciente, precio, pagado, fecha_registro FROM consultas
+             ORDER BY id DESC LIMIT 20")->fetchAll(); */
+$consultas = $pdo->query("SELECT c.id, c.id_paciente, 
+                CONCAT(p.nombre,' ',p.apellidos)  AS nombre_paciente, c.precio, 
+                c.pagado, c.fecha_registro
+             FROM consultas AS c
+             INNER JOIN pacientes AS p ON c.id_paciente = p.id
+             ORDER BY c.id DESC
+             LIMIT 20
+         ")->fetchAll();
+
+$analiticas = $pdo->query("SELECT a.id, 
+                a.id_paciente, a.id_tipo_prueba, a.estado, a.pagado, a.tipo_pago, a.fecha_registro,
+                tp.nombre AS nombre_prueba, tp.precio, CONCAT(p.nombre,' ',p.apellidos)  AS nombre_paciente
+                        FROM analiticas AS a
+                         INNER JOIN pacientes AS p ON a.id_paciente = p.id
+                          INNER JOIN tipo_pruebas AS tp ON a.id_tipo_prueba = tp.id
+                         ORDER BY a.id DESC LIMIT 20")->fetchAll();
+$ventas = $pdo->query("SELECT v.id, v.paciente_id, v.fecha, v.monto_total, 
+                v.estado_pago, v.metodo_pago, CONCAT(p.nombre,' ',p.apellidos)  AS nombre_paciente
+                    FROM ventas AS v
+                    INNER JOIN pacientes AS p ON v.paciente_id = p.id
+                     ORDER BY v.id DESC LIMIT 20")->fetchAll();
+$compras = $pdo->query("SELECT c.id, c.proveedor_id, c.fecha, 
+                            c.total, c.estado_pago, c.monto_pendiente, pr.nombre AS nombre_proveedor
+                            FROM compras AS c
+                            INNER JOIN proveedores AS pr
+                            ORDER BY c.id DESC LIMIT 20")->fetchAll();
 $productos = $pdo->query("SELECT id, nombre, precio_unitario, stock_actual FROM productos ORDER BY nombre ASC LIMIT 100")->fetchAll();
 $proveedores = $pdo->query("SELECT id, nombre FROM proveedores ORDER BY nombre ASC")->fetchAll();
 $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(apellidos,'')) AS nom FROM pacientes ORDER BY nom ASC LIMIT 200")->fetchAll();
@@ -496,7 +520,7 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                         <?php foreach ($consultas as $c): ?>
                                             <tr>
                                                 <td>#<?php echo (int) $c['id']; ?></td>
-                                                <td><?php echo (int) $c['id_paciente']; ?></td>
+                                                <td><?= htmlspecialchars($c['nombre_paciente']); ?></td>
                                                 <td>XAF <?php echo money($c['precio'] ?? 0); ?></td>
                                                 <td>
                                                     <?php if ((int) $c['pagado'] === 1): ?>
@@ -562,10 +586,10 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                         <?php foreach ($analiticas as $a): ?>
                                             <tr>
                                                 <td>#<?php echo (int) $a['id']; ?></td>
-                                                <td><?php echo (int) $a['id_paciente']; ?></td>
-                                                <td><?php echo (int) $a['id_tipo_prueba']; ?></td>
+                                                <td><?php echo htmlspecialchars($a['nombre_paciente']); ?></td>
+                                                <td><?php echo htmlspecialchars($a['nombre_prueba']); ?></td>
                                                 <td><span
-                                                        class="badge badge-soft rounded-pill"><?php echo htmlspecialchars($a['estado'] ?? ''); ?></span>
+                                                        class="badge badge-soft rounded-pill text-black"><?php echo htmlspecialchars($a['estado'] ?? ''); ?></span>
                                                 </td>
                                                 <td>
                                                     <?php if ((int) $a['pagado'] === 1): ?>
@@ -626,7 +650,7 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                                 <?php foreach ($ventas as $v): ?>
                                                     <tr>
                                                         <td>#<?php echo (int) $v['id']; ?></td>
-                                                        <td><?php echo (int) $v['paciente_id']; ?></td>
+                                                        <td><?php echo htmlspecialchars($v['nombre_paciente']); ?></td>
                                                         <td><?php echo htmlspecialchars($v['fecha']); ?></td>
                                                         <td>XAF <?php echo money($v['monto_total']); ?></td>
                                                         <td><span
@@ -658,6 +682,7 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                             <thead>
                                                 <tr>
                                                     <th>ID</th>
+                                                    <th>Proveedor</th>
                                                     <th>Total</th>
                                                     <th>Estado</th>
                                                     <th>Pendiente</th>
@@ -668,6 +693,7 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                                 <?php foreach ($compras as $c): ?>
                                                     <tr>
                                                         <td>#<?php echo (int) $c['id']; ?></td>
+                                                        <td> <?php echo htmlspecialchars($c['nombre_proveedor']); ?></td>
                                                         <td>XAF <?php echo money($c['total']); ?></td>
                                                         <td><span
                                                                 class="badge rounded-pill <?php echo $c['estado_pago'] === 'PAGADO' ? 'bg-success' : ($c['estado_pago'] === 'PARCIAL' ? 'bg-warning text-dark' : 'bg-secondary'); ?>"><?php echo htmlspecialchars($c['estado_pago']); ?></span>
