@@ -151,12 +151,12 @@
 
     async function imprimirComprobante(id) {
         if (!id || isNaN(id)) {
-            mostrarAlerta("ID de comprobante no válido.", "danger");
+            console.log("ID de comprobante no válido.", "danger");
             return;
         }
 
         try {
-            mostrarAlerta("Generando comprobante... Espere un momento.", "info");
+            console.log("Generando comprobante... Espere un momento.", "info");
 
             // Petición al backend
             const response = await fetch("fpdf/imprimirCompra.php?id=" + id);
@@ -182,11 +182,11 @@
             // Liberamos memoria
             URL.revokeObjectURL(pdfUrl);
 
-            mostrarAlerta("Comprobante descargado correctamente.", "success");
+            console.log("Comprobante descargado correctamente.", "success");
 
         } catch (error) {
             console.error(error);
-            mostrarAlerta("No se pudo generar el comprobante.", "danger");
+            console.log("No se pudo generar el comprobante.", "danger");
         }
     }
 
@@ -271,7 +271,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
             const container = document.getElementById(`productos-container-${modalId}`);
             let totalGeneralCompra = 0;
             const items = container.querySelectorAll('.producto-item');
-
+            
             items.forEach(item => {
                 const cantidadInput = item.querySelector('.producto-cantidad');
                 const precioInput = item.querySelector('.producto-precio');
@@ -280,17 +280,17 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 const precio = parseFloat(precioInput.value) || 0;
                 totalGeneralCompra += cantidad * precio;
             });
-
+            
             const totalSpan = document.getElementById(`total_${modalId}`);
             totalSpan.textContent = `XAF${totalGeneralCompra.toFixed(2)}`;
 
             const montoEntregadoInput = document.getElementById(`monto_entregado_${modalId}`);
             const cambioPendienteSpan = document.getElementById(`cambio_pendiente_${modalId}`);
-
+            
             // Habilita/Deshabilita el campo de monto entregado
             const estadoPagoSelect = document.getElementById(`estado_pago_${modalId}`);
             const estado = estadoPagoSelect.value;
-
+            
             if (estado === "PENDIENTE") {
                 montoEntregadoInput.value = '';
                 montoEntregadoInput.disabled = true;
@@ -300,7 +300,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
 
             const montoEntregado = parseFloat(montoEntregadoInput.value) || 0;
             let cambioPendiente = montoEntregado - totalGeneralCompra;
-
+            
             // Alternar color y símbolo
             if (cambioPendiente >= 0) {
                 cambioPendienteSpan.style.color = 'blue';
@@ -317,7 +317,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
             // Asegúrate de que los datos de productos estén disponibles
             const productosData = <?= json_encode($productos); ?>;
             const newIndex = container.children.length;
-
+            
             // Buscar el precio unitario del producto si se proporciona un ID
             let precioUnitarioProducto = null;
             if (data.producto_id) {
@@ -364,7 +364,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', newItemHtml);
-
+            
             const newElement = container.lastElementChild;
             // Después de agregar el elemento, establecer el valor seleccionado y recalcular
             if (data.producto_id) {
@@ -373,7 +373,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
             }
             recalcularProductoTotales(newElement);
         }
-
+        
         // Helper para buscar el precio unitario de un producto
         function getPrecioUnitarioById(productId, productosData) {
             const producto = productosData.find(p => p.id == productId);
@@ -386,15 +386,13 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
         const addProductoCrearBtn = document.getElementById('add-producto-crear');
         const checkFacturaCrear = document.getElementById('checkFacturaCrear');
         const wrapperFacturaCrear = document.getElementById('wrapperFacturaCrear');
-        const productosData = <?= json_encode($productos ?? []); ?>;
-
-        console.log(productosData);
-
+        const productosData = <?= json_encode($productos); ?>;
+        
         // Listener para agregar productos
         addProductoCrearBtn.addEventListener('click', () => agregarFilaProducto('productos-container-crear'));
-
+        
         // Manejar el toggle del campo de factura en el modal de creación
-        checkFacturaCrear.addEventListener('change', function () {
+        checkFacturaCrear.addEventListener('change', function() {
             wrapperFacturaCrear.style.display = this.checked ? 'block' : 'none';
         });
 
@@ -405,18 +403,18 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 const item = e.target.closest('.producto-item');
                 const precioVentaInput = item.querySelector('.producto-precio-venta');
                 const precioUnitario = getPrecioUnitarioById(selectedProductId, productosData);
-
+                
                 if (precioUnitario !== null) {
                     precioVentaInput.value = precioUnitario;
                 } else {
                     precioVentaInput.value = '';
                 }
-
+                
                 recalcularProductoTotales(item);
                 recalcularTotalCompra('crear');
             }
         });
-
+        
         productosContainerCrear.addEventListener('input', (e) => {
             if (e.target.matches('.producto-cantidad') || e.target.matches('.producto-precio') || e.target.matches('.producto-precio-venta')) {
                 const item = e.target.closest('.producto-item');
@@ -431,11 +429,11 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 recalcularTotalCompra('crear');
             }
         });
-
+        
         // Listener para el campo de monto entregado y estado de pago en el modal de Creación
         document.getElementById('monto_entregado_crear').addEventListener('input', () => recalcularTotalCompra('crear'));
         document.getElementById('estado_pago_crear').addEventListener('change', () => recalcularTotalCompra('crear'));
-
+        
         // Al abrir el modal, asegurar el cálculo inicial
         modalCrearCompra.addEventListener('show.bs.modal', function () {
             recalcularTotalCompra('crear');
@@ -452,12 +450,12 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
 
         // Listener para agregar productos en el modal de actualización
         addProductoActualizarBtn.addEventListener('click', () => agregarFilaProducto('productos-container-actualizar'));
-
+        
         // Manejar el toggle del campo de factura en el modal de actualización
-        checkFacturaActualizar.addEventListener('change', function () {
+        checkFacturaActualizar.addEventListener('change', function() {
             wrapperFacturaActualizar.style.display = this.checked ? 'block' : 'none';
         });
-
+        
         // Event listener para los cambios en el contenedor de productos (delegación de eventos)
         productosContainerActualizar.addEventListener('change', (e) => {
             if (e.target.matches('.producto-select')) {
@@ -465,7 +463,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 const item = e.target.closest('.producto-item');
                 const precioVentaInput = item.querySelector('.producto-precio-venta');
                 const precioUnitario = getPrecioUnitarioById(selectedProductId, productosData);
-
+                
                 if (precioUnitario !== null) {
                     precioVentaInput.value = precioUnitario;
                 } else {
@@ -476,7 +474,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 recalcularTotalCompra('actualizar');
             }
         });
-
+        
         productosContainerActualizar.addEventListener('input', (e) => {
             if (e.target.matches('.producto-cantidad') || e.target.matches('.producto-precio') || e.target.matches('.producto-precio-venta')) {
                 const item = e.target.closest('.producto-item');
@@ -491,10 +489,162 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 recalcularTotalCompra('actualizar');
             }
         });
+        
+        // Listener para el campo de monto entregado y estado de pago en el modal de Actualización
+        document.getElementById('monto_entregado_actualizar').addEventListener('input', () => recalcularTotalCompra('actualizar'));
+        document.getElementById('estado_pago_actualizar').addEventListener('change', () => recalcularTotalCompra('actualizar'));
+        
+        // Al mostrar el modal de actualización, cargar los datos y recalcular
+        modalActualizarCompra.addEventListener('show.bs.modal', function (event) {
+            // Lógica para llenar el modal de actualización de compra
+            const btn = event.relatedTarget;
+            const id = btn.getAttribute('data-id');
+            const codigoFactura = btn.getAttribute('data-codigo-factura');
+            const proveedorId = btn.getAttribute('data-proveedor-id');
+            const personalId = btn.getAttribute('data-personal-id');
+            const fecha = btn.getAttribute('data-fecha');
+            const estadoPago = btn.getAttribute('data-estado-pago');
+            const montoEntregado = btn.getAttribute('data-monto-entregado');
+            
+            // Llenar los campos del formulario de actualización
+            document.getElementById('compra_id_actualizar').value = id;
+            document.getElementById('proveedor_actualizar').value = proveedorId;
+            document.getElementById('personal_actualizar').value = personalId;
+            document.getElementById('fecha_actualizar').value = fecha;
+            document.getElementById('estado_pago_actualizar').value = estadoPago;
+            document.getElementById('monto_entregado_actualizar').value = parseFloat(montoEntregado).toFixed(2);
+            
+            // Lógica para el campo de factura
+            const hasFactura = codigoFactura && codigoFactura !== 'NULL' && codigoFactura !== '';
+            checkFacturaActualizar.checked = hasFactura;
+            wrapperFacturaActualizar.style.display = hasFactura ? 'block' : 'none';
+            document.getElementById('codigo_factura_actualizar').value = hasFactura ? codigoFactura : '';
 
-       
+            // Cargar los productos de la compra
+            const detalles = <?= json_encode($comprasDetalle); ?>;
+            productosContainerActualizar.innerHTML = '';
+            
+            if (detalles[id]) {
+                detalles[id].forEach((detalle) => {
+                    agregarFilaProducto('productos-container-actualizar', detalle);
+                });
+            }
+            // Recalcular los totales después de cargar los datos
+            recalcularTotalCompra('actualizar');
+        });
 
+        // --- Lógica del Buscador y Mensajes de Alerta (sin cambios) ---
+        
+        // Función para manejar la visibilidad del campo de factura
+        function toggleFacturaVisibility(checkboxId, wrapperId, inputId) {
+            const checkbox = document.getElementById(checkboxId);
+            const wrapper = document.getElementById(wrapperId);
+            const input = document.getElementById(inputId);
 
- 
+            if (checkbox && wrapper && input) {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        wrapper.style.display = 'block';
+                    } else {
+                        wrapper.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // Inicializar la lógica para el campo de factura en el modal de detalles
+        toggleFacturaVisibility('checkFacturaDetalle', 'wrapperFacturaDetalle', 'detalle-codigo-factura');
+
+        // Lógica para llenar el modal de detalles de compra
+        const botonesVerDetalles = document.querySelectorAll('.btn-ver-detalles');
+        botonesVerDetalles.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const codigoFactura = this.getAttribute('data-codigo-factura');
+                const proveedor = this.getAttribute('data-proveedor');
+                const personal = this.getAttribute('data-personal');
+                const fecha = this.getAttribute('data-fecha');
+                const total = this.getAttribute('data-total');
+                const estadoPago = this.getAttribute('data-estado-pago');
+                const montoEntregado = this.getAttribute('data-monto-entregado');
+                const montoGastado = this.getAttribute('data-monto-gastado');
+                const cambioDevuelto = this.getAttribute('data-cambio-devuelto');
+                const montoPendiente = this.getAttribute('data-monto-pendiente');
+
+                document.getElementById('detalle-id').textContent = id;
+                document.getElementById('detalle-proveedor').textContent = proveedor;
+                document.getElementById('detalle-personal').textContent = personal;
+                document.getElementById('detalle-fecha').textContent = fecha;
+                document.getElementById('detalle-total').textContent = `XAF${parseFloat(total).toFixed(2)}`;
+                document.getElementById('detalle-estado-pago').textContent = estadoPago;
+
+                document.getElementById('detalle-monto-entregado').textContent = `XAF${parseFloat(montoEntregado).toFixed(2)}`;
+                document.getElementById('detalle-monto-gastado').textContent = `XAF${parseFloat(montoGastado).toFixed(2)}`;
+                document.getElementById('detalle-cambio-devuelto').textContent = `XAF${parseFloat(cambioDevuelto).toFixed(2)}`;
+                document.getElementById('detalle-monto-pendiente').textContent = `XAF${parseFloat(montoPendiente).toFixed(2)}`;
+
+                const checkboxFactura = document.getElementById('checkFacturaDetalle');
+                const wrapperFactura = document.getElementById('wrapperFacturaDetalle');
+                const inputFactura = document.getElementById('detalle-codigo-factura');
+                if (codigoFactura === 'NULL' || codigoFactura === '') {
+                    checkboxFactura.checked = false;
+                    wrapperFactura.style.display = 'none';
+                    inputFactura.value = '';
+                } else {
+                    checkboxFactura.checked = true;
+                    wrapperFactura.style.display = 'block';
+                    inputFactura.value = codigoFactura;
+                }
+
+                const detalles = <?= json_encode($comprasDetalle); ?>;
+                const tablaBody = document.querySelector('#detalles-compra-tabla tbody');
+                tablaBody.innerHTML = '';
+                const productosData = <?= json_encode($productos); ?>;
+                if (detalles[id]) {
+                    detalles[id].forEach(detalle => {
+                        const productoNombre = productosData.find(p => p.id === detalle.producto_id)?.nombre || 'Producto Desconocido';
+                        const precioUnitario = getPrecioUnitarioById(detalle.producto_id, productosData);
+                        
+                        // Usar el precio de venta de los detalles o el precio unitario del producto si no está en los detalles
+                        const precioVenta = detalle.precio_venta || (precioUnitario !== null ? precioUnitario : 'N/A');
+
+                        const fila = document.createElement('tr');
+                        fila.innerHTML = `
+                            <td>${productoNombre}</td>
+                            <td>${detalle.cantidad}</td>
+                            <td>XAF${parseFloat(detalle.precio_compra).toFixed(2)}</td>
+                            <td>XAF${parseFloat(precioVenta).toFixed(2)}</td>
+                        `;
+                        tablaBody.appendChild(fila);
+                    });
+                }
+            });
+        });
+
+        const buscador = document.getElementById('buscador');
+        const tabla = document.getElementById('tablaCompras');
+        const filas = tabla.getElementsByTagName('tr');
+
+        buscador.addEventListener('keyup', function () {
+            const filtro = buscador.value.toLowerCase();
+            for (let i = 1; i < filas.length; i++) {
+                const fila = filas[i];
+                const textoFila = fila.textContent.toLowerCase();
+                if (textoFila.indexOf(filtro) > -1) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            }
+        });
+        
+        setTimeout(() => {
+            const mensaje = document.getElementById('mensaje');
+            if (mensaje) {
+                mensaje.style.transition = 'opacity 1s ease';
+                mensaje.style.opacity = '0';
+                setTimeout(() => mensaje.remove(), 1000);
+            }
+        }, 10000); // 10 segundos
     });
 </script>

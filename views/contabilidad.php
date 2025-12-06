@@ -291,36 +291,70 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                                                         </td>
                                                         <td>XAF <?php echo money($c['monto_pendiente']); ?></td>
                                                         <td class="text-end">
-                                                            <?php
-                                                            // Convertimos monto pendiente a número limpio y seguro
-                                                            $montoPendiente = (float) str_replace(',', '', money($c['monto_pendiente']));
-                                                            ?>
 
-                                                            <?php if ($montoPendiente > 0): ?>
-                                                                <button
-                                                                    class="btn btn-sm btn-success d-flex align-items-center gap-1"
-                                                                    data-bs-toggle="modal" data-bs-target="#modalPagoProveedor"
-                                                                    data-id="<?php echo (int) $c['id']; ?>"
-                                                                    data-nombreProveedor="<?php echo htmlspecialchars($c['nombre_proveedor']); ?>"
-                                                                    data-fechaCompra="<?php echo htmlspecialchars($c['fecha']); ?>"
-                                                                    data-montoPendiente="<?php echo (int) ($c['monto_pendiente']); ?>"
-                                                                    data-factura="<?php echo htmlspecialchars($c['factura']); ?>"
-                                                                    title="Realizar pago pendiente">
-                                                                    <i class="bi bi-cash-stack"></i>
-                                                                    Pagar
-                                                                </button>
+    <?php 
+    $montoPendiente = (float) str_replace(',', '', money($c['monto_pendiente']));
+    ?>
 
-                                                            <?php else: ?>
-                                                                <button
-                                                                    class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
-                                                                    onclick="imprimirComprobante(<?php echo (int) $c['id']; ?>)"
-                                                                    title="Imprimir comprobante">
-                                                                    <i class="bi bi-printer"></i>
-                                                                </button>
-                                                            <?php endif; ?>
+    <div class="btn-group" role="group">
+
+        <?php if ($montoPendiente > 0): ?>
+            <!-- Botón de Pago -->
+            <button 
+                class="btn btn-sm btn-success px-2" 
+                data-bs-toggle="modal" 
+                data-bs-target="#modalPagoProveedor"
+                data-id="<?= (int) $c['id']; ?>"
+                data-nombreProveedor="<?= htmlspecialchars($c['nombre_proveedor']); ?>"
+                data-fechaCompra="<?= htmlspecialchars($c['fecha']); ?>"
+                data-montoPendiente="<?= (float) $c['monto_pendiente']; ?>"
+                data-factura="<?= htmlspecialchars($c['factura']); ?>"
+                title="Registrar pago pendiente"
+            >
+                <i class="bi bi-cash-stack"></i>
+            </button>
+        <?php endif; ?>
+
+       
+
+        <!-- Botón Imprimir -->
+        <button 
+            class="btn btn-sm btn-outline-secondary px-2"
+            onclick="imprimirComprobante(<?= (int) $c['id']; ?>)"
+            title="Imprimir comprobante"
+        >
+            <i class="bi bi-printer"></i>
+        </button>
+
+        <!-- editar compra -->
+        <button 
+            class="btn btn-sm btn-outline-warning px-2" 
+            data-id="<?= htmlspecialchars($c['id']) ?>"
+                                    data-codigo-factura="<?= htmlspecialchars($c['factura']) ?>"
+                                    data-proveedor="<?= htmlspecialchars($c['nombre_proveedor']) ?>"
+                                    data-personal="<?= htmlspecialchars($c['personal_id']) ?>"
+                                    data-fecha="<?= htmlspecialchars($c['fecha']) ?>"
+                                    data-total="<?= htmlspecialchars($c['total']) ?>"
+                                    data-estado-pago="<?= htmlspecialchars($c['estado_pago']) ?>"
+                                    data-monto-entregado="<?= htmlspecialchars($c['monto_entregado']) ?>"
+                                    data-monto-gastado="<?= htmlspecialchars($c['monto_gastado']) ?>"
+                                    data-cambio-devuelto="<?= htmlspecialchars($c['cambio_devuelto']) ?>"
+                                    data-monto-pendiente="<?= htmlspecialchars($c['monto_pendiente']) ?>"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalVerDetalles"
+                                  title="Editar compra">
+            <i class="bi bi-pencil"></i>
+        </button>
+
+     
+    </div>
+
+</td>
 
 
-                                                        </td>
+
+ 
+                             
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
