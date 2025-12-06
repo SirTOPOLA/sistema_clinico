@@ -292,69 +292,63 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                                                         <td>XAF <?php echo money($c['monto_pendiente']); ?></td>
                                                         <td class="text-end">
 
-    <?php 
-    $montoPendiente = (float) str_replace(',', '', money($c['monto_pendiente']));
-    ?>
+<?php $montoPendiente = (float) str_replace(',', '', money($c['monto_pendiente'])); ?>
 
-    <div class="btn-group" role="group">
+<div class="btn-group btn-group-sm" role="group">
 
-        <?php if ($montoPendiente > 0): ?>
-            <!-- Botón de Pago -->
-            <button 
-                class="btn btn-sm btn-success px-2" 
-                data-bs-toggle="modal" 
-                data-bs-target="#modalPagoProveedor"
-                data-id="<?= (int) $c['id']; ?>"
-                data-nombreProveedor="<?= htmlspecialchars($c['nombre_proveedor']); ?>"
-                data-fechaCompra="<?= htmlspecialchars($c['fecha']); ?>"
-                data-montoPendiente="<?= (float) $c['monto_pendiente']; ?>"
-                data-factura="<?= htmlspecialchars($c['factura']); ?>"
-                title="Registrar pago pendiente"
-            >
-                <i class="bi bi-cash-stack"></i>
-            </button>
-        <?php endif; ?>
-
-       
-
-        <!-- Botón Imprimir -->
-        <button 
-            class="btn btn-sm btn-outline-secondary px-2"
-            onclick="imprimirComprobante(<?= (int) $c['id']; ?>)"
-            title="Imprimir comprobante"
-        >
-            <i class="bi bi-printer"></i>
+    <!-- Botón Pago -->
+    <?php if ($montoPendiente > 0): ?>
+        <button class="btn btn-success px-2"
+            data-bs-toggle="modal"
+            data-bs-target="#modalPagoProveedor"
+            data-id="<?= (int) $c['id']; ?>"
+            data-nombreProveedor="<?= htmlspecialchars($c['nombre_proveedor']); ?>"
+            data-fechaCompra="<?= htmlspecialchars($c['fecha']); ?>"
+            data-montoPendiente="<?= (float) $c['monto_pendiente']; ?>"
+            data-factura="<?= htmlspecialchars($c['factura']); ?>"
+            title="Registrar pago pendiente">
+            <i class="bi bi-cash-stack"></i>
         </button>
+    <?php endif; ?>
 
-        <!-- editar compra -->
-        <button 
-            class="btn btn-sm btn-outline-warning px-2" 
-            data-id="<?= htmlspecialchars($c['id']) ?>"
-                                    data-codigo-factura="<?= htmlspecialchars($c['factura']) ?>"
-                                    data-proveedor="<?= htmlspecialchars($c['nombre_proveedor']) ?>"
-                                    data-personal="<?= htmlspecialchars($c['personal_id']) ?>"
-                                    data-fecha="<?= htmlspecialchars($c['fecha']) ?>"
-                                    data-total="<?= htmlspecialchars($c['total']) ?>"
-                                    data-estado-pago="<?= htmlspecialchars($c['estado_pago']) ?>"
-                                    data-monto-entregado="<?= htmlspecialchars($c['monto_entregado']) ?>"
-                                    data-monto-gastado="<?= htmlspecialchars($c['monto_gastado']) ?>"
-                                    data-cambio-devuelto="<?= htmlspecialchars($c['cambio_devuelto']) ?>"
-                                    data-monto-pendiente="<?= htmlspecialchars($c['monto_pendiente']) ?>"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalVerDetalles"
-                                  title="Editar compra">
-            <i class="bi bi-pencil"></i>
-        </button>
+    <!-- Botón Ver Detalles -->
+    <button class="btn btn-outline-primary px-2"
+        onclick="verDetallesCompra(<?php echo (int)$c['id']; ?>)"
+        title="Detalles de la compra">
+        <i class="bi bi-eye"></i>
+    </button>
 
-     
-    </div>
+    <!-- Botón Imprimir -->
+    <button class="btn btn-outline-secondary px-2"
+        onclick="imprimirComprobante(<?= (int) $c['id']; ?>)"
+        title="Imprimir comprobante">
+        <i class="bi bi-printer"></i>
+    </button>
+
+    <!-- Botón Editar -->
+    <button class="btn btn-outline-warning px-2"
+        data-bs-toggle="modal"
+        data-bs-target="#modalActualizarCompra"
+        data-id="<?= htmlspecialchars($c['id']); ?>"
+        data-codigo-factura="<?= htmlspecialchars($c['factura']); ?>"
+        data-proveedor-id="<?= htmlspecialchars($c['proveedor_id']); ?>"
+        data-personal-id="<?= htmlspecialchars($c['personal_id']); ?>"
+        data-fecha="<?= htmlspecialchars($c['fecha']); ?>"
+        data-monto-entregado="<?= htmlspecialchars($c['monto_entregado']); ?>"
+        data-monto-gastado="<?= htmlspecialchars($c['monto_gastado']); ?>"
+        data-cambio-devuelto="<?= htmlspecialchars($c['cambio_devuelto']); ?>"
+        data-monto-pendiente="<?= htmlspecialchars($c['monto_pendiente']); ?>"
+        data-total="<?= htmlspecialchars($c['total']); ?>"
+        data-estado-pago="<?= htmlspecialchars($c['estado_pago']); ?>"
+        title="Editar compra">
+        <i class="bi bi-pencil-square"></i>
+    </button>
+
+</div>
 
 </td>
 
 
-
- 
-                             
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
@@ -431,7 +425,7 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
 
         <!-- =================== MODALES =================== -->
         <?php require("modals/modals_contabilidad.php"); ?>
-       
+
 
         <!-- Toast de feedback -->
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
@@ -449,8 +443,7 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
         </div>
 
         <footer class="container py-4 text-center text-secondary">
-            <small>© <?php echo date('Y'); ?> Finanzas Clínica — Demo UI. Mejora y separa en MVC para
-                producción.</small>
+            <small>© <?php echo date('Y'); ?> Finanzas Clínica — Dr. Óscar.</small>
         </footer>
     </div>
 </div>

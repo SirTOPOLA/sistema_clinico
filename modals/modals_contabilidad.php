@@ -302,11 +302,13 @@
 </div>
 
 <!-- Modal Actualizar Compra -->
-<div class="modal fade" id="modalActualizarCompra" tabindex="-1" aria-labelledby="modalActualizarCompraLabel" aria-hidden="true">
+<div class="modal fade" id="modalActualizarCompra" tabindex="-1" aria-labelledby="modalActualizarCompraLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalActualizarCompraLabel"><i class="bi bi-pencil me-2"></i>Actualizar Compra</h5>
+                <h5 class="modal-title" id="modalActualizarCompraLabel"><i class="bi bi-pencil me-2"></i>Actualizar
+                    Compra</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -318,7 +320,8 @@
                             <select class="form-select" id="proveedor_actualizar" name="proveedor_id" required>
                                 <option value="" disabled selected>Seleccione un proveedor</option>
                                 <?php foreach ($proveedores as $prov): ?>
-                                    <option value="<?= htmlspecialchars($prov['id']) ?>"><?= htmlspecialchars($prov['nombre']) ?></option>
+                                    <option value="<?= htmlspecialchars($prov['id']) ?>">
+                                        <?= htmlspecialchars($prov['nombre']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -327,7 +330,8 @@
                             <select class="form-select" id="personal_actualizar" name="personal_id" required>
                                 <option value="" disabled selected>Seleccione el personal</option>
                                 <?php foreach ($personal as $pers): ?>
-                                    <option value="<?= htmlspecialchars($pers['id']) ?>"><?= htmlspecialchars($pers['nombre']) ?></option>
+                                    <option value="<?= htmlspecialchars($pers['id']) ?>">
+                                        <?= htmlspecialchars($pers['nombre']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -338,12 +342,14 @@
                         <div class="col-md-6">
                             <div class="form-check form-switch mt-4">
                                 <input class="form-check-input" type="checkbox" id="checkFacturaActualizar">
-                                <label class="form-check-label" for="checkFacturaActualizar">Agregar Código de Factura</label>
+                                <label class="form-check-label" for="checkFacturaActualizar">Agregar Código de
+                                    Factura</label>
                             </div>
                         </div>
                         <div class="col-md-6" id="wrapperFacturaActualizar" style="display: none;">
                             <label for="codigo_factura_actualizar" class="form-label">Código de Factura</label>
-                            <input type="text" class="form-control" id="codigo_factura_actualizar" name="codigo_factura">
+                            <input type="text" class="form-control" id="codigo_factura_actualizar"
+                                name="codigo_factura">
                         </div>
                     </div>
 
@@ -351,7 +357,8 @@
                     <div id="productos-container-actualizar">
                         <!-- Los productos se cargarán aquí con JS -->
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm mb-3" id="add-producto-actualizar"><i class="bi bi-plus-circle me-1"></i>Agregar otro producto</button>
+                    <button type="button" class="btn btn-secondary btn-sm mb-3" id="add-producto-actualizar"><i
+                            class="bi bi-plus-circle me-1"></i>Agregar otro producto</button>
 
                     <hr>
                     <div class="row g-3">
@@ -365,106 +372,136 @@
                         </div>
                         <div class="col-md-6">
                             <label for="monto_entregado_actualizar" class="form-label">Monto Entregado (XAF)</label>
-                            <input type="number" class="form-control" id="monto_entregado_actualizar" name="monto_entregado" step="0.01" disabled>
+                            <input type="number" class="form-control" id="monto_entregado_actualizar"
+                                name="monto_entregado" step="0.01" disabled>
                         </div>
                         <div class="col-md-6">
-                            <p class="mt-3"><strong>Total a Pagar:</strong> <span id="total_actualizar">XAF 0.00</span></p>
+                            <p class="mt-3"><strong>Total a Pagar:</strong> <span id="total_actualizar">XAF 0.00</span>
+                            </p>
                         </div>
                         <div class="col-md-6">
-                            <p class="mt-3"><strong>Cambio / Pendiente:</strong> <span id="cambio_pendiente_actualizar">XAF 0.00</span></p>
+                            <p class="mt-3"><strong>Cambio / Pendiente:</strong> <span
+                                    id="cambio_pendiente_actualizar">XAF 0.00</span></p>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="formActualizarCompra" class="btn btn-primary"><i class="bi bi-save me-1"></i>Actualizar Compra</button>
+                <button type="submit" form="formActualizarCompra" class="btn btn-primary"><i
+                        class="bi bi-save me-1"></i>Actualizar Compra</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal Ver Detalles de Compra -->
-<div class="modal fade" id="modalVerDetalles" tabindex="-1" aria-labelledby="modalVerDetallesLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="modalVerDetallesLabel"><i class="bi bi-receipt me-2"></i>Detalles de Compra</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="modalVerDetalles" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0">
+
+            <!-- HEADER -->
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title d-flex align-items-center">
+                    <i class="bi bi-receipt me-2"></i> Detalles de la Compra
+                </h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <p><strong>ID de Compra:</strong> <span id="detalle-id"></span></p>
-                        <p><strong>Proveedor:</strong> <span id="detalle-proveedor"></span></p>
-                        <p><strong>Personal:</strong> <span id="detalle-personal"></span></p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Fecha:</strong> <span id="detalle-fecha"></span></p>
-                        <p><strong>Total:</strong> <span id="detalle-total"></span></p>
-                        <p><strong>Estado de Pago:</strong> <span id="detalle-estado-pago"></span></p>
-                    </div>
 
-                    <!-- Código de Factura (Opcional) con interruptor -->
-                    <div class="col-md-12">
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="checkFacturaDetalle" checked>
-                            <label class="form-check-label" for="checkFacturaDetalle">Ver Código de Factura</label>
-                        </div>
-                        <div id="wrapperFacturaDetalle" class="mb-3">
-                            <label for="detalle-codigo-factura" class="form-label">Código de Factura</label>
-                            <input type="text" id="detalle-codigo-factura" class="form-control" readonly>
-                        </div>
-                    </div>
+            <!-- BODY -->
+            <div class="modal-body pt-2">
 
-                    <!-- Detalles financieros adicionales -->
-                    <div class="col-md-12">
-                        <h6>Resumen Financiero</h6>
-                        <table class="table table-bordered table-sm">
-                            <tbody>
-                                <tr>
-                                    <td>Monto Entregado:</td>
-                                    <td><span id="detalle-monto-entregado"></span></td>
+                <!-- Spinner -->
+                <div id="spinnerDetalles" class="text-center my-5 d-none">
+                    <div class="spinner-border" role="status"></div>
+                    <p class="mt-2 text-muted small">Cargando detalles...</p>
+                </div>
+
+                <!-- INFORMACIÓN GENERAL -->
+                <div class="mb-4">
+                    <h6 class="text-uppercase text-muted mb-2">Información General</h6>
+                    <div class="row gx-2 gy-1 small">
+                        <div class="col-md-3"><strong>Factura:</strong> <span id="detalleFactura"></span></div>
+                        <div class="col-md-3"><strong>Fecha:</strong> <span id="detalleFecha"></span></div>
+                        <div class="col-md-3"><strong>Estado:</strong> <span id="detalleEstado"></span></div>
+                        <div class="col-md-3"><strong>Total:</strong> <span id="detalleTotal"></span></div>
+                        <div class="col-md-3"><strong>Pagado:</strong> <span id="detallePagado"></span></div>
+                        <div class="col-md-3"><strong>Pendiente:</strong> <span id="detallePendiente"></span></div>
+                    </div>
+                </div>
+
+                <!-- PROVEEDOR -->
+                <div class="mb-4">
+                    <h6 class="text-uppercase text-muted mb-2">Proveedor</h6>
+                    <div class="row gx-2 gy-1 small">
+                        <div class="col-md-4"><strong>Nombre:</strong> <span id="provNombre"></span></div>
+                        <div class="col-md-4"><strong>Teléfono:</strong> <span id="provTelefono"></span></div>
+                        <div class="col-md-4"><strong>Dirección:</strong> <span id="provDireccion"></span></div>
+                    </div>
+                </div>
+
+                <!-- PERSONAL -->
+                <div class="mb-4">
+                    <h6 class="text-uppercase text-muted mb-2">Registrado por</h6>
+                    <p class="small mb-0"><span id="personalNombre"></span></p>
+                </div>
+
+                <!-- TABLA DE PRODUCTOS -->
+                <div class="mb-4">
+                    <h6 class="text-uppercase text-muted mb-2">Productos</h6>
+                    <div class="table-responsive">
+                        <table class="table table-borderless table-sm align-middle">
+                            <thead>
+                                <tr class="text-muted small">
+                                    <th>Producto</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-end">Precio</th>
+                                    <th class="text-end">Subtotal</th>
                                 </tr>
+                            </thead>
+                            <tbody id="tablaDetalleProductos">
                                 <tr>
-                                    <td>Monto Gastado:</td>
-                                    <td><span id="detalle-monto-gastado"></span></td>
-                                </tr>
-                                <tr>
-                                    <td>Cambio Devuelto:</td>
-                                    <td><span id="detalle-cambio-devuelto"></span></td>
-                                </tr>
-                                <tr>
-                                    <td>Monto Pendiente:</td>
-                                    <td><span id="detalle-monto-pendiente"></span></td>
+                                    <td colspan="4" class="text-center text-muted small">Cargando...</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+                </div>
 
-                    <div class="col-md-12">
-                        <h6>Productos en la Compra</h6>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm" id="detalles-compra-tabla">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Producto</th>
-                                        <th>Cantidad</th>
-                                        <th>Precio de Compra</th>
-                                        <th>Precio de Venta</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Aquí se llenará el detalle de la compra con JS -->
-                                </tbody>
-                            </table>
-                        </div>
+                <!-- TABLA DE PAGOS -->
+                <div>
+                    <h6 class="text-uppercase text-muted mb-2">Historial de Pagos</h6>
+                    <div class="table-responsive">
+                        <table class="table table-borderless table-sm align-middle">
+                            <thead>
+                                <tr class="text-muted small">
+                                    <th>Fecha</th>
+                                    <th class="text-end">Monto</th>
+                                    <th>Registrado por</th>
+                                    <th>Método</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaHistorialPagos">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted small">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
             </div>
+
+            <!-- FOOTER -->
+            <div class="modal-footer border-0 pt-0">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
         </div>
     </div>
 </div>
+
+
 
 <!-- Pago a proveedor -->
 <div class="modal fade" id="modalPagoProveedor" tabindex="-1">
