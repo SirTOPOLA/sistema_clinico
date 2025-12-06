@@ -313,7 +313,7 @@ $ventas = $pdo->query("SELECT v.id, v.paciente_id, v.fecha, v.monto_total,
 $compras = $pdo->query("SELECT c.id, c.proveedor_id, c.fecha, 
                             c.total, c.estado_pago, c.monto_pendiente, pr.nombre AS nombre_proveedor
                             FROM compras AS c
-                            INNER JOIN proveedores AS pr
+                            INNER JOIN proveedores AS pr ON c.proveedor_id = pr.id
                             ORDER BY c.id DESC LIMIT 20")->fetchAll();
 $productos = $pdo->query("SELECT id, nombre, precio_unitario, stock_actual FROM productos ORDER BY nombre ASC LIMIT 100")->fetchAll();
 $proveedores = $pdo->query("SELECT id, nombre FROM proveedores ORDER BY nombre ASC")->fetchAll();
@@ -486,6 +486,14 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                     </button>
                 </li>
             </ul>
+
+
+
+
+            <div id="alertaSistema" class="my-2"></div> <!-- sistema de alerta -->
+
+
+
 
             <div class="tab-content" id="pills-tabContent">
 
@@ -700,11 +708,31 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                                         </td>
                                                         <td>XAF <?php echo money($c['monto_pendiente']); ?></td>
                                                         <td class="text-end">
-                                                            <button class="btn btn-sm btn-success" data-bs-toggle="modal"
-                                                                data-bs-target="#modalPagoProveedor"
-                                                                data-id="<?php echo (int) $c['id']; ?>">
-                                                                <i class="bi bi-cash-stack"></i> Pagar
-                                                            </button>
+                                                            <?php
+                                                            // Convertimos monto pendiente a número limpio y seguro
+                                                            $montoPendiente = (float) str_replace(',', '', money($c['monto_pendiente']));
+                                                            ?>
+
+                                                            <?php if ($montoPendiente > 0): ?>
+                                                                <button
+                                                                    class="btn btn-sm btn-success d-flex align-items-center gap-1"
+                                                                    data-bs-toggle="modal" data-bs-target="#modalPagoProveedor"
+                                                                    data-id="<?php echo (int) $c['id']; ?>"
+                                                                    title="Realizar pago pendiente">
+                                                                    <i class="bi bi-cash-stack"></i>
+                                                                    Pagar
+                                                                </button>
+
+                                                            <?php else: ?>
+                                                                <button
+                                                                    class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                                                                    onclick="imprimirComprobante(<?php echo (int) $c['id']; ?>)"
+                                                                    title="Imprimir comprobante">
+                                                                    <i class="bi bi-printer"></i>
+                                                                </button>
+                                                            <?php endif; ?>
+
+
                                                         </td>
                                                     </tr>
                                                 <?php endforeach; ?>
@@ -858,6 +886,7 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
         </div>
 
         <!-- Nueva venta (farmacia) -->
+
         <div class="modal fade" id="modalNuevaVenta" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <form class="modal-content" method="post" onsubmit="return buildVentaItemsJson()">
@@ -1103,6 +1132,8 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
             </div>
         </div>
 
+
+
         <footer class="container py-4 text-center text-secondary">
             <small>© <?php echo date('Y'); ?> Finanzas Clínica — Demo UI. Mejora y separa en MVC para
                 producción.</small>
@@ -1248,4 +1279,63 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
             tr.style.display = pac.includes(val) ? '' : 'none';
         });
     });
+
+    //FUNCION PARA LLAMAR ALERTA DE IMPRIMIR Compra
+
+    async function imprimirComprobante(id) {
+        if (!id || isNaN(id)) {
+            mostrarAlerta("ID de comprobante no válido.", "danger");
+            return;
+        } 
+
+        try {
+            mostrarAlerta("Generando comprobante... Espere un momento.", "info");
+
+            // Petición al backend
+            const response = await fetch("fpdf/imprimirCompra.php?id=" + id);
+
+            if (!response.ok) {
+                throw new Error("Error del servidor: " + response.status);
+            }
+
+            // Convertimos a PDF (blob)
+            const blob = await response.blob();
+
+            // Creamos URL temporal con el PDF
+            const pdfUrl = URL.createObjectURL(blob);
+
+            // Creamos enlace invisible
+            const a = document.createElement("a");
+            a.href = pdfUrl;
+            a.download = `Comprobante_${id}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            // Liberamos memoria
+            URL.revokeObjectURL(pdfUrl);
+
+            mostrarAlerta("Comprobante descargado correctamente.", "success");
+
+        } catch (error) {
+            console.error(error);
+            mostrarAlerta("No se pudo generar el comprobante.", "danger");
+        }
+    }
+
+
+
+    //alerta
+
+    function mostrarAlerta(mensaje, tipo = "info") {
+        const div = document.getElementById("alertaSistema");
+
+        div.innerHTML = `
+        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+            ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    }
+
 </script>
