@@ -721,6 +721,7 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                                                     data-id="<?php echo (int) $c['id']; ?>"
                                                                     data-nombreProveedor="<?php echo htmlspecialchars($c['nombre_proveedor']); ?>"
                                                                     data-fechaCompra="<?php echo htmlspecialchars($c['fecha']); ?>"
+                                                                    data-montoPendiente="<?php echo (int) ($c['monto_pendiente']); ?>"
                                                                     title="Realizar pago pendiente">
                                                                     <i class="bi bi-cash-stack"></i>
                                                                     Pagar
@@ -1076,7 +1077,7 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
         <!-- Pago a proveedor -->
         <div class="modal fade" id="modalPagoProveedor" tabindex="-1">
             <div class="modal-dialog">
-                <form class="modal-content" method="post">
+                <form class="modal-content" action="api/actualizar_pagos_compra.php" method="post">
                     <div class="modal-header">
                         <h5 class="modal-title"><i class="bi bi-cash-stack me-2"></i>Pago a proveedor</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -1119,7 +1120,7 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                             <label class="form-label">Monto</label>
                             <div class="input-group">
                                 <span class="input-group-text">XAF</span>
-                                <input type="number" step="0.01" name="monto" class="form-control" required>
+                                <input type="text"  name="monto" id="montoPendiente" class="form-control" required>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -1196,10 +1197,12 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
     modalPP?.addEventListener('show.bs.modal', ev => {
         const id = ev.relatedTarget?.dataset.id || '';
         const nombreProveedor = ev.relatedTarget?.dataset.nombreproveedor || '';
+        const montoPendiente = (ev.relatedTarget?.dataset.montopendiente || '').replace(',', '.');
 
-        console.log(nombreProveedor);
+        console.log(montoPendiente);
         document.getElementById('pp_compra_id').value = id;
         document.getElementById('nombreProveedor').value = nombreProveedor;
+        document.getElementById('montoPendiente').value = montoPendiente;
     });
 
     // ------------------- Construcción dinámica de items (Venta/Compra) -------------------
