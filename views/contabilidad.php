@@ -676,6 +676,7 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-lg-5">
                             <div class="card glass h-100">
                                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -718,6 +719,8 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                                                                     class="btn btn-sm btn-success d-flex align-items-center gap-1"
                                                                     data-bs-toggle="modal" data-bs-target="#modalPagoProveedor"
                                                                     data-id="<?php echo (int) $c['id']; ?>"
+                                                                    data-nombreProveedor="<?php echo htmlspecialchars($c['nombre_proveedor']); ?>"
+                                                                    data-fechaCompra="<?php echo htmlspecialchars($c['fecha']); ?>"
                                                                     title="Realizar pago pendiente">
                                                                     <i class="bi bi-cash-stack"></i>
                                                                     Pagar
@@ -805,6 +808,8 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                 </div>
             </div>
         </div>
+
+
 
         <!-- =================== MODALES =================== -->
 
@@ -1081,15 +1086,34 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
                         <input type="hidden" name="accion" value="pago_proveedor">
                         <input type="hidden" name="compra_id" id="pp_compra_id">
                         <div class="mb-3">
-                            <label class="form-label">Proveedor (opcional si se paga contra compra)</label>
-                            <select name="proveedor_id" class="form-select">
-                                <option value="">Selecciona...</option>
-                                <?php foreach ($proveedores as $pv): ?>
-                                    <option value="<?php echo (int) $pv['id']; ?>">
-                                        <?php echo htmlspecialchars($pv['nombre']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                            <label class="form-label">Proveedor</label>
+
+                            <!-- Nombre del proveedor -->
+
+                            <div class="input-group">
+                                <span class="input-group-text">Nombre:</span>
+                                <input type="text" id="nombreProveedor" class="form-control" disabled>
+                            </div>
+
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="input-group mt-2">
+                                        <span class="input-group-text">Fecha Emisión:</span>
+                                        <input type="text" id="fechaCompra" class="form-control" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="input-group mt-2">
+                                        <span class="input-group-text">Retraso:</span>
+                                        <input type="text" id="tiempoRetraso" class="form-control" disabled>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Monto</label>
@@ -1171,7 +1195,11 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
     const modalPP = document.getElementById('modalPagoProveedor');
     modalPP?.addEventListener('show.bs.modal', ev => {
         const id = ev.relatedTarget?.dataset.id || '';
+        const nombreProveedor = ev.relatedTarget?.dataset.nombreproveedor || '';
+
+        console.log(nombreProveedor);
         document.getElementById('pp_compra_id').value = id;
+        document.getElementById('nombreProveedor').value = nombreProveedor;
     });
 
     // ------------------- Construcción dinámica de items (Venta/Compra) -------------------
@@ -1286,7 +1314,7 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
         if (!id || isNaN(id)) {
             mostrarAlerta("ID de comprobante no válido.", "danger");
             return;
-        } 
+        }
 
         try {
             mostrarAlerta("Generando comprobante... Espere un momento.", "info");
@@ -1338,4 +1366,47 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
     `;
     }
 
+</script>
+
+
+
+
+<script>
+    // EL SIGUIENTE CODIGO CALCULA LOS DÍAS TRANSCURIDOS DESDE UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const modal = document.getElementById("modalPagoProveedor");
+
+        modal.addEventListener("show.bs.modal", function (event) {
+
+            const boton = event.relatedTarget;
+            const fechaCompra = boton.getAttribute("data-fechaCompra");
+
+            // Mostrar fecha en el input
+            document.getElementById("fechaCompra").value = fechaCompra;
+
+            // Calcular retraso
+            const hoy = new Date();
+            const fecha = new Date(fechaCompra);
+
+            const diffMs = hoy - fecha;
+
+            if (isNaN(diffMs)) {
+                document.getElementById("tiempoRetraso").value = "Fecha inválida";
+                return;
+            }
+
+            const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const meses = Math.floor(dias / 30);
+            const años = Math.floor(meses / 12);
+
+            let textoRetraso = "";
+
+            if (años > 0) textoRetraso += `${años} año(s) `;
+            if (meses % 12 > 0) textoRetraso += `${meses % 12} mes(es) `;
+            textoRetraso += `${dias % 30} día(s)`;
+
+            document.getElementById("tiempoRetraso").value = textoRetraso.trim();
+        });
+    });
 </script>
