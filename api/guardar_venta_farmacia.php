@@ -25,7 +25,7 @@ error_reporting(E_ALL);
 
 // Redirigir si la solicitud no es POST para evitar accesos directos
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../index.php?vista=ventas_farmacia');
+    header('Location: ../index.php?vista=contabilidad');
     exit;
 }
 
@@ -227,7 +227,7 @@ try {
 }
 
 // Redirigir al usuario de vuelta a la página de ventas.
-header('Location: ../index.php?vista=ventas_farmacia');
+header('Location: ../index.php?vista=contabilidad');
 exit;
 
 ?>

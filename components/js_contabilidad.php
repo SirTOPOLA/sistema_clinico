@@ -1,6 +1,6 @@
 <?php
 
- 
+
 $productos = $pdo->query("SELECT id, nombre, precio_unitario FROM productos ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
@@ -251,7 +251,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
 <!-- Scripts que regula el comportamiento del modal de registro de una compra a un proveedor -->
 <script>
 
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
         // --- Lógica de los Modales de Registro y Actualización ---
 
         // Función para recalcular los totales de compra, venta y beneficio por producto
@@ -745,4 +745,363 @@ document.addEventListener('DOMContentLoaded', function () {
     } */
 
 
+</script>
+
+<!-- =========================== VENTAS =================== -->
+
+
+<script>
+    // Script para ocultar los mensajes de estado
+    setTimeout(() => {
+        const mensaje = document.getElementById('mensaje');
+        if (mensaje) {
+            mensaje.style.transition = 'opacity 1s ease';
+            mensaje.style.opacity = '0';
+            setTimeout(() => mensaje.remove(), 1000);
+        }
+    }, 10000);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const productosAgregadosCrear = {};
+        const productosAgregadosEditar = {};
+        const currency = ' XAF';
+
+        // --- Lógica del Modal CREAR Venta ---
+        const pacienteBuscador = document.getElementById('paciente-buscador');
+        const pacienteIdInput = document.getElementById('paciente_id_input');
+        const pacienteResultados = document.getElementById('paciente-resultados');
+        const productoBuscador = document.getElementById('producto-buscador');
+        const cantidadProductoInput = document.getElementById('cantidad-producto');
+        const descuentoProductoInput = document.getElementById('descuento-producto');
+        const productoResultados = document.getElementById('producto-resultados');
+        const btnAgregarProducto = document.getElementById('btn-agregar-producto');
+        const tablaDetalleVentaCrear = document.getElementById('tabla-detalle-venta-crear');
+        const montoTotalDisplayCrear = document.getElementById('monto-total-display-crear');
+        const montoTotalInputCrear = document.getElementById('monto_total_input_crear');
+        const montoRecibidoInputCrear = document.getElementById('monto_recibido_input_crear');
+        const cambioDevueltoDisplayCrear = document.getElementById('cambio_devuelto_display_crear');
+        const cambioDevueltoInputCrear = document.getElementById('cambio_devuelto_input_crear');
+        const productosJsonCrear = document.getElementById('productos_json_crear');
+
+        // --- Lógica del Modal EDITAR Venta ---
+        const btnEditarVenta = document.querySelectorAll('.btn-editar-venta');
+        const editVentaId = document.getElementById('edit-venta-id');
+        const editPacienteBuscador = document.getElementById('edit-paciente-buscador');
+        const editPacienteIdInput = document.getElementById('edit-paciente-id-input');
+        const editPacienteResultados = document.getElementById('edit-paciente-resultados');
+        const editFecha = document.getElementById('edit-fecha');
+        const editMetodoPago = document.getElementById('edit-metodo-pago');
+        const editEstadoPago = document.getElementById('edit-estado-pago');
+        const editSeguroCheck = document.getElementById('edit-seguro-check');
+        const editMontoRecibidoInput = document.getElementById('monto_recibido_input_editar');
+        const editCambioDevueltoDisplay = document.getElementById('cambio_devuelto_display_editar');
+        const editCambioDevueltoInput = document.getElementById('cambio_devuelto_input_editar');
+        const editProductoBuscador = document.getElementById('edit-producto-buscador');
+        const editCantidadProductoInput = document.getElementById('edit-cantidad-producto');
+        const editDescuentoProductoInput = document.getElementById('edit-descuento-producto');
+        const editProductoResultados = document.getElementById('edit-producto-resultados');
+        const btnAgregarProductoEditar = document.getElementById('btn-agregar-producto-editar');
+        const tablaDetalleVentaEditar = document.getElementById('tabla-detalle-venta-editar');
+        const montoTotalDisplayEditar = document.getElementById('monto-total-display-editar');
+        const montoTotalInputEditar = document.getElementById('monto_total_input_editar');
+        const productosJsonEditar = document.getElementById('productos_json_editar');
+
+        // --- Lógica del Modal VER DETALLES Venta ---
+        const btnVerDetalles = document.querySelectorAll('.btn-ver-detalles-venta');
+        const detalleVentaId = document.getElementById('detalle-venta-id');
+        const detallePaciente = document.getElementById('detalle-paciente');
+        const detalleUsuario = document.getElementById('detalle-usuario');
+        const detalleFecha = document.getElementById('detalle-fecha');
+        const detalleMontoTotal = document.getElementById('detalle-monto-total');
+        const detalleMetodoPago = document.getElementById('detalle-metodo-pago');
+        const detalleEstadoPago = document.getElementById('detalle-estado-pago');
+        const detalleMontoRecibido = document.getElementById('detalle-monto-recibido');
+        const detalleCambioDevuelto = document.getElementById('detalle-cambio-devuelto');
+        const detalleSeguro = document.getElementById('detalle-seguro');
+        const detalleProductosTable = document.getElementById('detalle-productos-table');
+
+        // Función genérica para manejar la búsqueda de pacientes
+        async function buscarPacientes(query, resultadosElement, idInput, nombreInput) {
+            resultadosElement.innerHTML = '';
+            if (query.length < 2) return;
+            try {
+                const response = await fetch(`api/obtener_paciente.php?q=${query}`);
+                const pacientes = await response.json();
+                if (pacientes.length > 0) {
+                    pacientes.forEach(paciente => {
+                        const item = document.createElement('a');
+                        item.href = '#';
+                        item.className = 'list-group-item list-group-item-action';
+                        item.textContent = `${paciente.nombre} (${paciente.codigo})`;
+                        item.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            nombreInput.value = paciente.nombre;
+                            idInput.value = paciente.id;
+                            resultadosElement.innerHTML = '';
+                        });
+                        resultadosElement.appendChild(item);
+                    });
+                } else {
+                    resultadosElement.innerHTML = '<div class="p-2">No se encontraron pacientes.</div>';
+                }
+            } catch (error) {
+                console.error('Error al buscar pacientes:', error);
+            }
+        }
+
+        // Función genérica para manejar la búsqueda de productos
+        async function buscarProductos(query, resultadosElement, buscadorInput) {
+            resultadosElement.innerHTML = '';
+            if (query.length < 2) return;
+            try {
+                const response = await fetch(`api/obtener_producto_farmacia.php?q=${query}`);
+                const productos = await response.json();
+                if (productos.length > 0) {
+                    productos.forEach(producto => {
+                        const item = document.createElement('a');
+                        item.href = '#';
+                        item.className = 'list-group-item list-group-item-action';
+                        item.dataset.id = producto.id;
+                        item.dataset.nombre = producto.nombre;
+                        item.dataset.precio = producto.precio_venta;
+                        item.textContent = `${producto.nombre} - ${producto.precio_venta}${currency}`;
+                        item.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            buscadorInput.value = producto.nombre;
+                            buscadorInput.dataset.id = producto.id;
+                            buscadorInput.dataset.precio = producto.precio_venta;
+                            resultadosElement.innerHTML = '';
+                        });
+                        resultadosElement.appendChild(item);
+                    });
+                } else {
+                    resultadosElement.innerHTML = '<div class="p-2">No se encontraron productos.</div>';
+                }
+            } catch (error) {
+                console.error('Error al buscar productos:', error);
+            }
+        }
+
+        // Función para renderizar la tabla de productos y actualizar los cálculos
+        function actualizarCalculos(productos, montoRecibidoInput, montoTotalDisplay, montoTotalInput, cambioDevueltoDisplay, cambioDevueltoInput, productosJsonInput, tablaDetalleVenta) {
+            let total = 0;
+            const tablaBody = tablaDetalleVenta.querySelector('tbody');
+            tablaBody.innerHTML = '';
+
+            for (const id in productos) {
+                const producto = productos[id];
+                const subtotal = (producto.precio * producto.cantidad) * (1 - (producto.descuento / 100));
+                total += subtotal;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        ${producto.nombre}
+                        <input type="hidden" name="productos[${id}][id]" value="${id}">
+                        <input type="hidden" name="productos[${id}][cantidad]" value="${producto.cantidad}">
+                        <input type="hidden" name="productos[${id}][descuento]" value="${producto.descuento}">
+                    </td>
+                    <td>${producto.cantidad}</td>
+                    <td>${producto.precio.toFixed(2)}${currency}</td>
+                    <td>${producto.descuento}%</td>
+                    <td>${subtotal.toFixed(2)}${currency}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm btn-eliminar-producto" data-id="${id}">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </td>
+                `;
+                tablaBody.appendChild(row);
+            }
+
+            montoTotalDisplay.textContent = `${total.toFixed(2)}${currency}`;
+            montoTotalInput.value = total.toFixed(2);
+            productosJsonInput.value = JSON.stringify(productos);
+
+            const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
+            const cambio = Math.max(0, montoRecibido - total);
+            cambioDevueltoDisplay.value = `${cambio.toFixed(2)}${currency}`;
+            cambioDevueltoInput.value = cambio.toFixed(2);
+        }
+
+        // Función para agregar un producto a la lista
+        function agregarProducto(productoBuscador, cantidadInput, descuentoInput, productosList, context) {
+            const productoId = productoBuscador.dataset.id;
+            const productoNombre = productoBuscador.value;
+            const cantidad = parseInt(cantidadInput.value, 10);
+            const precio = parseFloat(productoBuscador.dataset.precio);
+            const descuento = parseFloat(descuentoInput.value, 10) || 0;
+
+            if (!productoId || !productoNombre || isNaN(cantidad) || cantidad <= 0 || isNaN(precio) || isNaN(descuento)) {
+                console.error('Por favor, seleccione un producto y ingrese una cantidad y descuento válidos.');
+                return;
+            }
+
+            if (productosList[productoId]) {
+                productosList[productoId].cantidad += cantidad;
+            } else {
+                productosList[productoId] = {
+                    id: productoId,
+                    nombre: productoNombre,
+                    cantidad: cantidad,
+                    precio: precio,
+                    descuento: descuento
+                };
+            }
+
+            productoBuscador.value = '';
+            cantidadInput.value = 1;
+            descuentoInput.value = 0;
+            productoBuscador.dataset.id = '';
+            productoBuscador.dataset.precio = '';
+
+            if (context === 'crear') {
+                actualizarCalculos(productosAgregadosCrear, montoRecibidoInputCrear, montoTotalDisplayCrear, montoTotalInputCrear, cambioDevueltoDisplayCrear, cambioDevueltoInputCrear, productosJsonCrear, tablaDetalleVentaCrear);
+            } else if (context === 'editar') {
+                actualizarCalculos(productosAgregadosEditar, editMontoRecibidoInput, montoTotalDisplayEditar, montoTotalInputEditar, editCambioDevueltoDisplay, editCambioDevueltoInput, productosJsonEditar, tablaDetalleVentaEditar);
+            }
+        }
+
+        // Función para eliminar un producto de la lista
+        function eliminarProducto(id, productosList, context) {
+            delete productosList[id];
+            if (context === 'crear') {
+                actualizarCalculos(productosAgregadosCrear, montoRecibidoInputCrear, montoTotalDisplayCrear, montoTotalInputCrear, cambioDevueltoDisplayCrear, cambioDevueltoInputCrear, productosJsonCrear, tablaDetalleVentaCrear);
+            } else if (context === 'editar') {
+                actualizarCalculos(productosAgregadosEditar, editMontoRecibidoInput, montoTotalDisplayEditar, montoTotalInputEditar, editCambioDevueltoDisplay, editCambioDevueltoInput, productosJsonEditar, tablaDetalleVentaEditar);
+            }
+        }
+
+        // Event listener para los botones de eliminar en la tabla de CREAR
+        tablaDetalleVentaCrear.addEventListener('click', function (e) {
+            if (e.target.closest('.btn-eliminar-producto')) {
+                const id = e.target.closest('.btn-eliminar-producto').dataset.id;
+                eliminarProducto(id, productosAgregadosCrear, 'crear');
+            }
+        });
+
+        // Event listener para los botones de eliminar en la tabla de EDITAR
+        tablaDetalleVentaEditar.addEventListener('click', function (e) {
+            if (e.target.closest('.btn-eliminar-producto')) {
+                const id = e.target.closest('.btn-eliminar-producto').dataset.id;
+                eliminarProducto(id, productosAgregadosEditar, 'editar');
+            }
+        });
+
+        // Event listeners para la búsqueda en CREAR
+        pacienteBuscador.addEventListener('input', (e) => buscarPacientes(e.target.value, pacienteResultados, pacienteIdInput, pacienteBuscador));
+        productoBuscador.addEventListener('input', (e) => buscarProductos(e.target.value, productoResultados, productoBuscador));
+        btnAgregarProducto.addEventListener('click', () => agregarProducto(productoBuscador, cantidadProductoInput, descuentoProductoInput, productosAgregadosCrear, 'crear'));
+        montoRecibidoInputCrear.addEventListener('input', () => actualizarCalculos(productosAgregadosCrear, montoRecibidoInputCrear, montoTotalDisplayCrear, montoTotalInputCrear, cambioDevueltoDisplayCrear, cambioDevueltoInputCrear, productosJsonCrear, tablaDetalleVentaCrear));
+
+
+        // **Función clave para el problema original**
+        async function cargarDatosVentaParaEdicion(ventaId) {
+            try {
+                // Limpiar la lista de productos agregados previamente
+                for (const prop in productosAgregadosEditar) {
+                    if (productosAgregadosEditar.hasOwnProperty(prop)) {
+                        delete productosAgregadosEditar[prop];
+                    }
+                }
+
+                // Hacer la llamada AJAX para obtener los datos de la venta
+                const response = await fetch(`api/obtener_detalles_venta_farmacia.php?id=${ventaId}`);
+                const venta = await response.json();
+
+                if (venta.error) {
+                    alert('Error: ' + venta.error);
+                    return;
+                }
+
+                // Rellenar los campos del formulario de edición
+                editVentaId.value = venta.id;
+                editPacienteIdInput.value = venta.paciente_id;
+                editPacienteBuscador.value = venta.paciente_nombre; // Se asume que la API devuelve este campo
+                editFecha.value = venta.fecha;
+                editMetodoPago.value = venta.metodo_pago;
+                editEstadoPago.value = venta.estado_pago;
+                editMontoRecibidoInput.value = venta.monto_recibido;
+                editSeguroCheck.checked = venta.seguro == 1;
+
+                // Cargar los productos de la venta
+                venta.productos.forEach(p => {
+                    productosAgregadosEditar[p.producto_id] = {
+                        id: p.producto_id,
+                        nombre: p.nombre,
+                        cantidad: parseInt(p.cantidad),
+                        precio: parseFloat(p.precio_unitario),
+                        descuento: parseFloat(p.descuento)
+                    };
+                });
+
+                // Actualizar la tabla y los totales del modal de edición
+                actualizarCalculos(productosAgregadosEditar, editMontoRecibidoInput, montoTotalDisplayEditar, montoTotalInputEditar, editCambioDevueltoDisplay, editCambioDevueltoInput, productosJsonEditar, tablaDetalleVentaEditar);
+
+            } catch (error) {
+                console.error('Error al cargar datos para edición:', error);
+                alert('Hubo un error al cargar los datos de la venta.');
+            }
+        }
+
+        // Event listener para los botones de EDITAR
+        btnEditarVenta.forEach(button => {
+            button.addEventListener('click', function () {
+                const ventaId = this.dataset.id;
+                cargarDatosVentaParaEdicion(ventaId);
+            });
+        });
+
+        // Event listeners para la búsqueda en EDITAR
+        editPacienteBuscador.addEventListener('input', (e) => buscarPacientes(e.target.value, editPacienteResultados, editPacienteIdInput, editPacienteBuscador));
+        editProductoBuscador.addEventListener('input', (e) => buscarProductos(e.target.value, editProductoResultados, editProductoBuscador));
+        btnAgregarProductoEditar.addEventListener('click', () => agregarProducto(editProductoBuscador, editCantidadProductoInput, editDescuentoProductoInput, productosAgregadosEditar, 'editar'));
+        editMontoRecibidoInput.addEventListener('input', () => actualizarCalculos(productosAgregadosEditar, editMontoRecibidoInput, montoTotalDisplayEditar, montoTotalInputEditar, editCambioDevueltoDisplay, editCambioDevueltoInput, productosJsonEditar, tablaDetalleVentaEditar));
+
+
+        // Lógica del modal de VER DETALLES
+        btnVerDetalles.forEach(button => {
+            button.addEventListener('click', async function () {
+                const ventaId = this.dataset.id;
+                try {
+                    const response = await fetch(`api/obtener_detalles_venta_farmacia.php?id=${ventaId}`);
+                    const venta = await response.json();
+
+                    if (venta.error) {
+                        alert('Error: ' + venta.error);
+                        return;
+                    }
+
+                    detalleVentaId.textContent = venta.id;
+                    detallePaciente.textContent = venta.paciente_nombre || 'No asignado';
+                    detalleUsuario.textContent = venta.usuario_nombre;
+                    detalleFecha.textContent = new Date(venta.fecha).toLocaleDateString();
+                    detalleMontoTotal.textContent = `${parseFloat(venta.monto_total).toFixed(2)}${currency}`;
+                    detalleMetodoPago.textContent = venta.metodo_pago;
+                    detalleEstadoPago.textContent = venta.estado_pago;
+                    detalleMontoRecibido.textContent = `${parseFloat(venta.monto_recibido).toFixed(2)}${currency}`;
+                    detalleCambioDevuelto.textContent = `${parseFloat(venta.cambio_devuelto).toFixed(2)}${currency}`;
+                    detalleSeguro.textContent = venta.seguro == 1 ? 'Sí' : 'No';
+
+                    // Limpiar y rellenar la tabla de productos
+                    detalleProductosTable.innerHTML = '';
+                    venta.productos.forEach(producto => {
+                        const row = document.createElement('tr');
+                        const subtotal = (parseFloat(producto.precio_unitario) * parseInt(producto.cantidad)) * (1 - (parseFloat(producto.descuento) / 100));
+                        row.innerHTML = `
+                            <td>${producto.nombre}</td>
+                            <td>${producto.cantidad}</td>
+                            <td>${parseFloat(producto.precio_unitario).toFixed(2)}${currency}</td>
+                            <td>${parseFloat(producto.descuento).toFixed(2)}%</td>
+                            <td>${subtotal.toFixed(2)}${currency}</td>
+                        `;
+                        detalleProductosTable.appendChild(row);
+                    });
+                } catch (error) {
+                    console.error('Error al obtener detalles de la venta:', error);
+                    alert('Hubo un error al cargar los detalles de la venta.');
+                }
+            });
+        });
+    });
 </script>

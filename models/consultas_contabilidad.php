@@ -145,6 +145,22 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
 
 try {
 
+    $sql = "SELECT 
+    v.id,
+    CONCAT(p.nombre,' ', p.apellidos) AS nombre_paciente,
+    u.nombre_usuario ,
+    v.fecha,
+    v.monto_total,
+    v.estado_pago,
+    v.metodo_pago
+FROM ventas v
+LEFT JOIN pacientes p ON v.paciente_id = p.id
+LEFT JOIN usuarios u ON v.usuario_id = u.id
+ORDER BY v.fecha DESC";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$ventas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // === Consultar compras con nombre de proveedor y personal ===
 $sql_compras = "SELECT c.*, 

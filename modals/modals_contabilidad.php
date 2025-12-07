@@ -76,96 +76,6 @@
     </div>
 </div>
 
-<!-- Nueva venta (farmacia) -->
-<div class="modal fade" id="modalNuevaVenta" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <form class="modal-content" method="post" onsubmit="return buildVentaItemsJson()">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-cart-plus me-2"></i>Nueva venta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="csrf" value="<?php echo csrf_token(); ?>">
-                <input type="hidden" name="accion" value="nueva_venta">
-                <input type="hidden" name="items_json" id="venta_items_json">
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Paciente (opcional)</label>
-                        <select name="paciente_id" class="form-select">
-                            <option value="">Sin paciente</option>
-                            <?php foreach ($pacientes as $p): ?>
-                                <option value="<?php echo (int) $p['id']; ?>">
-                                    <?php echo htmlspecialchars($p['nom']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Método de pago</label>
-                        <select name="metodo_pago" class="form-select">
-                            <option>EFECTIVO</option>
-                            <option>TARJETA</option>
-                            <option>TRANSFERENCIA</option>
-                            <option>OTRO</option>
-                        </select>
-                    </div>
-                </div>
-
-                <hr>
-                <div class="table-responsive">
-                    <table class="table align-middle" id="tablaVentaItems">
-                        <thead>
-                            <tr>
-                                <th style="min-width:220px">Producto</th>
-                                <th>Cant.</th>
-                                <th>Precio</th>
-                                <th class="text-end">Subtotal</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <select class="form-select form-select-sm prod-select">
-                                        <option value="">Selecciona...</option>
-                                        <?php foreach ($productos as $pr): ?>
-                                            <option value="<?php echo (int) $pr['id']; ?>"
-                                                data-precio="<?php echo (float) $pr['precio_unitario']; ?>">
-                                                <?php echo htmlspecialchars($pr['nombre']); ?> — XAF
-                                                <?php echo money($pr['precio_unitario'] ?? 0); ?> (Stock:
-                                                <?php echo (int) $pr['stock_actual']; ?>)
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </td>
-                                <td><input type="number" min="1" value="1"
-                                        class="form-control form-control-sm cantidad"></td>
-                                <td><input type="number" step="0.01" class="form-control form-control-sm precio"></td>
-                                <td class="text-end subtotal">XAF 0,00</td>
-                                <td class="text-end"><button type="button" class="btn btn-sm btn-danger"
-                                        onclick="removeRow(this)"><i class="bi bi-x"></i></button></td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="3" class="text-end">Total</th>
-                                <th class="text-end" id="ventaTotal">XAF 0,00</th>
-                                <th class="text-end"><button type="button" class="btn btn-sm btn-primary"
-                                        onclick="addRow()"><i class="bi bi-plus"></i></button></th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Guardar
-                    venta</button>
-            </div>
-        </form>
-    </div>
-</div>
 
 <!-- Nueva compra -->
 <div class="modal fade" id="modalCrearCompra" tabindex="-1" aria-labelledby="modalCrearCompraLabel" aria-hidden="true">
@@ -572,6 +482,376 @@
                 </button>
             </div>
 
+        </form>
+    </div>
+</div>
+
+
+
+
+<!-- ============================= VENTAS ======================= -->
+<!-- Nueva venta (farmacia) -->
+<!-- <div class="modal fade" id="modalNuevaVenta" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" method="post" onsubmit="return buildVentaItemsJson()">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-cart-plus me-2"></i>Nueva venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="csrf" value="<?php echo csrf_token(); ?>">
+                <input type="hidden" name="accion" value="nueva_venta">
+                <input type="hidden" name="items_json" id="venta_items_json">
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Paciente (opcional)</label>
+                        <select name="paciente_id" class="form-select">
+                            <option value="">Sin paciente</option>
+                            <?php foreach ($pacientes as $p): ?>
+                                <option value="<?php echo (int) $p['id']; ?>">
+                                    <?php echo htmlspecialchars($p['nom']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Método de pago</label>
+                        <select name="metodo_pago" class="form-select">
+                            <option>EFECTIVO</option>
+                            <option>TARJETA</option>
+                            <option>TRANSFERENCIA</option>
+                            <option>OTRO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr>
+                <div class="table-responsive">
+                    <table class="table align-middle" id="tablaVentaItems">
+                        <thead>
+                            <tr>
+                                <th style="min-width:220px">Producto</th>
+                                <th>Cant.</th>
+                                <th>Precio</th>
+                                <th class="text-end">Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <select class="form-select form-select-sm prod-select">
+                                        <option value="">Selecciona...</option>
+                                        <?php foreach ($productos as $pr): ?>
+                                            <option value="<?php echo (int) $pr['id']; ?>"
+                                                data-precio="<?php echo (float) $pr['precio_unitario']; ?>">
+                                                <?php echo htmlspecialchars($pr['nombre']); ?> — XAF
+                                                <?php echo money($pr['precio_unitario'] ?? 0); ?> (Stock:
+                                                <?php echo (int) $pr['stock_actual']; ?>)
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td><input type="number" min="1" value="1"
+                                        class="form-control form-control-sm cantidad"></td>
+                                <td><input type="number" step="0.01" class="form-control form-control-sm precio"></td>
+                                <td class="text-end subtotal">XAF 0,00</td>
+                                <td class="text-end"><button type="button" class="btn btn-sm btn-danger"
+                                        onclick="removeRow(this)"><i class="bi bi-x"></i></button></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">Total</th>
+                                <th class="text-end" id="ventaTotal">XAF 0,00</th>
+                                <th class="text-end"><button type="button" class="btn btn-sm btn-primary"
+                                        onclick="addRow()"><i class="bi bi-plus"></i></button></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Guardar
+                    venta</button>
+            </div>
+        </form>
+    </div>
+</div>
+ -->
+
+
+
+
+<div class="modal fade" id="modalNuevaVenta" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form action="api/guardar_venta_farmacia.php" method="POST" class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Registrar Nueva Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body row g-3">
+                <input type="hidden" name="id_usuario" value="<?= $idUsuario ?>">
+                <div class="col-md-6">
+                    <label class="form-label">Paciente</label>
+                    <input type="text" id="paciente-buscador" class="form-control"
+                        placeholder="Buscar por nombre o ID...">
+                    <input type="hidden" name="paciente_id" id="paciente_id_input">
+                    <div id="paciente-resultados" class="mt-2 list-group"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Fecha de Venta</label>
+                    <input type="date" name="fecha" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                </div>
+                <hr class="my-3">
+                <div class="col-md-12">
+                    <h5>Productos de la Venta</h5>
+                    <div class="input-group mb-3">
+                        <input type="text" id="producto-buscador" class="form-control" placeholder="Buscar producto...">
+                        <input type="number" id="cantidad-producto" class="form-control" placeholder="Cantidad" min="1"
+                            value="1">
+                        <input type="number" id="descuento-producto" class="form-control" placeholder="Descuento (%)"
+                            min="0" max="100" value="0">
+                        <button class="btn btn-outline-secondary" type="button"
+                            id="btn-agregar-producto">Agregar</button>
+                    </div>
+                    <div id="producto-resultados" class="list-group"></div>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered table-sm" id="tabla-detalle-venta-crear">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio</th>
+                                    <th>Descuento</th>
+                                    <th>Subtotal</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                    <td colspan="2"><span id="monto-total-display-crear">0.00 XAF</span></td>
+                                    <input type="hidden" name="monto_total" id="monto_total_input_crear">
+                                    <input type="hidden" name="productos_json" id="productos_json_crear">
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <hr class="my-3">
+                <div class="col-md-6">
+                    <label class="form-label">Método de Pago</label>
+                    <select name="metodo_pago" class="form-select">
+                        <option value="EFECTIVO">Efectivo</option>
+                        <option value="TARJETA">Tarjeta</option>
+                        <option value="TRANSFERENCIA">Transferencia</option>
+                        <option value="OTRO">Otro</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Estado de Pago</label>
+                    <select name="estado_pago" class="form-select">
+                        <option value="PAGADO">Pagado</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="PARCIAL">Parcial</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Monto Recibido</label>
+                    <input type="number" name="monto_recibido" id="monto_recibido_input_crear" class="form-control"
+                        step="0.01" value="0" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Cambio Devuelto</label>
+                    <input type="text" id="cambio_devuelto_display_crear" class="form-control" value="0.00 XAF"
+                        readonly>
+                    <input type="hidden" name="cambio_devuelto" id="cambio_devuelto_input_crear">
+                </div>
+                <div class="col-md-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="seguro-check" name="seguro" value="1">
+                        <label class="form-check-label" for="seguro-check">Venta con seguro</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-success"><i class="bi bi-save me-1"></i> Guardar Venta</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetallesVenta" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Detalles de la Venta <span
+                        id="detalle-venta-id"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3" id="detalles-venta-info">
+                    <div class="col-md-6">
+                        <strong>Paciente:</strong> <span id="detalle-paciente"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Atendido por:</strong> <span id="detalle-usuario"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Fecha:</strong> <span id="detalle-fecha"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Monto Total:</strong> <span id="detalle-monto-total"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Método de Pago:</strong> <span id="detalle-metodo-pago"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Estado de Pago:</strong> <span id="detalle-estado-pago"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Monto Recibido:</strong> <span id="detalle-monto-recibido"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Cambio Devuelto:</strong> <span id="detalle-cambio-devuelto"></span>
+                    </div>
+                    <div class="col-md-12">
+                        <strong>Seguro:</strong> <span id="detalle-seguro"></span>
+                    </div>
+                    <hr class="my-3">
+                    <div class="col-md-12">
+                        <h5>Productos Vendidos</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Descuento</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detalle-productos-table">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditarVenta" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form action="api/actualizar_venta_farmacia.php" method="POST" class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body row g-3">
+                <input type="hidden" name="id" id="edit-venta-id">
+                <input type="hidden" name="id_usuario" value="<?= $idUsuario ?>">
+                <div class="col-md-6">
+                    <label class="form-label">Paciente</label>
+                    <input type="text" id="edit-paciente-buscador" class="form-control"
+                        placeholder="Buscar por nombre o ID...">
+                    <input type="hidden" name="paciente_id" id="edit-paciente-id-input">
+                    <div id="edit-paciente-resultados" class="mt-2 list-group"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Fecha de Venta</label>
+                    <input type="date" name="fecha" id="edit-fecha" class="form-control" required>
+                </div>
+                <hr class="my-3">
+                <div class="col-md-12">
+                    <h5>Productos de la Venta</h5>
+                    <div class="input-group mb-3">
+                        <input type="text" id="edit-producto-buscador" class="form-control"
+                            placeholder="Buscar producto...">
+                        <input type="number" id="edit-cantidad-producto" class="form-control" placeholder="Cantidad"
+                            min="1" value="1">
+                        <input type="number" id="edit-descuento-producto" class="form-control"
+                            placeholder="Descuento (%)" min="0" max="100" value="0">
+                        <button class="btn btn-outline-secondary" type="button"
+                            id="btn-agregar-producto-editar">Agregar</button>
+                    </div>
+                    <div id="edit-producto-resultados" class="list-group"></div>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered table-sm" id="tabla-detalle-venta-editar">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio</th>
+                                    <th>Descuento</th>
+                                    <th>Subtotal</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                    <td colspan="2"><span id="monto-total-display-editar">0.00 XAF</span></td>
+                                    <input type="hidden" name="monto_total" id="monto_total_input_editar">
+                                    <input type="hidden" name="productos_json" id="productos_json_editar">
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <hr class="my-3">
+                <div class="col-md-6">
+                    <label class="form-label">Método de Pago</label>
+                    <select name="metodo_pago" id="edit-metodo-pago" class="form-select">
+                        <option value="EFECTIVO">Efectivo</option>
+                        <option value="TARJETA">Tarjeta</option>
+                        <option value="TRANSFERENCIA">Transferencia</option>
+                        <option value="OTRO">Otro</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Estado de Pago</label>
+                    <select name="estado_pago" id="edit-estado-pago" class="form-select">
+                        <option value="PAGADO">Pagado</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="PARCIAL">Parcial</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Monto Recibido</label>
+                    <input type="number" name="monto_recibido" id="monto_recibido_input_editar" class="form-control"
+                        step="0.01" value="0" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Cambio Devuelto</label>
+                    <input type="text" id="cambio_devuelto_display_editar" class="form-control" value="0.00 XAF"
+                        readonly>
+                    <input type="hidden" name="cambio_devuelto" id="cambio_devuelto_input_editar">
+                </div>
+                <div class="col-md-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="edit-seguro-check" name="seguro" value="1">
+                        <label class="form-check-label" for="edit-seguro-check">Venta con seguro</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Actualizar Venta</button>
+            </div>
         </form>
     </div>
 </div>

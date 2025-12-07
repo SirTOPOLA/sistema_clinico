@@ -9,7 +9,7 @@ $query = isset($_GET['q']) ? trim($_GET['q']) : '';
 if (strlen($query) > 1) {
     try {
         // Buscar pacientes por nombre, apellidos o código
-        $sql = "SELECT id, nombre, apellidos, dip, codigo 
+        $sql = "SELECT id, CONCAT(nombre, ' ' , apellidos) AS nombre, apellidos, dip, codigo 
                 FROM pacientes 
                 WHERE nombre LIKE ? OR apellidos LIKE ? OR codigo LIKE ?
                 LIMIT 10";

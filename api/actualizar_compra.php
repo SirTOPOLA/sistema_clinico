@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$compra_id || !$proveedor_id || !$personal_id || !preg_match("/^\d{4}-\d{2}-\d{2}$/", $fecha) || !in_array($estado_pago, ['PAGADO', 'PENDIENTE', 'PARCIAL'])) {
             $_SESSION['error'] = "Datos de compra inválidos o incompletos para actualizar.";
             $pdo->rollBack();
-            header("Location: ../index.php?vista=compras_farmacia");
+            header("Location: ../index.php?vista=contabilidad");
             exit();
         }
 
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($productos_post)) {
             $_SESSION['error'] = "Debe agregar al menos un producto a la compra.";
             $pdo->rollBack();
-            header("Location: ../index.php?vista=compras_farmacia");
+            header("Location: ../index.php?vista=contabilidad");
             exit();
         }
 
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$producto_id || $cantidad <= 0 || $precio_compra < 0 || $precio_venta_unitario < 0) { 
                 $_SESSION['error'] = "Datos de producto inválidos en la fila " . ($index + 1);
                 $pdo->rollBack();
-                header("Location: ../index.php?vista=compras_farmacia");
+                header("Location: ../index.php?vista=contabilidad");
                 exit();
             }
 
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($monto_entregado < $total_compra) {
                 $_SESSION['error'] = "El monto entregado es menor que el total de la compra para un estado 'PAGADO'.";
                 $pdo->rollBack();
-                header("Location: ../index.php?vista=compras_farmacia");
+                header("Location: ../index.php?vista=contabilidad");
                 exit();
             }
             $cambio_devuelto = $monto_entregado - $total_compra;
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($monto_entregado >= $total_compra) {
                 $_SESSION['error'] = "El monto entregado es igual o mayor que el total de la compra para un estado 'PARCIAL'.";
                 $pdo->rollBack();
-                header("Location: ../index.php?vista=compras_farmacia");
+                header("Location: ../index.php?vista=contabilidad");
                 exit();
             }
             $monto_pendiente = $total_compra - $monto_entregado;
@@ -151,10 +151,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['error'] = "Error inesperado: " . $e->getMessage();
     }
 
-    header("Location: ../index.php?vista=compras_farmacia");
+    header("Location: ../index.php?vista=contabilidad");
     exit();
 } else {
     $_SESSION['error'] = "Acceso no autorizado.";
-    header("Location: ../index.php?vista=compras_farmacia");
+    header("Location: ../index.php?vista=contabilidad");
     exit();
 }

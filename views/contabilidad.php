@@ -62,10 +62,17 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="pills-farmacia-tab" data-bs-toggle="pill"
-                        data-bs-target="#pills-farmacia" type="button" role="tab" aria-controls="pills-farmacia"
+                    <button class="nav-link" id="pills-farmacia-venta-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-farmacia-venta" type="button" role="tab" aria-controls="pills-farmacia"
                         aria-selected="false">
-                        <i class="bi bi-capsule-pill me-1"></i>Farmacia
+                        <i class="bi bi-capsule-pill me-1"></i>Ventas
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-farmacia-compra-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-farmacia-compra" type="button" role="tab" aria-controls="pills-farmacia"
+                        aria-selected="false">
+                        <i class="bi bi-capsule-pill me-1"></i>Compras
                     </button>
                 </li>
             </ul>
@@ -200,272 +207,176 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                         </div>
                     </div>
                 </div>
-                <!-- ================= Farmacia ================ -->
-                <div class="tab-pane fade" id="pills-farmacia" role="tabpanel" aria-labelledby="pills-farmacia-tab"
-                    tabindex="0">
-                    <div class="row g-3">
-                        <div class="col-lg-7">
-                            <div class="card glass">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0"><i class="bi bi-capsule-pill me-2"></i>Ventas recientes</h5>
-                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#modalNuevaVenta"><i class="bi bi-cart-plus"></i> Nueva
-                                        venta</button>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover mb-0 align-middle">
-                                            <thead>
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Paciente</th>
-                                                    <th>Fecha</th>
-                                                    <th>Monto</th>
-                                                    <th>Pago</th>
-                                                    <th class="text-end">Acciones</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($ventas as $v): ?>
-                                                    <tr>
-                                                        <td>#<?php echo (int) $v['id']; ?></td>
-                                                        <td><?php echo htmlspecialchars($v['nombre_paciente']); ?></td>
-                                                        <td><?php echo htmlspecialchars($v['fecha']); ?></td>
-                                                        <td>XAF <?php echo money($v['monto_total']); ?></td>
-                                                        <td><span
-                                                                class="badge rounded-pill bg-success"><?php echo htmlspecialchars($v['metodo_pago']); ?></span>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <button class="btn btn-sm btn-soft"><i
-                                                                    class="bi bi-printer"></i></button>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
+                <!-- ================= Venta Farmacia ================ -->
+                <div class="tab-pane fade" id="pills-farmacia-venta" role="tabpanel"
+                    aria-labelledby="pills-farmacia-venta-tab" tabindex="0">
+
+                    <div class="card glass">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-capsule-pill me-2"></i>Ventas recientes</h5>
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#modalNuevaVenta"><i class="bi bi-cart-plus"></i> Nueva
+                                venta</button>
                         </div>
-
-                        <div class="col-lg-5">
-                            <div class="card glass h-100">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0"><i class="bi bi-truck me-2"></i>Compras a proveedores</h5>
-                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#modalCrearCompra"><i class="bi bi-bag-plus"></i> Nueva
-                                        compra</button>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover mb-0 align-middle">
-                                            <thead>
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Proveedor</th>
-                                                    <th>Total</th>
-                                                    <th>Estado</th>
-                                                    <th>Pendiente</th>
-                                                    <th class="text-end">Acciones</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                <?php foreach ($compras as $compra): ?>
-                                                    <tr>
-                                                        <td><?= htmlspecialchars($compra['id']) ?></td>
-                                                        <!-- <td>
-                                                            <?php if ($compra['codigo_factura']): ?>
-                                                                <?= htmlspecialchars($compra['codigo_factura']) ?>
-                                                            <?php else: ?>
-                                                                <i class="bi bi-lock-fill text-muted"
-                                                                    title="Sin código de factura"></i>
-                                                            <?php endif; ?>
-                                                        </td> -->
-                                                        <td><?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?>
-                                                        </td>
-                                                        <!-- <td>
-                                                            <?= htmlspecialchars($personal[array_search($compra['personal_id'], array_column($personal, 'id'))]['nombre']) ?>
-                                                        </td> -->
-                                                    <!--     <td><?= htmlspecialchars($compra['fecha']) ?></td> -->
-                                                        <td><?= 'XAF' . number_format($compra['total'], 2) ?></td>
-                                                        <td>
-                                                            <?php
-                                                            $badge_class = '';
-                                                            switch ($compra['estado_pago']) {
-                                                                case 'PAGADO':
-                                                                    $badge_class = 'bg-success';
-                                                                    break;
-                                                                case 'PENDIENTE':
-                                                                    $badge_class = 'bg-danger';
-                                                                    break;
-                                                                case 'PARCIAL':
-                                                                    $badge_class = 'bg-warning';
-                                                                    break;
-                                                            }
-                                                            ?>
-                                                            <span
-                                                                class="badge <?= $badge_class ?>"><?= htmlspecialchars($compra['estado_pago']) ?></span>
-                                                        </td>
-                                                        <td><?= 'XAF' . number_format($compra['monto_pendiente'], 2) ?></td>
-                                                       
-                                                        <td class="text-end">
-                                                            <div class="class="btn-group btn-group-sm" role="group"">
-                                                            <button class="btn btn-outline-secondary px-2"
-                                                                    onclick="imprimirComprobante(<?= (int) $c['id']; ?>)"
-                                                                    title="Imprimir comprobante">
-                                                                    <i class="bi bi-printer"></i>
-                                                                </button>
-
-                                                            <button class="btn btn-sm btn-outline-info btn-ver-detalles"
-                                                                data-id="<?= htmlspecialchars($compra['id']) ?>"
-                                                                data-codigo-factura="<?= htmlspecialchars($compra['codigo_factura']) ?>"
-                                                                data-proveedor="<?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?>"
-                                                                data-personal="<?= htmlspecialchars($personal[array_search($compra['personal_id'], array_column($personal, 'id'))]['nombre']) ?>"
-                                                                data-fecha="<?= htmlspecialchars($compra['fecha']) ?>"
-                                                                data-total="<?= htmlspecialchars($compra['total']) ?>"
-                                                                data-estado-pago="<?= htmlspecialchars($compra['estado_pago']) ?>"
-                                                                data-monto-entregado="<?= htmlspecialchars($compra['monto_entregado']) ?>"
-                                                                data-monto-gastado="<?= htmlspecialchars($compra['monto_gastado']) ?>"
-                                                                data-cambio-devuelto="<?= htmlspecialchars($compra['cambio_devuelto']) ?>"
-                                                                data-monto-pendiente="<?= htmlspecialchars($compra['monto_pendiente']) ?>"
-                                                                data-bs-toggle="modal" data-bs-target="#modalVerDetalles">
-                                                                <i class="bi bi-eye"></i>
-                                                            </button>
-                                                            <button class="btn btn-sm btn-outline-primary btn-editar-compra"
-                                                                data-id="<?= htmlspecialchars($compra['id']) ?>"
-                                                                data-codigo-factura="<?= htmlspecialchars($compra['codigo_factura']) ?>"
-                                                                data-proveedor-id="<?= htmlspecialchars($compra['proveedor_id']) ?>"
-                                                                data-personal-id="<?= htmlspecialchars($compra['personal_id']) ?>"
-                                                                data-fecha="<?= htmlspecialchars($compra['fecha']) ?>"
-                                                                data-monto-entregado="<?= htmlspecialchars($compra['monto_entregado']) ?>"
-                                                                data-monto-gastado="<?= htmlspecialchars($compra['monto_gastado']) ?>"
-                                                                data-cambio-devuelto="<?= htmlspecialchars($compra['cambio_devuelto']) ?>"
-                                                                data-monto-pendiente="<?= htmlspecialchars($compra['monto_pendiente']) ?>"
-                                                                data-total="<?= htmlspecialchars($compra['total']) ?>"
-                                                                data-estado-pago="<?= htmlspecialchars($compra['estado_pago']) ?>"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#modalActualizarCompra">
-                                                                <i class="bi bi-pencil"></i>
-                                                            </button>
-                                                            <?php $montoPendiente = (float) str_replace(',', '', money($compra['monto_pendiente'])); ?>
-                                                            <?php if ($montoPendiente > 0): ?>
-                                                                    <button class="btn btn-success px-2" data-bs-toggle="modal"
-                                                                        data-bs-target="#modalPagoProveedor"
-                                                                        data-id="<?= (int) $compra['id']; ?>"
-                                                                       data-proveedor="<?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?>"
-                                                                        data-fechaCompra="<?= htmlspecialchars($compra['fecha']); ?>"
-                                                                        data-montoPendiente="<?= (float) $compra['monto_pendiente']; ?>"
-                                                                        data-factura="<?= htmlspecialchars($compra['codigo_factura']); ?>"
-                                                                        title="Registrar pago pendiente">
-                                                                        <i class="bi bi-cash-stack"></i>
-                                                                    </button>
-                                                                <?php endif; ?>
-
-                                                           <!--  <a href="api/eliminar_compra.php?id=<?= htmlspecialchars($compra['id']) ?>"
-                                                                class="btn btn-sm btn-outline-danger"
-                                                                onclick="return confirm('¿Está seguro de eliminar esta compra? Esta acción no se puede deshacer.')">
-                                                                <i class="bi bi-trash"></i>
-                                                            </a> -->
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-
-
-
-
-
-
-
-
-
-
-<!-- 
-                                            <tbody>
-                                                <?php foreach ($compras as $c): ?>
-                                                    <tr>
-                                                        <td>#<?php echo (int) $c['id']; ?></td>
-                                                        <td> <?php echo htmlspecialchars($c['nombre_proveedor']); ?></td>
-                                                        <td>XAF <?php echo money($c['total']); ?></td>
-                                                        <td><span
-                                                                class="badge rounded-pill <?php echo $c['estado_pago'] === 'PAGADO' ? 'bg-success' : ($c['estado_pago'] === 'PARCIAL' ? 'bg-warning text-dark' : 'bg-secondary'); ?>"><?php echo htmlspecialchars($c['estado_pago']); ?></span>
-                                                        </td>
-                                                        <td>XAF <?php echo money($c['monto_pendiente']); ?></td>
-                                                        <td class="text-end">
-
-                                                            <?php $montoPendiente = (float) str_replace(',', '', money($c['monto_pendiente'])); ?>
-
-                                                            <div class="btn-group btn-group-sm" role="group">
-
-                                                               
-                                                                <?php if ($montoPendiente > 0): ?>
-                                                                    <button class="btn btn-success px-2" data-bs-toggle="modal"
-                                                                        data-bs-target="#modalPagoProveedor"
-                                                                        data-id="<?= (int) $c['id']; ?>"
-                                                                        data-nombreProveedor="<?= htmlspecialchars($c['nombre_proveedor']); ?>"
-                                                                        data-fechaCompra="<?= htmlspecialchars($c['fecha']); ?>"
-                                                                        data-montoPendiente="<?= (float) $c['monto_pendiente']; ?>"
-                                                                        data-factura="<?= htmlspecialchars($c['factura']); ?>"
-                                                                        title="Registrar pago pendiente">
-                                                                        <i class="bi bi-cash-stack"></i>
-                                                                    </button>
-                                                                <?php endif; ?>
-
-                                                              
-                                                                <button class="btn btn-outline-primary px-2"
-                                                                    onclick="verDetallesCompra(<?php echo (int) $c['id']; ?>)"
-                                                                    title="Detalles de la compra">
-                                                                    <i class="bi bi-eye"></i>
-                                                                </button>
-
-                                                              
-                                                                <button class="btn btn-outline-secondary px-2"
-                                                                    onclick="imprimirComprobante(<?= (int) $c['id']; ?>)"
-                                                                    title="Imprimir comprobante">
-                                                                    <i class="bi bi-printer"></i>
-                                                                </button>
-
-                                                                <button class="btn btn-outline-warning px-2"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#modalActualizarCompra"
-                                                                    data-id="<?= htmlspecialchars($c['id']); ?>"
-                                                                    data-codigo-factura="<?= htmlspecialchars($c['factura']); ?>"
-                                                                    data-proveedor-id="<?= htmlspecialchars($c['proveedor_id']); ?>"
-                                                                    data-personal-id="<?= htmlspecialchars($c['personal_id']); ?>"
-                                                                    data-fecha="<?= htmlspecialchars($c['fecha']); ?>"
-                                                                    data-monto-entregado="<?= htmlspecialchars($c['monto_entregado']); ?>"
-                                                                    data-monto-gastado="<?= htmlspecialchars($c['monto_gastado']); ?>"
-                                                                    data-cambio-devuelto="<?= htmlspecialchars($c['cambio_devuelto']); ?>"
-                                                                    data-monto-pendiente="<?= htmlspecialchars($c['monto_pendiente']); ?>"
-                                                                    data-total="<?= htmlspecialchars($c['total']); ?>"
-                                                                    data-estado-pago="<?= htmlspecialchars($c['estado_pago']); ?>"
-                                                                    title="Editar compra">
-                                                                    <i class="bi bi-pencil-square"></i>
-                                                                </button>
-
-                                                            </div>
-
-                                                        </td>
-
-
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        
-                                         -->
-                                        </table>
-                                    </div>
-                                </div>
-                                <div class="card-footer d-flex justify-content-between">
-                                    <span class="text-secondary">Pendiente total</span>
-                                    <strong class="text-light">XAF
-                                        <?php echo money($kpi['pendientes_prov']); ?></strong>
-                                </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0 align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Paciente</th>
+                                            <th>Fecha</th>
+                                            <th>Monto</th>
+                                            <th>Pago</th>
+                                            <th class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($ventas as $v): ?>
+                                            <tr>
+                                                <td>#<?php echo (int) $v['id']; ?></td>
+                                                <td><?php echo htmlspecialchars($v['nombre_paciente']); ?></td>
+                                                <td><?php echo htmlspecialchars($v['fecha']); ?></td>
+                                                <td>XAF <?php echo money($v['monto_total']); ?></td>
+                                                <td><span
+                                                        class="badge rounded-pill bg-success"><?php echo htmlspecialchars($v['metodo_pago']); ?></span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-sm btn-soft"><i
+                                                            class="bi bi-printer"></i></button>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- ====================== compra farmacia =====================-->
+                <div class="tab-pane fade" id="pills-farmacia-compra" role="tabpanel"
+                    aria-labelledby="pills-farmacia-compra-tab" tabindex="0">
+
+                    <div class="card glass h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-truck me-2"></i>Compras a proveedores</h5>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#modalCrearCompra"><i class="bi bi-bag-plus"></i> Nueva
+                                compra</button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0 align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Proveedor</th>
+                                            <th>Total</th>
+                                            <th>Estado</th>
+                                            <th>Pendiente</th>
+                                            <th class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <?php foreach ($compras as $compra): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($compra['id']) ?></td>
+
+                                                <td><?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?>
+                                                </td>
+                                                <td><?= 'XAF' . number_format($compra['total'], 2) ?></td>
+                                                <td>
+                                                    <?php
+                                                    $badge_class = '';
+                                                    switch ($compra['estado_pago']) {
+                                                        case 'PAGADO':
+                                                            $badge_class = 'bg-success';
+                                                            break;
+                                                        case 'PENDIENTE':
+                                                            $badge_class = 'bg-danger';
+                                                            break;
+                                                        case 'PARCIAL':
+                                                            $badge_class = 'bg-warning';
+                                                            break;
+                                                    }
+                                                    ?>
+                                                    <span
+                                                        class="badge <?= $badge_class ?>"><?= htmlspecialchars($compra['estado_pago']) ?></span>
+                                                </td>
+                                                <td><?= 'XAF' . number_format($compra['monto_pendiente'], 2) ?></td>
+
+                                                <td class="text-end">
+                                                    <div class="class=" btn-group btn-group-sm" role="group"">
+                                                            <button class=" btn btn-outline-secondary px-2"
+                                                        onclick="imprimirComprobante(<?= (int) $c['id']; ?>)"
+                                                        title="Imprimir comprobante">
+                                                        <i class="bi bi-printer"></i>
+                                                        </button>
+
+                                                        <button class="btn btn-sm btn-outline-info btn-ver-detalles"
+                                                            data-id="<?= htmlspecialchars($compra['id']) ?>"
+                                                            data-codigo-factura="<?= htmlspecialchars($compra['codigo_factura']) ?>"
+                                                            data-proveedor="<?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?>"
+                                                            data-personal="<?= htmlspecialchars($personal[array_search($compra['personal_id'], array_column($personal, 'id'))]['nombre']) ?>"
+                                                            data-fecha="<?= htmlspecialchars($compra['fecha']) ?>"
+                                                            data-total="<?= htmlspecialchars($compra['total']) ?>"
+                                                            data-estado-pago="<?= htmlspecialchars($compra['estado_pago']) ?>"
+                                                            data-monto-entregado="<?= htmlspecialchars($compra['monto_entregado']) ?>"
+                                                            data-monto-gastado="<?= htmlspecialchars($compra['monto_gastado']) ?>"
+                                                            data-cambio-devuelto="<?= htmlspecialchars($compra['cambio_devuelto']) ?>"
+                                                            data-monto-pendiente="<?= htmlspecialchars($compra['monto_pendiente']) ?>"
+                                                            data-bs-toggle="modal" data-bs-target="#modalVerDetalles">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-primary btn-editar-compra"
+                                                            data-id="<?= htmlspecialchars($compra['id']) ?>"
+                                                            data-codigo-factura="<?= htmlspecialchars($compra['codigo_factura']) ?>"
+                                                            data-proveedor-id="<?= htmlspecialchars($compra['proveedor_id']) ?>"
+                                                            data-personal-id="<?= htmlspecialchars($compra['personal_id']) ?>"
+                                                            data-fecha="<?= htmlspecialchars($compra['fecha']) ?>"
+                                                            data-monto-entregado="<?= htmlspecialchars($compra['monto_entregado']) ?>"
+                                                            data-monto-gastado="<?= htmlspecialchars($compra['monto_gastado']) ?>"
+                                                            data-cambio-devuelto="<?= htmlspecialchars($compra['cambio_devuelto']) ?>"
+                                                            data-monto-pendiente="<?= htmlspecialchars($compra['monto_pendiente']) ?>"
+                                                            data-total="<?= htmlspecialchars($compra['total']) ?>"
+                                                            data-estado-pago="<?= htmlspecialchars($compra['estado_pago']) ?>"
+                                                            data-bs-toggle="modal" data-bs-target="#modalActualizarCompra">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                        <?php $montoPendiente = (float) str_replace(',', '', money($compra['monto_pendiente'])); ?>
+                                                        <?php if ($montoPendiente > 0): ?>
+                                                            <button class="btn btn-success px-2" data-bs-toggle="modal"
+                                                                data-bs-target="#modalPagoProveedor"
+                                                                data-id="<?= (int) $compra['id']; ?>"
+                                                                data-proveedor="<?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?>"
+                                                                data-fechaCompra="<?= htmlspecialchars($compra['fecha']); ?>"
+                                                                data-montoPendiente="<?= (float) $compra['monto_pendiente']; ?>"
+                                                                data-factura="<?= htmlspecialchars($compra['codigo_factura']); ?>"
+                                                                title="Registrar pago pendiente">
+                                                                <i class="bi bi-cash-stack"></i>
+                                                            </button>
+                                                        <?php endif; ?>
+
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+
+
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <span class="text-secondary">Pendiente total</span>
+                            <strong class="text-light">XAF
+                                <?php echo money($kpi['pendientes_prov']); ?></strong>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
