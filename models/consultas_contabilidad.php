@@ -141,4 +141,58 @@ $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(ape
  
     $personal = $pdo->query("SELECT id, nombre, apellidos FROM personal ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
    
-?>
+
+
+try {
+
+
+// === Consultar compras con nombre de proveedor y personal ===
+$sql_compras = "SELECT c.*, 
+                       p.nombre AS proveedor_nombre, 
+                       CONCAT(pe.nombre, ' ', pe.apellidos) AS personal_nombre
+                FROM compras c
+                LEFT JOIN proveedores p ON c.proveedor_id = p.id
+                LEFT JOIN personal pe ON c.personal_id = pe.id
+                ORDER BY c.fecha DESC";
+$stmt_compras = $pdo->query($sql_compras);
+$compras = $stmt_compras->fetchAll(PDO::FETCH_ASSOC);
+
+// === Consultar detalles de compras agrupados por compra_id ===
+$sql_detalles = "SELECT * FROM compras_detalle";
+$stmt_detalles = $pdo->query($sql_detalles);
+$comprasDetalle = [];
+while ($row = $stmt_detalles->fetch(PDO::FETCH_ASSOC)) {
+    $comprasDetalle[$row['compra_id']][] = $row;
+}
+
+// === Consultar proveedores ===
+$sql_proveedores = "SELECT id, nombre FROM proveedores ORDER BY nombre";
+$stmt_proveedores = $pdo->query($sql_proveedores);
+$proveedores = $stmt_proveedores->fetchAll(PDO::FETCH_ASSOC);
+
+// === Consultar personal ===
+$sql_personal = "SELECT id, nombre, apellidos FROM personal ORDER BY nombre";
+$stmt_personal = $pdo->query($sql_personal);
+$personal = $stmt_personal->fetchAll(PDO::FETCH_ASSOC);
+
+// === Consultar productos ===
+
+$productos = $pdo->query("SELECT * FROM productos ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
+
+
+} catch (PDOException $e) {
+$compras = [];
+$comprasDetalle = [];
+$proveedores = [];
+$personal = [];
+$productos = [];
+$mensaje_error = "Error al consultar la base de datos: " . $e->getMessage();
+
+} catch (Exception $e) {
+$compras = [];
+$comprasDetalle = [];
+$proveedores = [];
+$personal = [];
+$productos = [];
+$mensaje_error = "Error general: " . $e->getMessage();
+}

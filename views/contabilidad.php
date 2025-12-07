@@ -1,9 +1,6 @@
 <?php
-
 require("models/consultas_contabilidad.php"); /* En este archivo encontramos todas las consultas que se realizan en esta vista */
-
 require("components/estilos_contabilidad.php"); /* Este archivo proporciona estilos complementarios para esta vista */
-
 ?>
 <div id="content" class="container-fluid">
     <div class="app-shell d-flex flex-column">
@@ -19,10 +16,8 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                 </div>
             </div>
         </nav>
-
         <!-- Contenido principal -->
         <main class="container my-4">
-
             <!-- KPIs -->
             <div class="row g-3 mb-3">
                 <div class="col-6 col-md-3">
@@ -50,7 +45,6 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                     </div>
                 </div>
             </div>
-
             <!-- Navegación principal (pills) -->
             <ul class="nav nav-pills glass p-2 mb-3 gap-2" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -75,10 +69,7 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                     </button>
                 </li>
             </ul>
-
-
             <div class="tab-content" id="pills-tabContent">
-
                 <!-- ================= Consultas ================ -->
                 <div class="tab-pane fade show active" id="pills-consultas" role="tabpanel"
                     aria-labelledby="pills-consultas-tab" tabindex="0">
@@ -143,7 +134,6 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                         </div>
                     </div>
                 </div>
-
                 <!-- ================= Analíticas ================ -->
                 <div class="tab-pane fade" id="pills-analiticas" role="tabpanel" aria-labelledby="pills-analiticas-tab"
                     tabindex="0">
@@ -210,7 +200,6 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                         </div>
                     </div>
                 </div>
-
                 <!-- ================= Farmacia ================ -->
                 <div class="tab-pane fade" id="pills-farmacia" role="tabpanel" aria-labelledby="pills-farmacia-tab"
                     tabindex="0">
@@ -280,6 +269,120 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                                                     <th class="text-end">Acciones</th>
                                                 </tr>
                                             </thead>
+
+                                            <tbody>
+                                                <?php foreach ($compras as $compra): ?>
+                                                    <tr>
+                                                        <td><?= htmlspecialchars($compra['id']) ?></td>
+                                                        <!-- <td>
+                                                            <?php if ($compra['codigo_factura']): ?>
+                                                                <?= htmlspecialchars($compra['codigo_factura']) ?>
+                                                            <?php else: ?>
+                                                                <i class="bi bi-lock-fill text-muted"
+                                                                    title="Sin código de factura"></i>
+                                                            <?php endif; ?>
+                                                        </td> -->
+                                                        <td><?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?>
+                                                        </td>
+                                                        <!-- <td>
+                                                            <?= htmlspecialchars($personal[array_search($compra['personal_id'], array_column($personal, 'id'))]['nombre']) ?>
+                                                        </td> -->
+                                                    <!--     <td><?= htmlspecialchars($compra['fecha']) ?></td> -->
+                                                        <td><?= 'XAF' . number_format($compra['total'], 2) ?></td>
+                                                        <td>
+                                                            <?php
+                                                            $badge_class = '';
+                                                            switch ($compra['estado_pago']) {
+                                                                case 'PAGADO':
+                                                                    $badge_class = 'bg-success';
+                                                                    break;
+                                                                case 'PENDIENTE':
+                                                                    $badge_class = 'bg-danger';
+                                                                    break;
+                                                                case 'PARCIAL':
+                                                                    $badge_class = 'bg-warning';
+                                                                    break;
+                                                            }
+                                                            ?>
+                                                            <span
+                                                                class="badge <?= $badge_class ?>"><?= htmlspecialchars($compra['estado_pago']) ?></span>
+                                                        </td>
+                                                        <td><?= 'XAF' . number_format($compra['monto_pendiente'], 2) ?></td>
+                                                       
+                                                        <td class="text-end">
+                                                            <div class="class="btn-group btn-group-sm" role="group"">
+                                                            <button class="btn btn-outline-secondary px-2"
+                                                                    onclick="imprimirComprobante(<?= (int) $c['id']; ?>)"
+                                                                    title="Imprimir comprobante">
+                                                                    <i class="bi bi-printer"></i>
+                                                                </button>
+
+                                                            <button class="btn btn-sm btn-outline-info btn-ver-detalles"
+                                                                data-id="<?= htmlspecialchars($compra['id']) ?>"
+                                                                data-codigo-factura="<?= htmlspecialchars($compra['codigo_factura']) ?>"
+                                                                data-proveedor="<?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?>"
+                                                                data-personal="<?= htmlspecialchars($personal[array_search($compra['personal_id'], array_column($personal, 'id'))]['nombre']) ?>"
+                                                                data-fecha="<?= htmlspecialchars($compra['fecha']) ?>"
+                                                                data-total="<?= htmlspecialchars($compra['total']) ?>"
+                                                                data-estado-pago="<?= htmlspecialchars($compra['estado_pago']) ?>"
+                                                                data-monto-entregado="<?= htmlspecialchars($compra['monto_entregado']) ?>"
+                                                                data-monto-gastado="<?= htmlspecialchars($compra['monto_gastado']) ?>"
+                                                                data-cambio-devuelto="<?= htmlspecialchars($compra['cambio_devuelto']) ?>"
+                                                                data-monto-pendiente="<?= htmlspecialchars($compra['monto_pendiente']) ?>"
+                                                                data-bs-toggle="modal" data-bs-target="#modalVerDetalles">
+                                                                <i class="bi bi-eye"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-primary btn-editar-compra"
+                                                                data-id="<?= htmlspecialchars($compra['id']) ?>"
+                                                                data-codigo-factura="<?= htmlspecialchars($compra['codigo_factura']) ?>"
+                                                                data-proveedor-id="<?= htmlspecialchars($compra['proveedor_id']) ?>"
+                                                                data-personal-id="<?= htmlspecialchars($compra['personal_id']) ?>"
+                                                                data-fecha="<?= htmlspecialchars($compra['fecha']) ?>"
+                                                                data-monto-entregado="<?= htmlspecialchars($compra['monto_entregado']) ?>"
+                                                                data-monto-gastado="<?= htmlspecialchars($compra['monto_gastado']) ?>"
+                                                                data-cambio-devuelto="<?= htmlspecialchars($compra['cambio_devuelto']) ?>"
+                                                                data-monto-pendiente="<?= htmlspecialchars($compra['monto_pendiente']) ?>"
+                                                                data-total="<?= htmlspecialchars($compra['total']) ?>"
+                                                                data-estado-pago="<?= htmlspecialchars($compra['estado_pago']) ?>"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#modalActualizarCompra">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </button>
+                                                            <?php $montoPendiente = (float) str_replace(',', '', money($compra['monto_pendiente'])); ?>
+                                                            <?php if ($montoPendiente > 0): ?>
+                                                                    <button class="btn btn-success px-2" data-bs-toggle="modal"
+                                                                        data-bs-target="#modalPagoProveedor"
+                                                                        data-id="<?= (int) $compra['id']; ?>"
+                                                                       data-proveedor="<?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?>"
+                                                                        data-fechaCompra="<?= htmlspecialchars($compra['fecha']); ?>"
+                                                                        data-montoPendiente="<?= (float) $compra['monto_pendiente']; ?>"
+                                                                        data-factura="<?= htmlspecialchars($compra['codigo_factura']); ?>"
+                                                                        title="Registrar pago pendiente">
+                                                                        <i class="bi bi-cash-stack"></i>
+                                                                    </button>
+                                                                <?php endif; ?>
+
+                                                           <!--  <a href="api/eliminar_compra.php?id=<?= htmlspecialchars($compra['id']) ?>"
+                                                                class="btn btn-sm btn-outline-danger"
+                                                                onclick="return confirm('¿Está seguro de eliminar esta compra? Esta acción no se puede deshacer.')">
+                                                                <i class="bi bi-trash"></i>
+                                                            </a> -->
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+
+
+
+
+
+
+
+
+
+
+<!-- 
                                             <tbody>
                                                 <?php foreach ($compras as $c): ?>
                                                     <tr>
@@ -292,66 +395,66 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                                                         <td>XAF <?php echo money($c['monto_pendiente']); ?></td>
                                                         <td class="text-end">
 
-<?php $montoPendiente = (float) str_replace(',', '', money($c['monto_pendiente'])); ?>
+                                                            <?php $montoPendiente = (float) str_replace(',', '', money($c['monto_pendiente'])); ?>
 
-<div class="btn-group btn-group-sm" role="group">
+                                                            <div class="btn-group btn-group-sm" role="group">
 
-    <!-- Botón Pago -->
-    <?php if ($montoPendiente > 0): ?>
-        <button class="btn btn-success px-2"
-            data-bs-toggle="modal"
-            data-bs-target="#modalPagoProveedor"
-            data-id="<?= (int) $c['id']; ?>"
-            data-nombreProveedor="<?= htmlspecialchars($c['nombre_proveedor']); ?>"
-            data-fechaCompra="<?= htmlspecialchars($c['fecha']); ?>"
-            data-montoPendiente="<?= (float) $c['monto_pendiente']; ?>"
-            data-factura="<?= htmlspecialchars($c['factura']); ?>"
-            title="Registrar pago pendiente">
-            <i class="bi bi-cash-stack"></i>
-        </button>
-    <?php endif; ?>
+                                                               
+                                                                <?php if ($montoPendiente > 0): ?>
+                                                                    <button class="btn btn-success px-2" data-bs-toggle="modal"
+                                                                        data-bs-target="#modalPagoProveedor"
+                                                                        data-id="<?= (int) $c['id']; ?>"
+                                                                        data-nombreProveedor="<?= htmlspecialchars($c['nombre_proveedor']); ?>"
+                                                                        data-fechaCompra="<?= htmlspecialchars($c['fecha']); ?>"
+                                                                        data-montoPendiente="<?= (float) $c['monto_pendiente']; ?>"
+                                                                        data-factura="<?= htmlspecialchars($c['factura']); ?>"
+                                                                        title="Registrar pago pendiente">
+                                                                        <i class="bi bi-cash-stack"></i>
+                                                                    </button>
+                                                                <?php endif; ?>
 
-    <!-- Botón Ver Detalles -->
-    <button class="btn btn-outline-primary px-2"
-        onclick="verDetallesCompra(<?php echo (int)$c['id']; ?>)"
-        title="Detalles de la compra">
-        <i class="bi bi-eye"></i>
-    </button>
+                                                              
+                                                                <button class="btn btn-outline-primary px-2"
+                                                                    onclick="verDetallesCompra(<?php echo (int) $c['id']; ?>)"
+                                                                    title="Detalles de la compra">
+                                                                    <i class="bi bi-eye"></i>
+                                                                </button>
 
-    <!-- Botón Imprimir -->
-    <button class="btn btn-outline-secondary px-2"
-        onclick="imprimirComprobante(<?= (int) $c['id']; ?>)"
-        title="Imprimir comprobante">
-        <i class="bi bi-printer"></i>
-    </button>
+                                                              
+                                                                <button class="btn btn-outline-secondary px-2"
+                                                                    onclick="imprimirComprobante(<?= (int) $c['id']; ?>)"
+                                                                    title="Imprimir comprobante">
+                                                                    <i class="bi bi-printer"></i>
+                                                                </button>
 
-    <!-- Botón Editar -->
-    <button class="btn btn-outline-warning px-2"
-        data-bs-toggle="modal"
-        data-bs-target="#modalActualizarCompra"
-        data-id="<?= htmlspecialchars($c['id']); ?>"
-        data-codigo-factura="<?= htmlspecialchars($c['factura']); ?>"
-        data-proveedor-id="<?= htmlspecialchars($c['proveedor_id']); ?>"
-        data-personal-id="<?= htmlspecialchars($c['personal_id']); ?>"
-        data-fecha="<?= htmlspecialchars($c['fecha']); ?>"
-        data-monto-entregado="<?= htmlspecialchars($c['monto_entregado']); ?>"
-        data-monto-gastado="<?= htmlspecialchars($c['monto_gastado']); ?>"
-        data-cambio-devuelto="<?= htmlspecialchars($c['cambio_devuelto']); ?>"
-        data-monto-pendiente="<?= htmlspecialchars($c['monto_pendiente']); ?>"
-        data-total="<?= htmlspecialchars($c['total']); ?>"
-        data-estado-pago="<?= htmlspecialchars($c['estado_pago']); ?>"
-        title="Editar compra">
-        <i class="bi bi-pencil-square"></i>
-    </button>
+                                                                <button class="btn btn-outline-warning px-2"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#modalActualizarCompra"
+                                                                    data-id="<?= htmlspecialchars($c['id']); ?>"
+                                                                    data-codigo-factura="<?= htmlspecialchars($c['factura']); ?>"
+                                                                    data-proveedor-id="<?= htmlspecialchars($c['proveedor_id']); ?>"
+                                                                    data-personal-id="<?= htmlspecialchars($c['personal_id']); ?>"
+                                                                    data-fecha="<?= htmlspecialchars($c['fecha']); ?>"
+                                                                    data-monto-entregado="<?= htmlspecialchars($c['monto_entregado']); ?>"
+                                                                    data-monto-gastado="<?= htmlspecialchars($c['monto_gastado']); ?>"
+                                                                    data-cambio-devuelto="<?= htmlspecialchars($c['cambio_devuelto']); ?>"
+                                                                    data-monto-pendiente="<?= htmlspecialchars($c['monto_pendiente']); ?>"
+                                                                    data-total="<?= htmlspecialchars($c['total']); ?>"
+                                                                    data-estado-pago="<?= htmlspecialchars($c['estado_pago']); ?>"
+                                                                    title="Editar compra">
+                                                                    <i class="bi bi-pencil-square"></i>
+                                                                </button>
 
-</div>
+                                                            </div>
 
-</td>
+                                                        </td>
 
 
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
+                                        
+                                         -->
                                         </table>
                                     </div>
                                 </div>
@@ -366,9 +469,7 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                 </div>
 
             </div>
-
         </main>
-
         <!-- Offcanvas Filtros -->
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasFiltros">
             <div class="offcanvas-header">
