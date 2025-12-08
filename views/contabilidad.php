@@ -4,18 +4,7 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
 ?>
 <div id="content" class="container-fluid">
     <div class="app-shell d-flex flex-column">
-        <!-- Topbar -->
-        <nav class="navbar navbar-dark glass sticky-top shadow-sm">
-            <div class="container-fluid py-2">
-                <a class="navbar-brand fw-bold" href="#"><i class="bi bi-hospital me-2"></i>Finanzas Clínica</a>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-soft" data-bs-toggle="offcanvas" data-bs-target="#offcanvasAcciones"><i
-                            class="bi bi-plus-circle me-1"></i>Acciones rápidas</button>
-                    <button class="btn btn-soft" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFiltros"><i
-                            class="bi bi-funnel me-1"></i>Filtros</button>
-                </div>
-            </div>
-        </nav>
+
         <!-- Contenido principal -->
         <main class="container my-4">
             <!-- KPIs -->
@@ -221,6 +210,75 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                         <div class="card-body p-0">
                             <div class="table-responsive">
                                 <table class="table table-hover mb-0 align-middle">
+
+                                    <thead class="table-light text-nowrap">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Paciente</th>
+                                            <th>Atendido por</th>
+                                            <th>Fecha</th>
+                                            <th>Monto Total</th>
+                                            <th>Estado Pago</th>
+                                            <th>Método Pago</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        // Bucle para mostrar las ventas dinámicamente
+                                        foreach ($ventas as $venta):
+                                            ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($venta['id']) ?></td>
+                                                <td><?= htmlspecialchars($venta['nombre_paciente']) ?></td>
+                                                <td><?= htmlspecialchars($venta['nombre_usuario']) ?></td>
+                                                <td class="fecha-venta"><?= date('d/m/Y', strtotime($venta['fecha'])) ?>
+                                                </td>
+                                                <td class="monto-total-venta">
+                                                    <?= number_format($venta['monto_total'], 2) . ' XAF' ?>
+                                                </td>
+                                                <?php
+$estado = htmlspecialchars($venta['estado_pago']);
+$clase = ($estado === 'PAGADO') ? 'bg-success text-white fw-bold rounded px-2 py-1' 
+                                : 'bg-warning text-dark fw-bold rounded px-2 py-1';
+?>
+<td class="estado-pago">
+    <span class="<?= $clase ?>"><?= $estado ?></span>
+</td>
+
+                                                <td class="metodo-pago"><?php  if((int) $venta["seguro"] == 1) {
+                                                    echo htmlspecialchars("SEGURO");
+                                                }else {
+                                                    echo htmlspecialchars($venta['metodo_pago']);
+                                                }
+                                                    ?></td>
+                                                <td class="text-nowrap">
+                                                    <button class="btn btn-sm btn-outline-info btn-ver-detalles-venta"
+                                                        data-id="<?= $venta['id'] ?>" data-bs-toggle="modal"
+                                                        data-bs-target="#modalDetallesVenta">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-primary btn-editar-venta"
+                                                        data-id="<?= $venta['id'] ?>" data-bs-toggle="modal"
+                                                        data-bs-target="#modalEditarVenta">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+                                                    <a href="eliminar_venta_farmacia.php?id=<?= $venta['id'] ?>"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        onclick="return confirm('¿Eliminar esta venta?')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+
+
+
+                                <!-- 
+                                <table class="table table-hover mb-0 align-middle">
+                                    </thead>
                                     <thead>
                                         <tr>
                                             <th>ID</th>
@@ -249,6 +307,7 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>
+ -->
                             </div>
                         </div>
                     </div>
@@ -381,82 +440,14 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
 
             </div>
         </main>
-        <!-- Offcanvas Filtros -->
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasFiltros">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title"><i class="bi bi-funnel me-2"></i>Filtros</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
-                    aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <div class="mb-3">
-                    <label class="form-label">Rango de fechas</label>
-                    <div class="input-group">
-                        <input type="date" class="form-control" id="fdesde">
-                        <input type="date" class="form-control" id="fhasta">
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Paciente</label>
-                    <select class="form-select" id="fpaciente">
-                        <option value="">Todos</option>
-                        <?php foreach ($pacientes as $p): ?>
-                            <option value="<?php echo (int) $p['id']; ?>"><?php echo htmlspecialchars($p['nom']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <button class="btn btn-success w-100"><i class="bi bi-funnel"></i> Aplicar</button>
-            </div>
-        </div>
-
-        <!-- Offcanvas Acciones rápidas -->
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAcciones">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title"><i class="bi bi-lightning-charge me-2"></i>Acciones rápidas</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
-                    aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <div class="d-grid gap-2">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNuevaVenta"><i
-                            class="bi bi-cart-plus me-1"></i> Registrar venta</button>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearCompra"><i
-                            class="bi bi-bag-plus me-1"></i> Registrar compra</button>
-                    <a href="#pills-consultas" class="btn btn-soft" data-bs-toggle="pill"><i
-                            class="bi bi-clipboard2-pulse me-1"></i> Ir a consultas</a>
-                    <a href="#pills-analiticas" class="btn btn-soft" data-bs-toggle="pill"><i
-                            class="bi bi-lab me-1"></i> Ir a analíticas</a>
-                    <a href="#pills-farmacia" class="btn btn-soft" data-bs-toggle="pill"><i
-                            class="bi bi-capsule-pill me-1"></i> Ir a farmacia</a>
-                </div>
-            </div>
-        </div>
-
+      
 
 
         <!-- =================== MODALES =================== -->
         <?php require("modals/modals_contabilidad.php"); ?>
 
 
-        <!-- Toast de feedback -->
-        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
-            <div id="appToast"
-                class="toast align-items-center text-bg-<?php echo $flash['type'] ?? 'secondary'; ?> border-0"
-                role="alert" aria-live="assertive" aria-atomic="true" <?php echo $flash ? 'data-bs-autohide="true"' : 'data-bs-autohide="false"'; ?>>
-                <div class="d-flex">
-                    <div class="toast-body">
-                        <?php echo htmlspecialchars($flash['msg'] ?? 'Listo'); ?>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-                </div>
-            </div>
-        </div>
-
-        <footer class="container py-4 text-center text-secondary">
-            <small>© <?php echo date('Y'); ?> Finanzas Clínica — Dr. Óscar.</small>
-        </footer>
+       
     </div>
 </div>
 

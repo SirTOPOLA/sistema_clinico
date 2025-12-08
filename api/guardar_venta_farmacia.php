@@ -17,7 +17,13 @@
 require_once '../config/conexion.php';
 // Se inicia la sesión para manejar mensajes de éxito o error
 session_start();
-
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION['usuario'])) {
+    header("Location: index.php?vista=login");
+    exit;
+}
 // Habilitar la visualización de errores para depuración (deshabilitar en producción)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -38,13 +44,13 @@ try {
     // Se utiliza FILTER_SANITIZE_NUMBER_INT y FILTER_SANITIZE_NUMBER_FLOAT
     // para asegurar que los datos numéricos sean seguros.
     $paciente_id = filter_input(INPUT_POST, 'paciente_id', FILTER_SANITIZE_NUMBER_INT);
-    $usuario_id = filter_input(INPUT_POST, 'id_usuario', FILTER_SANITIZE_NUMBER_INT);
+    $usuario_id = $_SESSION['usuario']["id"];
     $fecha = filter_input(INPUT_POST, 'fecha', FILTER_SANITIZE_STRING);
     $monto_total = filter_input(INPUT_POST, 'monto_total', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
     $monto_recibido = filter_input(INPUT_POST, 'monto_recibido', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
     $metodo_pago = filter_input(INPUT_POST, 'metodo_pago', FILTER_SANITIZE_STRING);
-    $estado_pago = filter_input(INPUT_POST, 'estado_pago', FILTER_SANITIZE_STRING);
-    $seguro = filter_input(INPUT_POST, 'seguro', FILTER_SANITIZE_NUMBER_INT) ?? 0;
+    // $estado_pago = filter_input(INPUT_POST, 'estado_pago', FILTER_SANITIZE_STRING);
+    //$seguro = filter_input(INPUT_POST, 'seguro', FILTER_SANITIZE_STRING);
     $productos = $_POST['productos'] ?? [];
 
     // Validar que los datos mínimos de la venta estén presentes
@@ -56,8 +62,9 @@ try {
     $monto_total = (float) $monto_total;
 
     // Lógica para el seguro o pago regular
-    if ($seguro == 1) {
+    if ($metodo_pago == "seguro") {
         $metodo_pago_final = 'SEGURO';
+        $seguro = 1;
         $estado_pago_final = 'PAGADO';
         $monto_recibido_final = 0.0;
         $cambio_devuelto_final = 0.0;
@@ -73,7 +80,12 @@ try {
         $seguro_data = $stmt_seguro->fetch(PDO::FETCH_ASSOC);
 
         if (!$seguro_data) {
-            $_SESSION['error'] = "El paciente seleccionado no tiene un seguro asociado.";
+
+            $_SESSION['alerta'] = [
+                'tipo' => 'danger',
+                'mensaje' => "El paciente seleccionado no tiene un seguro asociado."
+            ];
+
             throw new Exception("Paciente sin seguro.");
         }
 
@@ -82,7 +94,11 @@ try {
 
         // 2. Verificar si el saldo es suficiente
         if ($saldo_actual < $monto_total) {
-            $_SESSION['error'] = "Saldo insuficiente en el seguro del paciente.";
+            $_SESSION['alerta'] = [
+                'tipo' => 'warning',
+                'mensaje' => "Saldo insuficiente en el seguro del paciente."
+            ];
+
             throw new Exception("Saldo insuficiente.");
         }
 
@@ -106,7 +122,7 @@ try {
 
         if ($monto_recibido < $monto_total) {
             // Establecer el estado como PENDIENTE
-            $estado_pago_final = 'PENDIENTE'; 
+            $estado_pago_final = 'PENDIENTE';
         } else {
             // Se asegura que si el monto recibido es igual o mayor, el estado sea PAGADO
             $estado_pago_final = 'PAGADO';
@@ -126,6 +142,11 @@ try {
         $cantidad = filter_var($producto['cantidad'], FILTER_SANITIZE_NUMBER_INT);
 
         if (!$producto_id || !$cantidad) {
+            $_SESSION['alerta'] = [
+                'tipo' => 'warning',
+                'mensaje' => "Datos de producto incompletos o inválidos."
+            ];
+
             throw new Exception("Datos de producto incompletos o inválidos.");
         }
 
@@ -136,6 +157,10 @@ try {
         // Si la actualización no afectó a ninguna fila, significa que no había suficiente stock.
         if ($stmt_stock->rowCount() === 0) {
             // Lanzar una excepción para que se active el rollback.
+            $_SESSION['alerta'] = [
+                'tipo' => 'danger',
+                'mensaje' => "No hay suficiente stock para el producto con ID: {$producto_id}"
+            ];
             throw new Exception("No hay suficiente stock para el producto con ID: {$producto_id}.");
         }
     }
@@ -175,15 +200,22 @@ try {
         $precio_data = $stmt_precio->fetch(PDO::FETCH_ASSOC);
 
         if (!$precio_data) {
-            $_SESSION['error'] = "No se pudo encontrar el producto con ID {$producto_id} para obtener el precio.";
-            throw new Exception($_SESSION['error']);
+            $_SESSION['alerta'] = [
+                'tipo' => 'danger',
+                'mensaje' => "No se pudo encontrar el producto con ID {$producto_id} para obtener el precio."
+            ];
+            throw new Exception($_SESSION['alerta']);
         }
 
         $precio_venta = (float) $precio_data['precio_unitario'];
 
         if ($precio_venta <= 0) {
-            $_SESSION['error'] = "El precio del producto con ID {$producto_id} es inválido (menor o igual a cero).";
-            throw new Exception($_SESSION['error']);
+
+            $_SESSION['alerta'] = [
+                'tipo' => 'danger',
+                'mensaje' => "El precio del producto con ID {$producto_id} es inválido (menor o igual a cero)"
+            ];
+            throw new Exception($_SESSION['alerta']);
         }
 
         $stmt_detalle->execute([
@@ -200,7 +232,7 @@ try {
     if ($estado_pago_final === 'PENDIENTE') {
         // Se calcula el monto restante a pagar
         $monto_restante = $monto_total - $monto_recibido_final;
-        
+
         if ($monto_restante > 0) {
             $sql_prestamo = "INSERT INTO prestamos (paciente_id, total, estado, fecha) 
                              VALUES (:paciente_id, :total, 'PENDIENTE', :fecha)";
@@ -223,7 +255,11 @@ try {
     $pdo->rollBack();
     // Se guarda un mensaje de error en la sesión. Se da prioridad al mensaje
     // ya establecido por la lógica del seguro o stock, si existe.
-    $_SESSION['error'] = $_SESSION['error'] ?? 'Error al registrar la venta: ' . $e->getMessage();
+
+    $_SESSION['alerta'] = [
+        'tipo' => 'danger',
+        'mensaje' => "'Error al registrar la venta: '  {$e->getMessage()}"
+    ];
 }
 
 // Redirigir al usuario de vuelta a la página de ventas.

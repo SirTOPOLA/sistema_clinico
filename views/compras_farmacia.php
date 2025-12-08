@@ -1,9 +1,9 @@
-<?php 
+<?php
 $mensaje_error = null;
 $mensaje_exito = null;
 
 try {
-    
+
 
     // === Consultar compras con nombre de proveedor y personal ===
     $sql_compras = "SELECT c.*, 
@@ -35,9 +35,9 @@ try {
     $personal = $stmt_personal->fetchAll(PDO::FETCH_ASSOC);
 
     // === Consultar productos ===
-    $sql_productos = "SELECT * FROM productos ORDER BY nombre";
-    $stmt_productos = $pdo->query($sql_productos);
-    $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
+
+    $productos = $pdo->query("SELECT * FROM productos ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
+
 
 } catch (PDOException $e) {
     $compras = [];
@@ -117,8 +117,10 @@ unset($_SESSION['error'], $_SESSION['success']);
                                     <i class="bi bi-lock-fill text-muted" title="Sin código de factura"></i>
                                 <?php endif; ?>
                             </td>
-                            <td><?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?></td>
-                            <td><?= htmlspecialchars($personal[array_search($compra['personal_id'], array_column($personal, 'id'))]['nombre']) ?></td>
+                            <td><?= htmlspecialchars($proveedores[array_search($compra['proveedor_id'], array_column($proveedores, 'id'))]['nombre']) ?>
+                            </td>
+                            <td><?= htmlspecialchars($personal[array_search($compra['personal_id'], array_column($personal, 'id'))]['nombre']) ?>
+                            </td>
                             <td><?= htmlspecialchars($compra['fecha']) ?></td>
                             <td><?= 'XAF' . number_format($compra['total'], 2) ?></td>
                             <td>
@@ -136,7 +138,8 @@ unset($_SESSION['error'], $_SESSION['success']);
                                         break;
                                 }
                                 ?>
-                                <span class="badge <?= $badge_class ?>"><?= htmlspecialchars($compra['estado_pago']) ?></span>
+                                <span
+                                    class="badge <?= $badge_class ?>"><?= htmlspecialchars($compra['estado_pago']) ?></span>
                             </td>
                             <td class="text-nowrap">
                                 <button class="btn btn-sm btn-outline-info btn-ver-detalles"
@@ -151,8 +154,7 @@ unset($_SESSION['error'], $_SESSION['success']);
                                     data-monto-gastado="<?= htmlspecialchars($compra['monto_gastado']) ?>"
                                     data-cambio-devuelto="<?= htmlspecialchars($compra['cambio_devuelto']) ?>"
                                     data-monto-pendiente="<?= htmlspecialchars($compra['monto_pendiente']) ?>"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalVerDetalles">
+                                    data-bs-toggle="modal" data-bs-target="#modalVerDetalles">
                                     <i class="bi bi-eye"></i>
                                 </button>
                                 <button class="btn btn-sm btn-outline-primary btn-editar-compra"
@@ -167,8 +169,7 @@ unset($_SESSION['error'], $_SESSION['success']);
                                     data-monto-pendiente="<?= htmlspecialchars($compra['monto_pendiente']) ?>"
                                     data-total="<?= htmlspecialchars($compra['total']) ?>"
                                     data-estado-pago="<?= htmlspecialchars($compra['estado_pago']) ?>"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalActualizarCompra">
+                                    data-bs-toggle="modal" data-bs-target="#modalActualizarCompra">
                                     <i class="bi bi-pencil"></i>
                                 </button>
                                 <a href="api/eliminar_compra.php?id=<?= htmlspecialchars($compra['id']) ?>"
@@ -190,18 +191,20 @@ unset($_SESSION['error'], $_SESSION['success']);
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="modalCrearCompraLabel"><i class="bi bi-plus-circle me-2"></i>Registrar Compra</h5>
+                <h5 class="modal-title" id="modalCrearCompraLabel"><i class="bi bi-plus-circle me-2"></i>Registrar
+                    Compra</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formCrearCompra" action="api/guardar_compra.php" method="POST"> 
+                <form id="formCrearCompra" action="api/guardar_compra.php" method="POST">
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label for="proveedor_crear" class="form-label">Proveedor</label>
                             <select class="form-select" id="proveedor_crear" name="proveedor_id" required>
                                 <option value="" disabled selected>Seleccione un proveedor</option>
                                 <?php foreach ($proveedores as $prov): ?>
-                                    <option value="<?= htmlspecialchars($prov['id']) ?>"><?= htmlspecialchars($prov['nombre']) ?></option>
+                                    <option value="<?= htmlspecialchars($prov['id']) ?>">
+                                        <?= htmlspecialchars($prov['nombre']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -210,7 +213,8 @@ unset($_SESSION['error'], $_SESSION['success']);
                             <select class="form-select" id="personal_crear" name="personal_id" required>
                                 <option value="" disabled selected>Seleccione el personal</option>
                                 <?php foreach ($personal as $pers): ?>
-                                    <option value="<?= htmlspecialchars($pers['id']) ?>"><?= htmlspecialchars($pers['nombre']) ?></option>
+                                    <option value="<?= htmlspecialchars($pers['id']) ?>">
+                                        <?= htmlspecialchars($pers['nombre']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -221,7 +225,8 @@ unset($_SESSION['error'], $_SESSION['success']);
                         <div class="col-md-6">
                             <div class="form-check form-switch mt-4">
                                 <input class="form-check-input" type="checkbox" id="checkFacturaCrear">
-                                <label class="form-check-label" for="checkFacturaCrear">Agregar Código de Factura</label>
+                                <label class="form-check-label" for="checkFacturaCrear">Agregar Código de
+                                    Factura</label>
                             </div>
                         </div>
                         <div class="col-md-6" id="wrapperFacturaCrear" style="display: none;">
@@ -238,36 +243,45 @@ unset($_SESSION['error'], $_SESSION['success']);
                                 <select class="form-select producto-select" name="productos[0][id]" required>
                                     <option value="" disabled selected>Seleccione un producto</option>
                                     <?php foreach ($productos as $prod): ?>
-                                        <option value="<?= htmlspecialchars($prod['id']) ?>"><?= htmlspecialchars($prod['nombre']) ?></option>
+                                        <option value="<?= htmlspecialchars($prod['id']) ?>">
+                                            <?= htmlspecialchars($prod['nombre']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Cantidad</label>
-                                <input type="number" class="form-control producto-cantidad" name="productos[0][cantidad]" min="1" required>
+                                <input type="number" class="form-control producto-cantidad"
+                                    name="productos[0][cantidad]" min="1" required>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Precio Compra</label>
-                                <input type="number" class="form-control producto-precio" name="productos[0][precio]" step="0.01" required>
+                                <input type="number" class="form-control producto-precio" name="productos[0][precio]"
+                                    step="0.01" required>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Precio Venta</label>
-                                <input type="number" class="form-control producto-precio-venta" name="productos[0][precio_venta]" step="0.01">
+                                <input type="number" class="form-control producto-precio-venta"
+                                    name="productos[0][precio_venta]" step="0.01">
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Detalles</label>
                                 <p class="form-control-plaintext mb-0">
-                                    <strong class="text-muted">Compra:</strong> <span class="total-compra">XAF 0.00</span><br>
-                                    <strong class="text-success">Venta:</strong> <span class="total-venta">XAF 0.00</span><br>
-                                    <strong class="text-primary">Beneficio:</strong> <span class="beneficio">XAF 0.00</span>
+                                    <strong class="text-muted">Compra:</strong> <span class="total-compra">XAF
+                                        0.00</span><br>
+                                    <strong class="text-success">Venta:</strong> <span class="total-venta">XAF
+                                        0.00</span><br>
+                                    <strong class="text-primary">Beneficio:</strong> <span class="beneficio">XAF
+                                        0.00</span>
                                 </p>
                             </div>
                             <div class="col-md-12 text-end">
-                                <button type="button" class="btn btn-danger btn-sm remove-producto"><i class="bi bi-x-circle"></i> Eliminar</button>
+                                <button type="button" class="btn btn-danger btn-sm remove-producto"><i
+                                        class="bi bi-x-circle"></i> Eliminar</button>
                             </div>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm mb-3" id="add-producto-crear"><i class="bi bi-plus-circle me-1"></i>Agregar otro producto</button>
+                    <button type="button" class="btn btn-secondary btn-sm mb-3" id="add-producto-crear"><i
+                            class="bi bi-plus-circle me-1"></i>Agregar otro producto</button>
 
                     <hr>
                     <div class="row g-3">
@@ -281,31 +295,36 @@ unset($_SESSION['error'], $_SESSION['success']);
                         </div>
                         <div class="col-md-6">
                             <label for="monto_entregado_crear" class="form-label">Monto Entregado (XAF)</label>
-                            <input type="number" class="form-control" id="monto_entregado_crear" name="monto_entregado" step="0.01" disabled>
+                            <input type="number" class="form-control" id="monto_entregado_crear" name="monto_entregado"
+                                step="0.01" disabled>
                         </div>
                         <div class="col-md-6">
                             <p class="mt-3"><strong>Total a Pagar:</strong> <span id="total_crear">XAF 0.00</span></p>
                         </div>
                         <div class="col-md-6">
-                            <p class="mt-3"><strong>Cambio / Pendiente:</strong> <span id="cambio_pendiente_crear">XAF 0.00</span></p>
+                            <p class="mt-3"><strong>Cambio / Pendiente:</strong> <span id="cambio_pendiente_crear">XAF
+                                    0.00</span></p>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="formCrearCompra" class="btn btn-primary"><i class="bi bi-save me-1"></i>Guardar Compra</button>
+                <button type="submit" form="formCrearCompra" class="btn btn-primary"><i
+                        class="bi bi-save me-1"></i>Guardar Compra</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal Actualizar Compra -->
-<div class="modal fade" id="modalActualizarCompra" tabindex="-1" aria-labelledby="modalActualizarCompraLabel" aria-hidden="true">
+<div class="modal fade" id="modalActualizarCompra" tabindex="-1" aria-labelledby="modalActualizarCompraLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalActualizarCompraLabel"><i class="bi bi-pencil me-2"></i>Actualizar Compra</h5>
+                <h5 class="modal-title" id="modalActualizarCompraLabel"><i class="bi bi-pencil me-2"></i>Actualizar
+                    Compra</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -317,7 +336,8 @@ unset($_SESSION['error'], $_SESSION['success']);
                             <select class="form-select" id="proveedor_actualizar" name="proveedor_id" required>
                                 <option value="" disabled selected>Seleccione un proveedor</option>
                                 <?php foreach ($proveedores as $prov): ?>
-                                    <option value="<?= htmlspecialchars($prov['id']) ?>"><?= htmlspecialchars($prov['nombre']) ?></option>
+                                    <option value="<?= htmlspecialchars($prov['id']) ?>">
+                                        <?= htmlspecialchars($prov['nombre']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -326,7 +346,8 @@ unset($_SESSION['error'], $_SESSION['success']);
                             <select class="form-select" id="personal_actualizar" name="personal_id" required>
                                 <option value="" disabled selected>Seleccione el personal</option>
                                 <?php foreach ($personal as $pers): ?>
-                                    <option value="<?= htmlspecialchars($pers['id']) ?>"><?= htmlspecialchars($pers['nombre']) ?></option>
+                                    <option value="<?= htmlspecialchars($pers['id']) ?>">
+                                        <?= htmlspecialchars($pers['nombre']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -337,12 +358,14 @@ unset($_SESSION['error'], $_SESSION['success']);
                         <div class="col-md-6">
                             <div class="form-check form-switch mt-4">
                                 <input class="form-check-input" type="checkbox" id="checkFacturaActualizar">
-                                <label class="form-check-label" for="checkFacturaActualizar">Agregar Código de Factura</label>
+                                <label class="form-check-label" for="checkFacturaActualizar">Agregar Código de
+                                    Factura</label>
                             </div>
                         </div>
                         <div class="col-md-6" id="wrapperFacturaActualizar" style="display: none;">
                             <label for="codigo_factura_actualizar" class="form-label">Código de Factura</label>
-                            <input type="text" class="form-control" id="codigo_factura_actualizar" name="codigo_factura">
+                            <input type="text" class="form-control" id="codigo_factura_actualizar"
+                                name="codigo_factura">
                         </div>
                     </div>
 
@@ -350,7 +373,8 @@ unset($_SESSION['error'], $_SESSION['success']);
                     <div id="productos-container-actualizar">
                         <!-- Los productos se cargarán aquí con JS -->
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm mb-3" id="add-producto-actualizar"><i class="bi bi-plus-circle me-1"></i>Agregar otro producto</button>
+                    <button type="button" class="btn btn-secondary btn-sm mb-3" id="add-producto-actualizar"><i
+                            class="bi bi-plus-circle me-1"></i>Agregar otro producto</button>
 
                     <hr>
                     <div class="row g-3">
@@ -364,20 +388,24 @@ unset($_SESSION['error'], $_SESSION['success']);
                         </div>
                         <div class="col-md-6">
                             <label for="monto_entregado_actualizar" class="form-label">Monto Entregado (XAF)</label>
-                            <input type="number" class="form-control" id="monto_entregado_actualizar" name="monto_entregado" step="0.01" disabled>
+                            <input type="number" class="form-control" id="monto_entregado_actualizar"
+                                name="monto_entregado" step="0.01" disabled>
                         </div>
                         <div class="col-md-6">
-                            <p class="mt-3"><strong>Total a Pagar:</strong> <span id="total_actualizar">XAF 0.00</span></p>
+                            <p class="mt-3"><strong>Total a Pagar:</strong> <span id="total_actualizar">XAF 0.00</span>
+                            </p>
                         </div>
                         <div class="col-md-6">
-                            <p class="mt-3"><strong>Cambio / Pendiente:</strong> <span id="cambio_pendiente_actualizar">XAF 0.00</span></p>
+                            <p class="mt-3"><strong>Cambio / Pendiente:</strong> <span
+                                    id="cambio_pendiente_actualizar">XAF 0.00</span></p>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" form="formActualizarCompra" class="btn btn-primary"><i class="bi bi-save me-1"></i>Actualizar Compra</button>
+                <button type="submit" form="formActualizarCompra" class="btn btn-primary"><i
+                        class="bi bi-save me-1"></i>Actualizar Compra</button>
             </div>
         </div>
     </div>
@@ -388,7 +416,8 @@ unset($_SESSION['error'], $_SESSION['success']);
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="modalVerDetallesLabel"><i class="bi bi-receipt me-2"></i>Detalles de Compra</h5>
+                <h5 class="modal-title" id="modalVerDetallesLabel"><i class="bi bi-receipt me-2"></i>Detalles de Compra
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -490,7 +519,7 @@ unset($_SESSION['error'], $_SESSION['success']);
             const container = document.getElementById(`productos-container-${modalId}`);
             let totalGeneralCompra = 0;
             const items = container.querySelectorAll('.producto-item');
-            
+
             items.forEach(item => {
                 const cantidadInput = item.querySelector('.producto-cantidad');
                 const precioInput = item.querySelector('.producto-precio');
@@ -499,17 +528,17 @@ unset($_SESSION['error'], $_SESSION['success']);
                 const precio = parseFloat(precioInput.value) || 0;
                 totalGeneralCompra += cantidad * precio;
             });
-            
+
             const totalSpan = document.getElementById(`total_${modalId}`);
             totalSpan.textContent = `XAF${totalGeneralCompra.toFixed(2)}`;
 
             const montoEntregadoInput = document.getElementById(`monto_entregado_${modalId}`);
             const cambioPendienteSpan = document.getElementById(`cambio_pendiente_${modalId}`);
-            
+
             // Habilita/Deshabilita el campo de monto entregado
             const estadoPagoSelect = document.getElementById(`estado_pago_${modalId}`);
             const estado = estadoPagoSelect.value;
-            
+
             if (estado === "PENDIENTE") {
                 montoEntregadoInput.value = '';
                 montoEntregadoInput.disabled = true;
@@ -519,7 +548,7 @@ unset($_SESSION['error'], $_SESSION['success']);
 
             const montoEntregado = parseFloat(montoEntregadoInput.value) || 0;
             let cambioPendiente = montoEntregado - totalGeneralCompra;
-            
+
             // Alternar color y símbolo
             if (cambioPendiente >= 0) {
                 cambioPendienteSpan.style.color = 'blue';
@@ -536,7 +565,7 @@ unset($_SESSION['error'], $_SESSION['success']);
             // Asegúrate de que los datos de productos estén disponibles
             const productosData = <?= json_encode($productos); ?>;
             const newIndex = container.children.length;
-            
+
             // Buscar el precio unitario del producto si se proporciona un ID
             let precioUnitarioProducto = null;
             if (data.producto_id) {
@@ -583,7 +612,7 @@ unset($_SESSION['error'], $_SESSION['success']);
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', newItemHtml);
-            
+
             const newElement = container.lastElementChild;
             // Después de agregar el elemento, establecer el valor seleccionado y recalcular
             if (data.producto_id) {
@@ -592,7 +621,7 @@ unset($_SESSION['error'], $_SESSION['success']);
             }
             recalcularProductoTotales(newElement);
         }
-        
+
         // Helper para buscar el precio unitario de un producto
         function getPrecioUnitarioById(productId, productosData) {
             const producto = productosData.find(p => p.id == productId);
@@ -606,12 +635,12 @@ unset($_SESSION['error'], $_SESSION['success']);
         const checkFacturaCrear = document.getElementById('checkFacturaCrear');
         const wrapperFacturaCrear = document.getElementById('wrapperFacturaCrear');
         const productosData = <?= json_encode($productos); ?>;
-        
+
         // Listener para agregar productos
         addProductoCrearBtn.addEventListener('click', () => agregarFilaProducto('productos-container-crear'));
-        
+
         // Manejar el toggle del campo de factura en el modal de creación
-        checkFacturaCrear.addEventListener('change', function() {
+        checkFacturaCrear.addEventListener('change', function () {
             wrapperFacturaCrear.style.display = this.checked ? 'block' : 'none';
         });
 
@@ -622,18 +651,18 @@ unset($_SESSION['error'], $_SESSION['success']);
                 const item = e.target.closest('.producto-item');
                 const precioVentaInput = item.querySelector('.producto-precio-venta');
                 const precioUnitario = getPrecioUnitarioById(selectedProductId, productosData);
-                
+
                 if (precioUnitario !== null) {
                     precioVentaInput.value = precioUnitario;
                 } else {
                     precioVentaInput.value = '';
                 }
-                
+
                 recalcularProductoTotales(item);
                 recalcularTotalCompra('crear');
             }
         });
-        
+
         productosContainerCrear.addEventListener('input', (e) => {
             if (e.target.matches('.producto-cantidad') || e.target.matches('.producto-precio') || e.target.matches('.producto-precio-venta')) {
                 const item = e.target.closest('.producto-item');
@@ -648,11 +677,11 @@ unset($_SESSION['error'], $_SESSION['success']);
                 recalcularTotalCompra('crear');
             }
         });
-        
+
         // Listener para el campo de monto entregado y estado de pago en el modal de Creación
         document.getElementById('monto_entregado_crear').addEventListener('input', () => recalcularTotalCompra('crear'));
         document.getElementById('estado_pago_crear').addEventListener('change', () => recalcularTotalCompra('crear'));
-        
+
         // Al abrir el modal, asegurar el cálculo inicial
         modalCrearCompra.addEventListener('show.bs.modal', function () {
             recalcularTotalCompra('crear');
@@ -669,12 +698,12 @@ unset($_SESSION['error'], $_SESSION['success']);
 
         // Listener para agregar productos en el modal de actualización
         addProductoActualizarBtn.addEventListener('click', () => agregarFilaProducto('productos-container-actualizar'));
-        
+
         // Manejar el toggle del campo de factura en el modal de actualización
-        checkFacturaActualizar.addEventListener('change', function() {
+        checkFacturaActualizar.addEventListener('change', function () {
             wrapperFacturaActualizar.style.display = this.checked ? 'block' : 'none';
         });
-        
+
         // Event listener para los cambios en el contenedor de productos (delegación de eventos)
         productosContainerActualizar.addEventListener('change', (e) => {
             if (e.target.matches('.producto-select')) {
@@ -682,7 +711,7 @@ unset($_SESSION['error'], $_SESSION['success']);
                 const item = e.target.closest('.producto-item');
                 const precioVentaInput = item.querySelector('.producto-precio-venta');
                 const precioUnitario = getPrecioUnitarioById(selectedProductId, productosData);
-                
+
                 if (precioUnitario !== null) {
                     precioVentaInput.value = precioUnitario;
                 } else {
@@ -693,7 +722,7 @@ unset($_SESSION['error'], $_SESSION['success']);
                 recalcularTotalCompra('actualizar');
             }
         });
-        
+
         productosContainerActualizar.addEventListener('input', (e) => {
             if (e.target.matches('.producto-cantidad') || e.target.matches('.producto-precio') || e.target.matches('.producto-precio-venta')) {
                 const item = e.target.closest('.producto-item');
@@ -708,11 +737,11 @@ unset($_SESSION['error'], $_SESSION['success']);
                 recalcularTotalCompra('actualizar');
             }
         });
-        
+
         // Listener para el campo de monto entregado y estado de pago en el modal de Actualización
         document.getElementById('monto_entregado_actualizar').addEventListener('input', () => recalcularTotalCompra('actualizar'));
         document.getElementById('estado_pago_actualizar').addEventListener('change', () => recalcularTotalCompra('actualizar'));
-        
+
         // Al mostrar el modal de actualización, cargar los datos y recalcular
         modalActualizarCompra.addEventListener('show.bs.modal', function (event) {
             // Lógica para llenar el modal de actualización de compra
@@ -724,7 +753,7 @@ unset($_SESSION['error'], $_SESSION['success']);
             const fecha = btn.getAttribute('data-fecha');
             const estadoPago = btn.getAttribute('data-estado-pago');
             const montoEntregado = btn.getAttribute('data-monto-entregado');
-            
+
             // Llenar los campos del formulario de actualización
             document.getElementById('compra_id_actualizar').value = id;
             document.getElementById('proveedor_actualizar').value = proveedorId;
@@ -732,7 +761,7 @@ unset($_SESSION['error'], $_SESSION['success']);
             document.getElementById('fecha_actualizar').value = fecha;
             document.getElementById('estado_pago_actualizar').value = estadoPago;
             document.getElementById('monto_entregado_actualizar').value = parseFloat(montoEntregado).toFixed(2);
-            
+
             // Lógica para el campo de factura
             const hasFactura = codigoFactura && codigoFactura !== 'NULL' && codigoFactura !== '';
             checkFacturaActualizar.checked = hasFactura;
@@ -742,7 +771,7 @@ unset($_SESSION['error'], $_SESSION['success']);
             // Cargar los productos de la compra
             const detalles = <?= json_encode($comprasDetalle); ?>;
             productosContainerActualizar.innerHTML = '';
-            
+
             if (detalles[id]) {
                 detalles[id].forEach((detalle) => {
                     agregarFilaProducto('productos-container-actualizar', detalle);
@@ -753,7 +782,7 @@ unset($_SESSION['error'], $_SESSION['success']);
         });
 
         // --- Lógica del Buscador y Mensajes de Alerta (sin cambios) ---
-        
+
         // Función para manejar la visibilidad del campo de factura
         function toggleFacturaVisibility(checkboxId, wrapperId, inputId) {
             const checkbox = document.getElementById(checkboxId);
@@ -761,7 +790,7 @@ unset($_SESSION['error'], $_SESSION['success']);
             const input = document.getElementById(inputId);
 
             if (checkbox && wrapper && input) {
-                checkbox.addEventListener('change', function() {
+                checkbox.addEventListener('change', function () {
                     if (this.checked) {
                         wrapper.style.display = 'block';
                     } else {
@@ -770,7 +799,7 @@ unset($_SESSION['error'], $_SESSION['success']);
                 });
             }
         }
-        
+
         // Inicializar la lógica para el campo de factura en el modal de detalles
         toggleFacturaVisibility('checkFacturaDetalle', 'wrapperFacturaDetalle', 'detalle-codigo-factura');
 
@@ -823,7 +852,7 @@ unset($_SESSION['error'], $_SESSION['success']);
                     detalles[id].forEach(detalle => {
                         const productoNombre = productosData.find(p => p.id === detalle.producto_id)?.nombre || 'Producto Desconocido';
                         const precioUnitario = getPrecioUnitarioById(detalle.producto_id, productosData);
-                        
+
                         // Usar el precio de venta de los detalles o el precio unitario del producto si no está en los detalles
                         const precioVenta = detalle.precio_venta || (precioUnitario !== null ? precioUnitario : 'N/A');
 
@@ -856,7 +885,7 @@ unset($_SESSION['error'], $_SESSION['success']);
                 }
             }
         });
-        
+
         setTimeout(() => {
             const mensaje = document.getElementById('mensaje');
             if (mensaje) {

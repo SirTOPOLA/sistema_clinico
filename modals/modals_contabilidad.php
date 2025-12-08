@@ -490,99 +490,7 @@
 
 
 <!-- ============================= VENTAS ======================= -->
-<!-- Nueva venta (farmacia) -->
-<!-- <div class="modal fade" id="modalNuevaVenta" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <form class="modal-content" method="post" onsubmit="return buildVentaItemsJson()">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-cart-plus me-2"></i>Nueva venta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="csrf" value="<?php echo csrf_token(); ?>">
-                <input type="hidden" name="accion" value="nueva_venta">
-                <input type="hidden" name="items_json" id="venta_items_json">
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Paciente (opcional)</label>
-                        <select name="paciente_id" class="form-select">
-                            <option value="">Sin paciente</option>
-                            <?php foreach ($pacientes as $p): ?>
-                                <option value="<?php echo (int) $p['id']; ?>">
-                                    <?php echo htmlspecialchars($p['nom']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Método de pago</label>
-                        <select name="metodo_pago" class="form-select">
-                            <option>EFECTIVO</option>
-                            <option>TARJETA</option>
-                            <option>TRANSFERENCIA</option>
-                            <option>OTRO</option>
-                        </select>
-                    </div>
-                </div>
-
-                <hr>
-                <div class="table-responsive">
-                    <table class="table align-middle" id="tablaVentaItems">
-                        <thead>
-                            <tr>
-                                <th style="min-width:220px">Producto</th>
-                                <th>Cant.</th>
-                                <th>Precio</th>
-                                <th class="text-end">Subtotal</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <select class="form-select form-select-sm prod-select">
-                                        <option value="">Selecciona...</option>
-                                        <?php foreach ($productos as $pr): ?>
-                                            <option value="<?php echo (int) $pr['id']; ?>"
-                                                data-precio="<?php echo (float) $pr['precio_unitario']; ?>">
-                                                <?php echo htmlspecialchars($pr['nombre']); ?> — XAF
-                                                <?php echo money($pr['precio_unitario'] ?? 0); ?> (Stock:
-                                                <?php echo (int) $pr['stock_actual']; ?>)
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </td>
-                                <td><input type="number" min="1" value="1"
-                                        class="form-control form-control-sm cantidad"></td>
-                                <td><input type="number" step="0.01" class="form-control form-control-sm precio"></td>
-                                <td class="text-end subtotal">XAF 0,00</td>
-                                <td class="text-end"><button type="button" class="btn btn-sm btn-danger"
-                                        onclick="removeRow(this)"><i class="bi bi-x"></i></button></td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="3" class="text-end">Total</th>
-                                <th class="text-end" id="ventaTotal">XAF 0,00</th>
-                                <th class="text-end"><button type="button" class="btn btn-sm btn-primary"
-                                        onclick="addRow()"><i class="bi bi-plus"></i></button></th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Guardar
-                    venta</button>
-            </div>
-        </form>
-    </div>
-</div>
- -->
-
-
+ 
 
 
 <div class="modal fade" id="modalNuevaVenta" tabindex="-1">
@@ -646,38 +554,28 @@
                 <hr class="my-3">
                 <div class="col-md-6">
                     <label class="form-label">Método de Pago</label>
-                    <select name="metodo_pago" class="form-select">
-                        <option value="EFECTIVO">Efectivo</option>
-                        <option value="TARJETA">Tarjeta</option>
-                        <option value="TRANSFERENCIA">Transferencia</option>
-                        <option value="OTRO">Otro</option>
+                    <select name="metodo_pago" class="form-select" id="metodo_pago"> 
+                        <option value="efectivo">Efectivo</option>                         
+                        <option id="seguro" value="seguro">Con Seguro</option>
+                        
                     </select>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Estado de Pago</label>
-                    <select name="estado_pago" class="form-select">
-                        <option value="PAGADO">Pagado</option>
-                        <option value="PENDIENTE">Pendiente</option>
-                        <option value="PARCIAL">Parcial</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Monto Recibido</label>
-                    <input type="number" name="monto_recibido" id="monto_recibido_input_crear" class="form-control"
-                        step="0.01" value="0" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Cambio Devuelto</label>
-                    <input type="text" id="cambio_devuelto_display_crear" class="form-control" value="0.00 XAF"
-                        readonly>
-                    <input type="hidden" name="cambio_devuelto" id="cambio_devuelto_input_crear">
-                </div>
-                <div class="col-md-12">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="seguro-check" name="seguro" value="1">
-                        <label class="form-check-label" for="seguro-check">Venta con seguro</label>
-                    </div>
-                </div>
+               <div id="pago_efectivo" class="row">
+               <div  class="row">
+                   <div class="col-md-6">
+                       <label class="form-label">Monto Recibido</label>
+                       <input type="number" name="monto_recibido" id="monto_recibido_input_crear" class="form-control"
+                           step="0.01" value="0" required>
+                   </div>
+                   <div class="col-md-6">
+                       <label class="form-label">Cambio Devuelto</label>
+                       <input type="text" id="cambio_devuelto_display_crear" class="form-control" value="0.00 XAF"
+                           readonly>
+                       <input type="hidden" name="cambio_devuelto" id="cambio_devuelto_input_crear">
+                   </div>
+                   </div>
+
+               </div>  
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

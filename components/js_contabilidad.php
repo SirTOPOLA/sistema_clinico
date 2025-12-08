@@ -819,7 +819,9 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
         const detalleCambioDevuelto = document.getElementById('detalle-cambio-devuelto');
         const detalleSeguro = document.getElementById('detalle-seguro');
         const detalleProductosTable = document.getElementById('detalle-productos-table');
-
+        const optionSeguro = document.getElementById("seguro");
+        const metodoPago = document.getElementById('metodo_pago');
+        const   pagoEfectivo=  document.getElementById("pago_efectivo");
         // Función genérica para manejar la búsqueda de pacientes
         async function buscarPacientes(query, resultadosElement, idInput, nombreInput) {
             resultadosElement.innerHTML = '';
@@ -833,11 +835,18 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                         item.href = '#';
                         item.className = 'list-group-item list-group-item-action';
                         item.textContent = `${paciente.nombre} (${paciente.codigo})`;
+
                         item.addEventListener('click', function (e) {
                             e.preventDefault();
                             nombreInput.value = paciente.nombre;
                             idInput.value = paciente.id;
                             resultadosElement.innerHTML = '';
+
+                            if (paciente.tiene_seguro == 0) {
+                                optionSeguro.style.display = "none"; // Oculta la opción
+                            } else {
+                                optionSeguro.style.display = "block"; // Asegura que esté visible si tiene seguro
+                            }
                         });
                         resultadosElement.appendChild(item);
                     });
@@ -979,6 +988,23 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 eliminarProducto(id, productosAgregadosCrear, 'crear');
             }
         });
+
+        // Activar y desactivar los campos de Monto recibido y cambio devuelto segun el select
+        metodoPago.addEventListener("change", function (e) {
+            const metodo = e.target.value;
+            console.log(metodo)
+
+           if (metodo === "efectivo") {
+                pagoEfectivo.classList.remove("d-none");
+                pagoEfectivo.classList.add("d-block");
+
+            } else if (metodo === "seguro" ) {
+                pagoEfectivo.classList.remove("d-block");
+                pagoEfectivo.classList.add("d-none");
+
+            }
+        });
+
 
         // Event listener para los botones de eliminar en la tabla de EDITAR
         tablaDetalleVentaEditar.addEventListener('click', function (e) {
