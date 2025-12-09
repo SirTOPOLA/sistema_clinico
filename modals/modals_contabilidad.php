@@ -38,46 +38,134 @@
     </div>
 </div>
 
-<!-- Cobrar analítica -->
-<div class="modal fade" id="modalCobrarAnalitica" tabindex="-1">
-    <div class="modal-dialog">
-        <form class="modal-content" method="post">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>Cobrar analítica</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- ===================== ANALÍTICAS ==================== -->
+<div class="modal fade" id="modalPagar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form action="api/guardar_pago.php" method="POST" class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-cash-stack me-2"></i>Pagar Pruebas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <input type="hidden" name="csrf" value="<?php echo csrf_token(); ?>">
-                <input type="hidden" name="accion" value="cobrar_analitica">
-                <input type="hidden" name="analitica_id" id="ca_analitica_id">
+                <input type="hidden" name="id_usuario" value="<?= $_SESSION['usuario']['id'] ?? '' ?>">
+                <input type="hidden" name="id_paciente" id="idPacientePago">
+
                 <div class="mb-3">
-                    <label class="form-label">Monto</label>
-                    <div class="input-group">
-                        <span class="input-group-text">XAF</span>
-                        <input type="number" step="0.01" class="form-control" name="monto" required>
-                    </div>
+                    <strong>Paciente:</strong> <span id="nombrePacientePago"></span><br>
+                    <strong>Fecha:</strong> <span id="fechaPacientePago"></span>
                 </div>
+
+                <table class="table table-sm table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>Seleccionar</th>
+                            <th>Tipo de Prueba</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPruebasPago">
+                    </tbody>
+                </table>
+
+                <div class="text-end mb-3">
+                    <strong>Total a Pagar: </strong><span id="totalPago" class="fs-5">0 FCFA</span>
+                </div>
+
                 <div class="mb-3">
-                    <label class="form-label">Tipo de pago</label>
-                    <select class="form-select" name="tipo_pago">
-                        <option>EFECTIVO</option>
-                        <option>SEGURO</option>
-                        <option>ADEUDO</option>
-                        <option>SIN PAGAR</option>
+                    <label for="tipoPago" class="form-label">Tipo de Pago</label>
+                    <select class="form-select" id="tipoPago" name="tipo_pago" required>
+                    </select>
+                </div>
+                
+                <div id="contenedorMontoAPagar" class="mb-3" style="display:none;">
+                    <label for="montoPagar" class="form-label">Monto a Pagar</label>
+                    <input type="number" class="form-control" id="montoPagar" name="monto_pagar" min="0">
+                </div>
+
+                <div id="contenedorMontoPendiente" class="mb-3" style="display:none;">
+                    <strong>Monto Pendiente:</strong> <span id="montoPendiente" class="fs-5 text-danger">0 FCFA</span>
+                </div>
+
+                <div id="contenedorSeguro" class="mb-3" style="display:none;">
+                    <label for="idSeguro" class="form-label">Seleccionar Seguro</label>
+                    <select class="form-select" id="idSeguro" name="id_seguro">
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Confirmar
-                    cobro</button>
+                <button type="submit" class="btn btn-success"><i class="bi bi-wallet2 me-1"></i> Confirmar Pago</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal fade" id="modalEditarPago" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form action="api/actualizar_pago.php" method="POST" class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="id_usuario" value="<?= $_SESSION['usuario']['id'] ?? '' ?>">
+                <input type="hidden" name="id_paciente" id="editIdPaciente">
+                <input type="hidden" name="fecha" id="editFecha">
+
+                <div class="mb-3">
+                    <strong>Paciente:</strong> <span id="editNombrePaciente"></span><br>
+                    <strong>Fecha:</strong> <span id="editFechaPaciente"></span>
+                </div>
+
+                <table class="table table-sm table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>Prueba</th>
+                            <th>Precio</th>
+                            <th>Estado Actual</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPruebasEditar">
+                    </tbody>
+                </table>
+
+                <div class="text-end mb-3">
+                    <strong>Total del Grupo: </strong><span id="editTotalGrupo" class="fs-5">0 FCFA</span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="editTipoPago" class="form-label">Nuevo Tipo de Pago</label>
+                    <select class="form-select" id="editTipoPago" name="tipo_pago" required>
+                    </select>
+                </div>
+
+                <div id="editContenedorMontoAPagar" class="mb-3" style="display:none;">
+                    <label for="editMontoPagar" class="form-label">Monto Pagado</label>
+                    <input type="number" class="form-control" id="editMontoPagar" name="monto_pagar" min="0">
+                </div>
+
+                <div id="editContenedorMontoPendiente" class="mb-3" style="display:none;">
+                    <strong>Monto Pendiente:</strong> <span id="editMontoPendiente" class="fs-5 text-danger">0 FCFA</span>
+                </div>
+
+                <div id="editContenedorSeguro" class="mb-3" style="display:none;">
+                    <label for="editIdSeguro" class="form-label">Seleccionar Seguro</label>
+                    <select class="form-select" id="editIdSeguro" name="id_seguro">
+                    </select>
+                </div>
+
+                <div class="alert alert-info mt-3" role="alert">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Al actualizar el pago, se aplicará el nuevo tipo de pago y monto a **todas las pruebas del grupo** que no estén pagadas.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Actualizar Pago</button>
             </div>
         </form>
     </div>
 </div>
 
 
-<!-- Nueva compra -->
+<!-- =============================== Nueva compra ===============================  -->
 <div class="modal fade" id="modalCrearCompra" tabindex="-1" aria-labelledby="modalCrearCompraLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -753,3 +841,151 @@
         </form>
     </div>
 </div>
+
+
+<!-- ======================== SEGUROS ======================= -->
+
+<!-- Modal para Crear Seguro -->
+<div class="modal fade" id="modalCrearSeguro" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="api/guardar_seguro.php" method="POST" class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nuevo Seguro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body row g-3">
+                <input type="hidden" name="id_usuario" value="<?= $idUsuario ?>">
+                <div class="col-md-12">
+                    <label for="titular_id">Titular del Seguro (Paciente)</label>
+                    <input type="text" id="crear-titular-search" class="form-control" placeholder="Buscar paciente...">
+                    <input type="hidden" name="titular_id" id="crear-titular-id">
+                    <div id="crear-titular-results" class="list-group mt-2"></div>
+                </div>
+                <div class="col-md-6">
+                    <label for="monto_inicial">Monto Inicial (XAF)</label>
+                    <input type="number" name="monto_inicial" step="0.01" min="0.01" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="metodo_pago">Método de Pago</label>
+                    <select name="metodo_pago" class="form-control" required>
+                        <option value="EFECTIVO">Efectivo</option>
+                        <option value="TARJETA">Tarjeta</option>
+                        <option value="TRANSFERENCIA">Transferencia</option>
+                        <option value="OTRO">Otro</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success"><i class="bi bi-save me-1"></i> Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Editar Seguro -->
+<div class="modal fade" id="modalEditarSeguro" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="api/actualizar_seguro.php" method="POST" class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Seguro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body row g-3">
+                <input type="hidden" name="id" id="edit-seguro-id">
+                <div class="col-md-12">
+                    <label for="titular_id">Titular del Seguro (Paciente)</label>
+                    <input type="text" id="edit-titular-search" class="form-control" placeholder="Buscar paciente..." disabled>
+                </div>
+                <div class="col-md-6">
+                    <label for="monto_inicial">Monto Inicial (XAF)</label>
+                    <input type="number" name="monto_inicial" id="edit-monto-inicial" step="0.01" min="0.01" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="saldo_actual">Saldo Actual (XAF)</label>
+                    <input type="number" name="saldo_actual" id="edit-saldo-actual" step="0.01" class="form-control" readonly>
+                </div>
+                <div class="col-md-12">
+                    <label for="metodo_pago">Método de Pago</label>
+                    <select name="metodo_pago" id="edit-metodo-pago" class="form-control" required>
+                        <option value="EFECTIVO">Efectivo</option>
+                        <option value="TARJETA">Tarjeta</option>
+                        <option value="TRANSFERENCIA">Transferencia</option>
+                        <option value="OTRO">Otro</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary"><i class="bi bi-save me-1"></i> Actualizar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Gestionar Beneficiarios -->
+<div class="modal fade" id="modalBeneficiarios" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="bi bi-people me-2"></i>Beneficiarios del Seguro: <span id="beneficiario-titular-nombre"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <form id="form-agregar-beneficiario" action="api/agregar_beneficiario.php" method="POST">
+                            <input type="hidden" name="seguro_id" id="beneficiario-seguro-id">
+                            <label>Agregar Beneficiario (Paciente)</label>
+                            <div class="input-group">
+                                <input type="text" id="agregar-beneficiario-search" class="form-control" placeholder="Buscar paciente...">
+                                <input type="hidden" name="paciente_id" id="agregar-beneficiario-id">
+                                <button type="submit" class="btn btn-primary" id="btn-agregar-beneficiario" disabled><i class="bi bi-plus"></i> Agregar</button>
+                            </div>
+                            <div id="agregar-beneficiario-results" class="list-group mt-2"></div>
+                        </form>
+                    </div>
+                </div>
+                <hr>
+                <h6>Beneficiarios Existentes</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered table-sm">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre Completo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-beneficiarios-body">
+                            <!-- Los beneficiarios se cargarán aquí con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Nuevo Modal para Ver Detalles del Seguro -->
+<div class="modal fade" id="modalDetalleSeguro" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title"><i class="bi bi-file-text me-2"></i>Detalle de Seguro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="detalle-seguro-body">
+                <!-- El contenido se cargará aquí con JS -->
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btn-imprimir-detalle"><i class="bi bi-printer me-1"></i>Imprimir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- =======================  -->

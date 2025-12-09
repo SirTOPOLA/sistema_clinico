@@ -821,7 +821,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
         const detalleProductosTable = document.getElementById('detalle-productos-table');
         const optionSeguro = document.getElementById("seguro");
         const metodoPago = document.getElementById('metodo_pago');
-        const   pagoEfectivo=  document.getElementById("pago_efectivo");
+        const pagoEfectivo = document.getElementById("pago_efectivo");
         // Función genérica para manejar la búsqueda de pacientes
         async function buscarPacientes(query, resultadosElement, idInput, nombreInput) {
             resultadosElement.innerHTML = '';
@@ -994,11 +994,11 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
             const metodo = e.target.value;
             console.log(metodo)
 
-           if (metodo === "efectivo") {
+            if (metodo === "efectivo") {
                 pagoEfectivo.classList.remove("d-none");
                 pagoEfectivo.classList.add("d-block");
 
-            } else if (metodo === "seguro" ) {
+            } else if (metodo === "seguro") {
                 pagoEfectivo.classList.remove("d-block");
                 pagoEfectivo.classList.add("d-none");
 
@@ -1129,5 +1129,598 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 }
             });
         });
+    });
+</script>
+
+<!-- ========================= SEGUROS ==================== -->
+
+<script>
+    // Script para manejar el buscador de pacientes y los datos de los modales
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lógica para el modal de Crear Seguro
+        const crearTitularSearch = document.getElementById('crear-titular-search');
+        const crearTitularId = document.getElementById('crear-titular-id');
+        const crearTitularResults = document.getElementById('crear-titular-results');
+
+        crearTitularSearch.addEventListener('input', function () {
+            const query = this.value;
+            if (query.length > 2) {
+                fetch(`api/buscar_paciente.php?q=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        crearTitularResults.innerHTML = '';
+                        if (data.length > 0) {
+                            data.forEach(paciente => {
+                                const item = document.createElement('a');
+                                item.classList.add('list-group-item', 'list-group-item-action');
+                                item.href = '#';
+                                item.textContent = `${paciente.nombre} ${paciente.apellidos} (DIP: ${paciente.dip})`;
+                                item.addEventListener('click', function (e) {
+                                    e.preventDefault();
+                                    crearTitularSearch.value = `${paciente.nombre} ${paciente.apellidos}`;
+                                    crearTitularId.value = paciente.id;
+                                    crearTitularResults.innerHTML = '';
+                                });
+                                crearTitularResults.appendChild(item);
+                            });
+                        } else {
+                            crearTitularResults.innerHTML = '<div class="list-group-item">No se encontraron pacientes.</div>';
+                        }
+                    });
+            } else {
+                crearTitularResults.innerHTML = '';
+            }
+        });
+
+        // Lógica para el modal de Editar Seguro
+        const botonesEditarSeguro = document.querySelectorAll('.btn-editar-seguro');
+        botonesEditarSeguro.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const montoInicial = this.getAttribute('data-monto-inicial');
+                const saldoActual = this.getAttribute('data-saldo-actual');
+                const metodoPago = this.getAttribute('data-metodo-pago');
+
+                document.getElementById('edit-seguro-id').value = id;
+                document.getElementById('edit-monto-inicial').value = montoInicial;
+                document.getElementById('edit-saldo-actual').value = saldoActual;
+                document.getElementById('edit-metodo-pago').value = metodoPago;
+
+                // No se edita el titular, solo se muestra el nombre
+                const titularNombre = this.closest('tr').querySelector('td:nth-child(2)').textContent;
+                document.getElementById('edit-titular-search').value = titularNombre;
+            });
+        });
+
+        // Lógica para el modal de Beneficiarios
+        const botonesBeneficiarios = document.querySelectorAll('.btn-beneficiarios');
+        botonesBeneficiarios.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const seguroId = this.getAttribute('data-id');
+                const titularNombre = this.getAttribute('data-titular');
+
+                document.getElementById('beneficiario-seguro-id').value = seguroId;
+                document.getElementById('beneficiario-titular-nombre').textContent = titularNombre;
+
+                cargarBeneficiarios(seguroId);
+            });
+        });
+
+        // Función para cargar los beneficiarios de un seguro
+        function cargarBeneficiarios(seguroId) {
+            fetch(`api/listar_beneficiarios.php?seguro_id=${seguroId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tablaBeneficiariosBody = document.getElementById('tabla-beneficiarios-body');
+                    tablaBeneficiariosBody.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(beneficiario => {
+                            const fila = `
+                                <tr>
+                                    <td>${beneficiario.id}</td>
+                                    <td>${beneficiario.nombre_paciente}</td>
+                                    <td>
+                                        <a href="api/eliminar_beneficiario.php?id=${beneficiario.id}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este beneficiario?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            `;
+                            tablaBeneficiariosBody.insertAdjacentHTML('beforeend', fila);
+                        });
+                    } else {
+                        tablaBeneficiariosBody.innerHTML = '<tr><td colspan="3">No hay beneficiarios registrados.</td></tr>';
+                    }
+                });
+        }
+
+        // Lógica para el buscador de beneficiarios en el modal
+        const agregarBeneficiarioSearch = document.getElementById('agregar-beneficiario-search');
+        const agregarBeneficiarioId = document.getElementById('agregar-beneficiario-id');
+        const agregarBeneficiarioResults = document.getElementById('agregar-beneficiario-results');
+        const btnAgregarBeneficiario = document.getElementById('btn-agregar-beneficiario');
+
+        agregarBeneficiarioSearch.addEventListener('input', function () {
+            const query = this.value;
+            if (query.length > 2) {
+                fetch(`api/buscar_paciente.php?q=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        agregarBeneficiarioResults.innerHTML = '';
+                        btnAgregarBeneficiario.disabled = true; // Deshabilitar el botón por defecto
+                        if (data.length > 0) {
+                            data.forEach(paciente => {
+                                const item = document.createElement('a');
+                                item.classList.add('list-group-item', 'list-group-item-action');
+                                item.href = '#';
+                                item.textContent = `${paciente.nombre} ${paciente.apellidos} (DIP: ${paciente.dip})`;
+                                item.addEventListener('click', function (e) {
+                                    e.preventDefault();
+                                    agregarBeneficiarioSearch.value = `${paciente.nombre} ${paciente.apellidos}`;
+                                    agregarBeneficiarioId.value = paciente.id;
+                                    agregarBeneficiarioResults.innerHTML = '';
+                                    btnAgregarBeneficiario.disabled = false; // Habilitar el botón al seleccionar
+                                });
+                                agregarBeneficiarioResults.appendChild(item);
+                            });
+                        } else {
+                            agregarBeneficiarioResults.innerHTML = '<div class="list-group-item">No se encontraron pacientes.</div>';
+                        }
+                    });
+            } else {
+                agregarBeneficiarioResults.innerHTML = '';
+                btnAgregarBeneficiario.disabled = true;
+            }
+        });
+
+        // Lógica para el nuevo modal de Detalles del Seguro
+        const botonesDetalleSeguro = document.querySelectorAll('.btn-detalle-seguro');
+        const detalleSeguroBody = document.getElementById('detalle-seguro-body');
+        const btnImprimir = document.getElementById('btn-imprimir-detalle');
+
+        botonesDetalleSeguro.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const seguroId = this.getAttribute('data-id');
+                detalleSeguroBody.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
+                fetch(`api/obtener_detalle_seguro.php?id=${seguroId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            detalleSeguroBody.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                            return;
+                        }
+
+                        // Generar el contenido HTML para la factura
+                        let htmlContent = `
+                            <style>
+                                @media print {
+                                    body * {
+                                        visibility: hidden;
+                                    }
+                                    .modal-content, .modal-content * {
+                                        visibility: visible;
+                                    }
+                                    .modal-header, .modal-footer {
+                                        display: none !important;
+                                    }
+                                }
+                                .factura-header, .factura-section {
+                                    border-bottom: 1px solid #dee2e6;
+                                    padding-bottom: 1rem;
+                                    margin-bottom: 1rem;
+                                }
+                                .factura-section h5 {
+                                    border-left: 4px solid #000;
+                                    padding-left: 10px;
+                                    font-weight: bold;
+                                    color: #333;
+                                }
+                                .factura-table th {
+                                    background-color: #f8f9fa;
+                                }
+                                .saldo-final {
+                                    font-size: 1.5rem;
+                                    font-weight: bold;
+                                }
+                                .deuda {
+                                    color: red;
+                                }
+                                .credito {
+                                    color: green;
+                                }
+                            </style>
+                            <div class="factura-container">
+                                <div class="factura-header text-center">
+                                    <h2 class="fw-bold">Detalle de Uso de Seguro</h2>
+                                    <p>Fecha de Emisión: ${new Date().toLocaleDateString('es-ES')}</p>
+                                </div>
+                                <div class="factura-section">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h5>Información del Seguro</h5>
+                                            <p><strong>ID Seguro:</strong> ${data.seguro.id}</p>
+                                            <p><strong>Monto Inicial:</strong> XAF ${data.seguro.monto_inicial}</p>
+                                            <p><strong>Saldo Actual:</strong> <span class="saldo-final">XAF ${data.seguro.saldo_actual}</span></p>
+                                            <p><strong>Método de Pago:</strong> ${data.seguro.metodo_pago}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h5>Titular y Beneficiarios</h5>
+                                            <p><strong>Titular:</strong> ${data.seguro.nombre_titular} (ID: ${data.seguro.titular_id})</p>
+                                            <p><strong>Beneficiarios:</strong></p>
+                                            <ul>
+                                                ${data.beneficiarios.length > 0 ? data.beneficiarios.map(b => `<li>${b.nombre_paciente} (ID: ${b.paciente_id})</li>`).join('') : '<li>Ninguno</li>'}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="factura-section">
+                                    <h5>Movimientos del Seguro</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered factura-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Tipo</th>
+                                                    <th>Monto</th>
+                                                    <th>Paciente</th>
+                                                    <th>Descripción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${data.movimientos.length > 0 ? data.movimientos.map(m => `
+                                                    <tr>
+                                                        <td>${new Date(m.fecha).toLocaleDateString('es-ES')}</td>
+                                                        <td><span class="${m.tipo === 'DEBITO' ? 'deuda' : 'credito'}">${m.tipo}</span></td>
+                                                        <td>XAF ${m.monto}</td>
+                                                        <td>${m.nombre_paciente}</td>
+                                                        <td>${m.descripcion}</td>
+                                                    </tr>
+                                                `).join('') : '<tr><td colspan="5" class="text-center">No hay movimientos registrados.</td></tr>'}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="factura-section">
+                                    <h5>Detalle de Préstamos (Deuda con la entidad)</h5>
+                                    <p class="mb-2">Según la política del seguro, cuando el saldo llega a XAF 0, se otorga un préstamo automático del 50% del monto inicial para continuar la atención.</p>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered factura-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Monto Préstamo</th>
+                                                    <th>Estado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${data.prestamos.length > 0 ? data.prestamos.map(p => `
+                                                    <tr>
+                                                        <td>${new Date(p.fecha).toLocaleDateString('es-ES')}</td>
+                                                        <td>XAF ${p.total}</td>
+                                                        <td><span class="${p.estado === 'PAGADO' ? 'text-success' : 'text-danger'}">${p.estado}</span></td>
+                                                    </tr>
+                                                `).join('') : '<tr><td colspan="3" class="text-center">No hay préstamos registrados.</td></tr>'}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        detalleSeguroBody.innerHTML = htmlContent;
+                    });
+            });
+        });
+        btnImprimir.addEventListener('click', function () {
+            const printContent = document.getElementById('detalle-seguro-body').innerHTML;
+            const originalContent = document.body.innerHTML;
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Detalle de Seguro</title>');
+            printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">');
+            printWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(printContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        });
+    });
+</script>
+
+<!--======================= ANAL{ITICA ====================== -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Manejar clics en el botón de "Pagar"
+        document.querySelectorAll('.btn-pagar').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const idPaciente = btn.dataset.pacienteId;
+                const grupo = JSON.parse(btn.dataset.grupo);
+                const paciente = btn.dataset.paciente;
+                const fecha = btn.dataset.fecha;
+                await handlePagarModalLogic(idPaciente, grupo, paciente, fecha);
+            });
+        });
+
+        // Manejar clics en el botón de "Editar Pago"
+        document.querySelectorAll('.btn-editar-pago').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const grupo = JSON.parse(btn.dataset.grupo);
+                const paciente = btn.dataset.paciente;
+                const fecha = btn.dataset.fecha;
+                const idPaciente = btn.dataset.pacienteId;
+                await handleEditModalLogic(idPaciente, grupo, paciente, fecha);
+            });
+        });
+
+        // Lógica del modal de Pagar
+        async function handlePagarModalLogic(idPaciente, grupo, paciente, fecha) {
+            const tipoPagoSelect = document.getElementById('tipoPago');
+            const contenedorSeguro = document.getElementById('contenedorSeguro');
+            const contenedorMontoAPagar = document.getElementById('contenedorMontoAPagar');
+            const contenedorMontoPendiente = document.getElementById('contenedorMontoPendiente');
+            const montoPagarInput = document.getElementById('montoPagar');
+            const montoPendienteSpan = document.getElementById('montoPendiente');
+            const totalPagoSpan = document.getElementById('totalPago');
+            
+            tipoPagoSelect.innerHTML = '';
+            
+            // Opciones de tipo de pago
+            const efectivoOption = document.createElement('option');
+            efectivoOption.value = 'EFECTIVO';
+            efectivoOption.textContent = '💰 Efectivo';
+            tipoPagoSelect.appendChild(efectivoOption);
+
+            const adeudoOption = document.createElement('option');
+            adeudoOption.value = 'ADEUDO';
+            adeudoOption.textContent = '📝 A Deber (Adeudo)';
+            tipoPagoSelect.appendChild(adeudoOption);
+
+            // Ocultar secciones no aplicables inicialmente
+            contenedorSeguro.style.display = 'none';
+            contenedorMontoAPagar.style.display = 'none';
+            contenedorMontoPendiente.style.display = 'none';
+            montoPagarInput.value = '';
+            montoPagarInput.required = false;
+
+            // Verificar si el paciente tiene seguro activo
+            const hasInsurance = await checkPatientInsurance(idPaciente);
+
+            if (hasInsurance) {
+                const seguroOption = document.createElement('option');
+                seguroOption.value = 'SEGURO';
+                seguroOption.textContent = '🛡️ Seguro';
+                tipoPagoSelect.appendChild(seguroOption);
+            }
+            
+            // Llenar datos del paciente y fecha
+            document.getElementById('nombrePacientePago').textContent = paciente;
+            document.getElementById('fechaPacientePago').textContent = fecha;
+            document.getElementById('idPacientePago').value = idPaciente;
+            
+            // Llenar tabla de pruebas
+            const tabla = document.getElementById('tablaPruebasPago');
+            tabla.innerHTML = '';
+            let total = 0;
+
+            grupo.forEach((prueba) => {
+                const id = prueba.id;
+                const tipo = prueba.tipo_prueba;
+                const precio = parseFloat(prueba.precio || 0);
+                const id_tipo_prueba = prueba.id_tipo_prueba;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <input type="checkbox" name="pagos[${id}][seleccionado]" value="1" class="form-check-input pagar-checkbox" checked>
+                        <input type="hidden" name="pagos[${id}][precio]" value="${precio}">
+                        <input type="hidden" name="pagos[${id}][id_tipo_prueba]" value="${id_tipo_prueba}">
+                    </td>
+                    <td>${tipo}</td>
+                    <td>${precio.toFixed(0)} FCFA</td>
+                `;
+                tabla.appendChild(row);
+                total += precio;
+            });
+            
+            totalPagoSpan.textContent = total.toFixed(0) + ' FCFA';
+            
+            // Función para actualizar el monto pendiente
+            const actualizarMontoPendiente = () => {
+                const totalAPagar = parseFloat(totalPagoSpan.textContent.replace(' FCFA', ''));
+                const montoPagado = parseFloat(montoPagarInput.value || 0);
+                const pendiente = totalAPagar - montoPagado;
+                montoPendienteSpan.textContent = pendiente.toFixed(0) + ' FCFA';
+            };
+
+            // Event listener para cambios en el tipo de pago
+            tipoPagoSelect.addEventListener('change', () => {
+                const tipoSeleccionado = tipoPagoSelect.value;
+                contenedorSeguro.style.display = 'none';
+                contenedorMontoAPagar.style.display = 'none';
+                contenedorMontoPendiente.style.display = 'none';
+                montoPagarInput.value = '';
+                montoPagarInput.required = false;
+
+                if (tipoSeleccionado === 'SEGURO') {
+                    contenedorSeguro.style.display = 'block';
+                    cargarSeguros(idPaciente, 'idSeguro'); // Cargar seguros del paciente
+                } else if (tipoSeleccionado === 'ADEUDO') {
+                    contenedorMontoAPagar.style.display = 'block';
+                    contenedorMontoPendiente.style.display = 'block';
+                    montoPagarInput.required = true; // Hacer obligatorio el monto a pagar si es a deber
+                }
+                actualizarMontoPendiente();
+            });
+
+            // Event listener para cambios en el monto a pagar
+            montoPagarInput.addEventListener('input', actualizarMontoPendiente);
+
+            // Event listener para cambios en los checkboxes de selección de pruebas
+            tabla.querySelectorAll('.pagar-checkbox').forEach(check => {
+                check.addEventListener('change', () => {
+                    let nuevoTotal = 0;
+                    tabla.querySelectorAll('.pagar-checkbox').forEach(c => {
+                        if (c.checked) {
+                            const precioInput = c.parentElement.querySelector('input[name$="[precio]"]');
+                            nuevoTotal += parseFloat(precioInput.value);
+                        }
+                    });
+                    totalPagoSpan.textContent = nuevoTotal.toFixed(0) + ' FCFA';
+                    actualizarMontoPendiente();
+                });
+            });
+        }
+
+        // --- Lógica del nuevo modal de edición ---
+        async function handleEditModalLogic(idPaciente, grupo, paciente, fecha) {
+            const tipoPagoSelect = document.getElementById('editTipoPago');
+            const contenedorSeguro = document.getElementById('editContenedorSeguro');
+            const contenedorMontoAPagar = document.getElementById('editContenedorMontoAPagar');
+            const contenedorMontoPendiente = document.getElementById('editContenedorMontoPendiente');
+            const montoPagarInput = document.getElementById('editMontoPagar');
+            const montoPendienteSpan = document.getElementById('editMontoPendiente');
+            const totalGrupoSpan = document.getElementById('editTotalGrupo');
+            
+            // Llenar datos del paciente y fecha en el modal de edición
+            document.getElementById('editNombrePaciente').textContent = paciente;
+            document.getElementById('editFechaPaciente').textContent = fecha;
+            document.getElementById('editIdPaciente').value = idPaciente;
+            document.getElementById('editFecha').value = fecha;
+
+            tipoPagoSelect.innerHTML = '';
+            
+            // Opciones de tipo de pago para edición
+            const efectivoOption = document.createElement('option');
+            efectivoOption.value = 'EFECTIVO';
+            efectivoOption.textContent = '💰 Efectivo';
+            tipoPagoSelect.appendChild(efectivoOption);
+
+            const adeudoOption = document.createElement('option');
+            adeudoOption.value = 'ADEUDO';
+            adeudoOption.textContent = '📝 A Deber (Adeudo)';
+            tipoPagoSelect.appendChild(adeudoOption);
+
+            // Ocultar secciones no aplicables inicialmente en edición
+            contenedorSeguro.style.display = 'none';
+            contenedorMontoAPagar.style.display = 'none';
+            contenedorMontoPendiente.style.display = 'none';
+            montoPagarInput.value = '';
+            montoPagarInput.required = false;
+
+            // Verificar seguro para el paciente en edición
+            const hasInsurance = await checkPatientInsurance(idPaciente);
+
+            if (hasInsurance) {
+                const seguroOption = document.createElement('option');
+                seguroOption.value = 'SEGURO';
+                seguroOption.textContent = '🛡️ Seguro';
+                tipoPagoSelect.appendChild(seguroOption);
+            }
+            
+            // Llenar tabla de pruebas en el modal de edición
+            const tabla = document.getElementById('tablaPruebasEditar');
+            tabla.innerHTML = '';
+            let totalGrupo = 0;
+
+            grupo.forEach((prueba) => {
+                const id = prueba.id;
+                const tipo = prueba.tipo_prueba;
+                const precio = parseFloat(prueba.precio || 0);
+                const pagado = prueba.pagado; // 0 si no está pagado, 1 si está pagado
+                const id_tipo_prueba = prueba.id_tipo_prueba;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${tipo}</td>
+                    <td>${precio.toFixed(0)} FCFA</td>
+                    <td>
+                        <span class="badge ${pagado == 1 ? 'bg-success' : 'bg-danger'}">${pagado == 1 ? 'Pagado' : 'Pendiente'}</span>
+                        <input type="hidden" name="pruebas[${id}][id]" value="${id}">
+                        <input type="hidden" name="pruebas[${id}][precio]" value="${precio}">
+                        <input type="hidden" name="pruebas[${id}][pagado_actual]" value="${pagado}">
+                        <input type="hidden" name="pruebas[${id}][id_tipo_prueba]" value="${id_tipo_prueba}">
+                    </td>
+                `;
+                tabla.appendChild(row);
+                totalGrupo += precio;
+            });
+            
+            totalGrupoSpan.textContent = totalGrupo.toFixed(0) + ' FCFA';
+
+            // Función para actualizar el monto pendiente en edición
+            const actualizarMontoPendienteEdit = () => {
+                const totalDelGrupo = parseFloat(totalGrupoSpan.textContent.replace(' FCFA', ''));
+                const montoPagado = parseFloat(montoPagarInput.value || 0);
+                const pendiente = totalDelGrupo - montoPagado;
+                montoPendienteSpan.textContent = pendiente.toFixed(0) + ' FCFA';
+            };
+
+            // Event listener para cambios en el tipo de pago en edición
+            tipoPagoSelect.addEventListener('change', () => {
+                const tipoSeleccionado = tipoPagoSelect.value;
+                contenedorSeguro.style.display = 'none';
+                contenedorMontoAPagar.style.display = 'none';
+                contenedorMontoPendiente.style.display = 'none';
+                montoPagarInput.value = '';
+                montoPagarInput.required = false;
+
+                if (tipoSeleccionado === 'SEGURO') {
+                    contenedorSeguro.style.display = 'block';
+                    cargarSeguros(idPaciente, 'editIdSeguro'); // Cargar seguros del paciente
+                } else if (tipoSeleccionado === 'ADEUDO') {
+                    contenedorMontoAPagar.style.display = 'block';
+                    contenedorMontoPendiente.style.display = 'block';
+                    montoPagarInput.required = true; // Hacer obligatorio el monto a pagar si es a deber
+                }
+                actualizarMontoPendienteEdit();
+            });
+
+            // Event listener para cambios en el monto a pagar en edición
+            montoPagarInput.addEventListener('input', actualizarMontoPendienteEdit);
+        }
+
+        // Función auxiliar para cargar los seguros de un paciente (implementación pendiente)
+        async function cargarSeguros(idPaciente, selectId) {
+            // Aquí deberías hacer una llamada AJAX a tu backend para obtener los seguros del paciente
+            // y llenar el select con id 'selectId'.
+            // Ejemplo:
+            /*
+            fetch('api/obtener_seguros.php?paciente_id=' + idPaciente)
+                .then(response => response.json())
+                .then(data => {
+                    const selectElement = document.getElementById(selectId);
+                    selectElement.innerHTML = ''; // Limpiar opciones existentes
+                    data.forEach(seguro => {
+                        const option = document.createElement('option');
+                        option.value = seguro.id;
+                        option.textContent = `${seguro.nombre} - Saldo: ${seguro.saldo_actual} FCFA`;
+                        selectElement.appendChild(option);
+                    });
+                });
+            */
+            console.log(`Cargando seguros para el paciente ${idPaciente} en el select ${selectId}`);
+            // Placeholder: añadir opciones manualmente si no se implementa AJAX
+             const selectElement = document.getElementById(selectId);
+             selectElement.innerHTML = `
+                 <option value="1">Seguro Médico Principal - Saldo: 50000 FCFA</option>
+                 <option value="2">Seguro Familiar - Saldo: 30000 FCFA</option>
+             `;
+        }
+
+        // Función auxiliar para verificar si un paciente tiene seguro (implementación pendiente)
+        async function checkPatientInsurance(idPaciente) {
+            // Aquí deberías hacer una llamada AJAX a tu backend para verificar si el paciente tiene seguro
+            // y devolver true o false.
+            // Ejemplo:
+            /*
+            return fetch('api/verificar_seguro.php?paciente_id=' + idPaciente)
+                .then(response => response.json())
+                .then(data => data.has_insurance);
+            */
+            console.log(`Verificando seguro para el paciente ${idPaciente}`);
+            // Placeholder: devolver true para probar la funcionalidad
+            return true; 
+        }
+
     });
 </script>

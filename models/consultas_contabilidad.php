@@ -75,7 +75,7 @@ function clean(string $s): string
 // =============================
 
 $flash = null; // Para mostrar toast
- 
+
 // =============================
 //  CONSULTAS RÁPIDAS PARA LISTADOS/KPIs
 // =============================
@@ -135,12 +135,12 @@ $compras = $pdo->query("SELECT c.id, c.proveedor_id, c.fecha, c.personal_id, c.m
                             INNER JOIN proveedores AS pr ON c.proveedor_id = pr.id
                              LEFT JOIN personal pe ON c.personal_id = pe.id
                             ORDER BY c.id DESC LIMIT 20")->fetchAll();
- $productos = $pdo->query("SELECT * FROM productos ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
+$productos = $pdo->query("SELECT * FROM productos ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 $proveedores = $pdo->query("SELECT id, nombre FROM proveedores ORDER BY nombre ASC")->fetchAll();
 $pacientes = $pdo->query("SELECT id, CONCAT(COALESCE(nombre,''),' ',COALESCE(apellidos,'')) AS nom FROM pacientes ORDER BY nom ASC LIMIT 200")->fetchAll();
- 
-    $personal = $pdo->query("SELECT id, nombre, apellidos FROM personal ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
-   
+
+$personal = $pdo->query("SELECT id, nombre, apellidos FROM personal ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
+
 
 
 try {
@@ -159,57 +159,126 @@ LEFT JOIN pacientes p ON v.paciente_id = p.id
 LEFT JOIN usuarios u ON v.usuario_id = u.id
 ORDER BY v.fecha DESC";
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
-$ventas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $ventas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// === Consultar compras con nombre de proveedor y personal ===
-$sql_compras = "SELECT c.*, 
+    // === Consultar compras con nombre de proveedor y personal ===
+    $sql_compras = "SELECT c.*, 
                        p.nombre AS proveedor_nombre, 
                        CONCAT(pe.nombre, ' ', pe.apellidos) AS personal_nombre
                 FROM compras c
                 LEFT JOIN proveedores p ON c.proveedor_id = p.id
                 LEFT JOIN personal pe ON c.personal_id = pe.id
                 ORDER BY c.fecha DESC";
-$stmt_compras = $pdo->query($sql_compras);
-$compras = $stmt_compras->fetchAll(PDO::FETCH_ASSOC);
+    $stmt_compras = $pdo->query($sql_compras);
+    $compras = $stmt_compras->fetchAll(PDO::FETCH_ASSOC);
 
-// === Consultar detalles de compras agrupados por compra_id ===
-$sql_detalles = "SELECT * FROM compras_detalle";
-$stmt_detalles = $pdo->query($sql_detalles);
-$comprasDetalle = [];
-while ($row = $stmt_detalles->fetch(PDO::FETCH_ASSOC)) {
-    $comprasDetalle[$row['compra_id']][] = $row;
-}
+    // === Consultar detalles de compras agrupados por compra_id ===
+    $sql_detalles = "SELECT * FROM compras_detalle";
+    $stmt_detalles = $pdo->query($sql_detalles);
+    $comprasDetalle = [];
+    while ($row = $stmt_detalles->fetch(PDO::FETCH_ASSOC)) {
+        $comprasDetalle[$row['compra_id']][] = $row;
+    }
 
-// === Consultar proveedores ===
-$sql_proveedores = "SELECT id, nombre FROM proveedores ORDER BY nombre";
-$stmt_proveedores = $pdo->query($sql_proveedores);
-$proveedores = $stmt_proveedores->fetchAll(PDO::FETCH_ASSOC);
+    // === Consultar proveedores ===
+    $sql_proveedores = "SELECT id, nombre FROM proveedores ORDER BY nombre";
+    $stmt_proveedores = $pdo->query($sql_proveedores);
+    $proveedores = $stmt_proveedores->fetchAll(PDO::FETCH_ASSOC);
 
-// === Consultar personal ===
-$sql_personal = "SELECT id, nombre, apellidos FROM personal ORDER BY nombre";
-$stmt_personal = $pdo->query($sql_personal);
-$personal = $stmt_personal->fetchAll(PDO::FETCH_ASSOC);
+    // === Consultar personal ===
+    $sql_personal = "SELECT id, nombre, apellidos FROM personal ORDER BY nombre";
+    $stmt_personal = $pdo->query($sql_personal);
+    $personal = $stmt_personal->fetchAll(PDO::FETCH_ASSOC);
 
-// === Consultar productos ===
+    // === Consultar productos ===
 
-$productos = $pdo->query("SELECT * FROM productos ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
+    $productos = $pdo->query("SELECT * FROM productos ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
 
+
+    $seguros = $pdo->query("
+    SELECT 
+        s.id,
+        s.titular_id,
+        CONCAT(p.nombre, ' ', p.apellidos) AS nombre_titular,
+        s.monto_inicial,
+        s.saldo_actual,
+        s.fecha_deposito,
+        s.metodo_pago
+    FROM 
+        seguros s
+    JOIN 
+        pacientes p ON s.titular_id = p.id
+    ORDER BY 
+        s.fecha_deposito DESC
+")->fetchAll(PDO::FETCH_ASSOC);
+
+
+    // Consulta para obtener las analíticas, incluyendo el campo tipo_pago
+    $sql = "SELECT
+    a.id,
+    a.resultado,
+    a.estado,
+    a.codigo_paciente,
+    a.pagado,
+    a.tipo_pago,            -- <--- CAMBIO: Se agrega el tipo de pago
+    tp.id AS id_tipo_prueba,
+    tp.nombre AS tipo_prueba,
+    tp.precio,
+    p.id AS id_paciente,
+    CONCAT(p.nombre,' ',p.apellidos) AS paciente,
+    a.fecha_registro,
+    DATE(a.fecha_registro) AS fecha_solo
+FROM analiticas a
+JOIN tipo_pruebas tp ON a.id_tipo_prueba = tp.id
+JOIN pacientes p ON a.id_paciente = p.id
+ORDER BY a.fecha_registro DESC";
+
+    try {
+        // Asegúrate de que $pdo es tu objeto de conexión PDO
+        $stmt = $pdo->query($sql);
+        $analiticas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Error en la consulta: " . $e->getMessage();
+        $analiticas = [];
+    }
+
+    // Agrupar los registros por paciente y fecha
+    $grupos = [];
+    foreach ($analiticas as $a) {
+        $clave = $a['paciente'] . '_' . $a['fecha_solo'];
+
+        if (!isset($grupos[$clave])) {
+            $grupos[$clave] = [
+                'tipo' => $a['tipo_prueba'],
+                'paciente' => $a['paciente'],
+                'codigo' => $a['codigo_paciente'],
+                'id_paciente' => $a['id_paciente'],
+                'fecha' => $a['fecha_solo'],
+                'registros' => [],
+                'pagos' => [],
+                'tipo_pago' => $a['tipo_pago'], // <--- CAMBIO: Se agrega el tipo de pago al grupo
+            ];
+        }
+
+        $grupos[$clave]['registros'][] = $a;
+        $grupos[$clave]['pagos'][] = $a['pagado'];
+    }
 
 } catch (PDOException $e) {
-$compras = [];
-$comprasDetalle = [];
-$proveedores = [];
-$personal = [];
-$productos = [];
-$mensaje_error = "Error al consultar la base de datos: " . $e->getMessage();
+    $compras = [];
+    $comprasDetalle = [];
+    $proveedores = [];
+    $personal = [];
+    $productos = [];
+    $mensaje_error = "Error al consultar la base de datos: " . $e->getMessage();
 
 } catch (Exception $e) {
-$compras = [];
-$comprasDetalle = [];
-$proveedores = [];
-$personal = [];
-$productos = [];
-$mensaje_error = "Error general: " . $e->getMessage();
+    $compras = [];
+    $comprasDetalle = [];
+    $proveedores = [];
+    $personal = [];
+    $productos = [];
+    $mensaje_error = "Error general: " . $e->getMessage();
 }

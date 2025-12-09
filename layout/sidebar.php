@@ -25,7 +25,7 @@ $iconos_por_rol = [
     'pagos' => 'bi-cash-coin',
     'consultas' => 'bi-clipboard-check',
     'contabilidad' => 'bi-bar-chart-line',
-    'seguros' => 'bi-file-earmark-medical',
+    /* 'seguros' => 'bi-file-earmark-medical', */
     'empleados' => 'bi-person-workspace',
   ],
   'secretaria' => [
@@ -71,10 +71,10 @@ $menu = [
     'Pruebas/salas' => 'salas_pruebas',
     'Ingresos' => 'ingresos',
     'Analíticas' => 'analiticas',
-    'Pagos de Pruebas' => 'pagos',
+   /*  'Pagos de Pruebas' => 'pagos', */
     'Consultas' => 'consultas',
    /*  'Reportes' => 'reportes', */
-     'Asegurado' => 'seguros', 
+   /*   'Asegurado' => 'seguros',  */
     'Contabiliad' => 'contabilidad',
   ],
   'secretaria' => [
