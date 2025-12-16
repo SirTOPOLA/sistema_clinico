@@ -20,10 +20,125 @@ $productos = $pdo->query("SELECT id, nombre, precio_unitario FROM productos ORDE
     // Pasar datos a modal Cobrar Consulta
     const modalCC = document.getElementById('modalCobrarConsulta');
     modalCC?.addEventListener('show.bs.modal', ev => {
+        const tipoPagoSelect = document.getElementById('tipoPagoConsulta');
+        const contenedorSeguro = document.getElementById('contenedorSeguroConsulta');
+        const contenedorMontoAPagar = document.getElementById('contenedorMontoAPagarConsulta');
+        const contenedorMontoPendiente = document.getElementById('contenedorMontoPendienteConsulta');
+        const montoPagarInput = document.getElementById('montoPagarConsulta');
+        const montoPendienteSpan = document.getElementById('montoPendienteConsulta');
+        const totalPagoSpan = document.getElementById('totalPagoConsulta');
         const btn = ev.relatedTarget;
-        document.getElementById('cc_consulta_id').value = btn?.dataset.id || '';
-        document.getElementById('cc_monto').value = btn?.dataset.monto || '';
+
+        document.getElementById('idPacientePagoConsulta').value = btn?.dataset.id || '';
+        document.getElementById('nombrePacientePagoConsulta').innerText = btn?.dataset.paciente || '';
+        document.getElementById('fechaPacientePagoConsulta').innerText = btn?.dataset.fecha || '';
+        totalPagoSpan.innerText = `${btn?.dataset.monto} XAF` || '';
+        console.log('paciente: ' + btn?.dataset.paciente || '')
+        const idPaciente = btn?.dataset.id || '';
+
+
+        tipoPagoSelect.innerHTML = '';
+
+        // Opciones de tipo de pago
+        const efectivoOption = document.createElement('option');
+        efectivoOption.value = 'EFECTIVO';
+        efectivoOption.textContent = '💰 Efectivo';
+        tipoPagoSelect.appendChild(efectivoOption);
+
+        const adeudoOption = document.createElement('option');
+        adeudoOption.value = 'ADEUDO';
+        adeudoOption.textContent = '📝 A Deber (Adeudo)';
+        tipoPagoSelect.appendChild(adeudoOption);
+
+        // Ocultar secciones no aplicables inicialmente
+        contenedorSeguro.style.display = 'none';
+        contenedorMontoAPagar.style.display = 'none';
+        contenedorMontoPendiente.style.display = 'none';
+        montoPagarInput.value = '';
+        montoPagarInput.required = false;
+
+
+
+        // Función para actualizar el monto pendiente
+        const actualizarMontoPendiente = () => {
+            const totalAPagar = parseFloat(totalPagoSpan.textContent.replace(' FCFA', ''));
+            const montoPagado = parseFloat(montoPagarInput.value || 0);
+            const pendiente = totalAPagar - montoPagado;
+            montoPendienteSpan.textContent = pendiente.toFixed(0) + ' FCFA';
+        };
+
+        // Event listener para cambios en el tipo de pago
+        tipoPagoSelect.addEventListener('change', () => {
+            const tipoSeleccionado = tipoPagoSelect.value;
+            contenedorSeguro.style.display = 'none';
+            contenedorMontoAPagar.style.display = 'none';
+            contenedorMontoPendiente.style.display = 'none';
+            montoPagarInput.value = '';
+            montoPagarInput.required = false;
+
+            if (tipoSeleccionado === 'SEGURO') {
+                contenedorSeguro.style.display = 'block';
+                cargarSeguros(idPaciente, 'idSeguro'); // Cargar seguros del paciente
+            } else if (tipoSeleccionado === 'ADEUDO') {
+                contenedorMontoAPagar.style.display = 'block';
+                contenedorMontoPendiente.style.display = 'block';
+                montoPagarInput.required = true; // Hacer obligatorio el monto a pagar si es a deber
+            }
+            actualizarMontoPendiente();
+            
+        });
+
+ 
+            fetch('api/verificar_seguro.php?paciente_id=' + idPaciente)
+                    .then(response => response.json())
+                    .then(data => {
+                       
+                        console.log(`Tiene: ${ data.existeSeguro}`)
+                        if ( data.existeSeguro) {
+                            const seguroOption = document.createElement('option');
+                            seguroOption.value = 'SEGURO';
+                            seguroOption.textContent = '🛡️ Seguro';
+                            tipoPagoSelect.appendChild(seguroOption);
+                        }
+                    })
+  
+
+        // Función auxiliar para cargar los seguros de un paciente  
+        async function cargarSeguros(idPaciente, selectId) {
+            // Ejemplo:
+            fetch('api/verificar_seguro.php?paciente_id=' + idPaciente)
+                .then(response => response.json())
+                .then(response => {
+                    let seguro = response.dataSeguro;
+                    const selectElement = document.getElementById(selectId);
+                    selectElement.innerHTML = ''; // Limpiar opciones existentes
+                    const option = document.createElement('option');
+                    option.value = seguro.seguro_id;
+                    option.textContent = `${seguro.nombre} - Saldo: ${seguro.saldo_actual} FCFA`;
+                    selectElement.appendChild(option);
+
+                });
+
+        }
+
+        
+
+
+
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Pasar datos a modal Cobrar Analítica
     const modalCA = document.getElementById('modalCobrarAnalitica');
@@ -36,122 +151,17 @@ $productos = $pdo->query("SELECT id, nombre, precio_unitario FROM productos ORDE
     const modalPP = document.getElementById('modalPagoProveedor');
     modalPP?.addEventListener('show.bs.modal', ev => {
         const id = ev.relatedTarget?.dataset.id || '';
-        const nombreProveedor = ev.relatedTarget?.dataset.nombreproveedor || '';
-        const montoPendiente = (ev.relatedTarget?.dataset.montopendiente || '').replace(',', '.');
-        const factura = ev.relatedTarget?.dataset.factura || '';
+        const nombreProveedor = ev.relatedTarget?.dataset.proveedor || '';
+        const montoPendiente = (ev.relatedTarget?.dataset.montopendiente || '');
+        const factura = ev.relatedTarget?.dataset.factura.toUpperCase() || '';
 
-        console.log(factura);
         document.getElementById('pp_compra_id').value = id;
-        document.getElementById('nombreProveedor').value = nombreProveedor;
-        document.getElementById('montoPendiente').value = montoPendiente;
+        document.getElementById('nombreProveedorDePago').value = nombreProveedor;
+        document.getElementById('montoPendienteDePago').value = montoPendiente;
         document.getElementById('factura').innerText = factura;
     });
 
-    // ------------------- Construcción dinámica de items (Venta/Compra) -------------------
-    function addRow(tableId) {
-        const table = document.getElementById(tableId || 'tablaVentaItems');
-        const tr = table.tBodies[0].rows[0].cloneNode(true);
-        tr.querySelectorAll('input').forEach(i => { i.value = i.classList.contains('cantidad') ? 1 : '' });
-        tr.querySelector('.subtotal').textContent = 'XAF 0,00';
-        table.tBodies[0].appendChild(tr);
-    }
-    function removeRow(btn) {
-        const tr = btn.closest('tr');
-        const tbody = tr.parentElement;
-        if (tbody.rows.length > 1) tr.remove();
-        updateTotals();
-    }
 
-    // Auto-set precio cuando eliges producto
-    document.addEventListener('change', (e) => {
-        if (e.target.matches('.prod-select')) {
-            const opt = e.target.selectedOptions[0];
-            const precio = opt?.dataset.precio || 0;
-            const tr = e.target.closest('tr');
-            tr.querySelector('.precio').value = precio;
-            updateTotals();
-        }
-        if (e.target.matches('.cantidad, .precio')) updateTotals();
-    });
-
-    function updateTotals() {
-        // Ventas
-        const tv = document.getElementById('tablaVentaItems');
-        if (tv) {
-            let total = 0;
-            tv.tBodies[0].querySelectorAll('tr').forEach(tr => {
-                const cant = Number(tr.querySelector('.cantidad')?.value || 0);
-                const precio = Number(tr.querySelector('.precio')?.value || 0);
-                const sub = cant * precio;
-                tr.querySelector('.subtotal').textContent = 'XAF ' + money(sub);
-                total += sub;
-            });
-            document.getElementById('ventaTotal').textContent = 'XAF ' + money(total);
-        }
-        // Compras
-        const tc = document.getElementById('tablaCompraItems');
-        if (tc) {
-            let total = 0;
-            tc.tBodies[0].querySelectorAll('tr').forEach(tr => {
-                const cant = Number(tr.querySelector('.cantidad')?.value || 0);
-                const precio = Number(tr.querySelector('.precio')?.value || 0);
-                const sub = cant * precio;
-                tr.querySelector('.subtotal').textContent = 'XAF ' + money(sub);
-                total += sub;
-            });
-            document.getElementById('compraTotal').textContent = 'XAF ' + money(total);
-        }
-    }
-
-    function buildVentaItemsJson() {
-        const rows = document.querySelectorAll('#tablaVentaItems tbody tr');
-        const items = [];
-        for (const tr of rows) {
-            const prod = tr.querySelector('.prod-select')?.value;
-            const cant = Number(tr.querySelector('.cantidad')?.value || 0);
-            const precio = Number(tr.querySelector('.precio')?.value || 0);
-            if (!prod || cant <= 0 || precio <= 0) {
-                alert('Verifica producto, cantidad y precio en todos los renglones');
-                return false;
-            }
-            items.push({ producto_id: Number(prod), cantidad: cant, precio: precio });
-        }
-        document.getElementById('venta_items_json').value = JSON.stringify(items);
-        return true;
-    }
-
-    function buildCompraItemsJson() {
-        const rows = document.querySelectorAll('#tablaCompraItems tbody tr');
-        const items = [];
-        for (const tr of rows) {
-            const prod = tr.querySelector('.prod-select')?.value;
-            const cant = Number(tr.querySelector('.cantidad')?.value || 0);
-            const precio = Number(tr.querySelector('.precio')?.value || 0);
-            if (!prod || cant <= 0 || precio <= 0) {
-                alert('Verifica producto, cantidad y precio en todos los renglones');
-                return false;
-            }
-            items.push({ producto_id: Number(prod), cantidad: cant, precio_compra: precio });
-        }
-        document.getElementById('compra_items_json').value = JSON.stringify(items);
-        return true;
-    }
-
-    // Búsquedas rápidas (sólo cliente)
-    document.getElementById('searchConsultas')?.addEventListener('input', function () {
-        const val = this.value.trim();
-        document.querySelectorAll('#tbodyConsultas tr').forEach(tr => {
-            const pac = tr.children[1]?.textContent || '';
-            tr.style.display = pac.includes(val) ? '' : 'none';
-        });
-    });
-    document.getElementById('searchAnaliticas')?.addEventListener('input', function () {
-        const val = this.value.trim();
-        document.querySelectorAll('#tbodyAnaliticas tr').forEach(tr => {
-            const pac = tr.children[1]?.textContent || '';
-            tr.style.display = pac.includes(val) ? '' : 'none';
-        });
-    });
 
     //FUNCION PARA LLAMAR ALERTA DE IMPRIMIR Compra
 
@@ -217,7 +227,6 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
 
             const boton = event.relatedTarget;
             const fechaCompra = boton.getAttribute("data-fechaCompra");
-            console.log(fechaCompra)
             // Mostrar fecha en el input
             document.getElementById("fechaCompra").value = fechaCompra;
 
@@ -581,6 +590,8 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 document.getElementById('detalle-total').textContent = `XAF${parseFloat(total).toFixed(2)}`;
                 document.getElementById('detalle-estado-pago').textContent = estadoPago;
 
+                cambioDevueltoF = total - montoGastado;
+                console.log("Los")
                 document.getElementById('detalle-monto-entregado').textContent = `XAF${parseFloat(montoEntregado).toFixed(2)}`;
                 document.getElementById('detalle-monto-gastado').textContent = `XAF${parseFloat(montoGastado).toFixed(2)}`;
                 document.getElementById('detalle-cambio-devuelto').textContent = `XAF${parseFloat(cambioDevuelto).toFixed(2)}`;
@@ -623,23 +634,26 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 }
             });
         });
+        /* 
+                const buscador = document.getElementById('buscador');
+                const tabla = document.getElementById('tablaCompras');
+                const filas = tabla.getElementsByTagName('tr');
+        
+                buscador.addEventListener('keyup', function () {
+                    const filtro = buscador.value.toLowerCase();
+                    for (let i = 1; i < filas.length; i++) {
+                        const fila = filas[i];
+                        const textoFila = fila.textContent.toLowerCase();
+                        if (textoFila.indexOf(filtro) > -1) {
+                            fila.style.display = '';
+                        } else {
+                            fila.style.display = 'none';
+                        }
+                    }
+                });
+        
+                 */
 
-        const buscador = document.getElementById('buscador');
-        const tabla = document.getElementById('tablaCompras');
-        const filas = tabla.getElementsByTagName('tr');
-
-        buscador.addEventListener('keyup', function () {
-            const filtro = buscador.value.toLowerCase();
-            for (let i = 1; i < filas.length; i++) {
-                const fila = filas[i];
-                const textoFila = fila.textContent.toLowerCase();
-                if (textoFila.indexOf(filtro) > -1) {
-                    fila.style.display = '';
-                } else {
-                    fila.style.display = 'none';
-                }
-            }
-        });
 
         setTimeout(() => {
             const mensaje = document.getElementById('mensaje');
@@ -992,7 +1006,6 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
         // Activar y desactivar los campos de Monto recibido y cambio devuelto segun el select
         metodoPago.addEventListener("change", function (e) {
             const metodo = e.target.value;
-            console.log(metodo)
 
             if (metodo === "efectivo") {
                 pagoEfectivo.classList.remove("d-none");
@@ -1104,7 +1117,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                     detalleFecha.textContent = new Date(venta.fecha).toLocaleDateString();
                     detalleMontoTotal.textContent = `${parseFloat(venta.monto_total).toFixed(2)}${currency}`;
                     detalleMetodoPago.textContent = venta.metodo_pago;
-                    detalleEstadoPago.textContent = venta.estado_pago;
+                    detalleEstadoPago.textContent = `${venta.estado_pago}`;
                     detalleMontoRecibido.textContent = `${parseFloat(venta.monto_recibido).toFixed(2)}${currency}`;
                     detalleCambioDevuelto.textContent = `${parseFloat(venta.cambio_devuelto).toFixed(2)}${currency}`;
                     detalleSeguro.textContent = venta.seguro == 1 ? 'Sí' : 'No';
@@ -1461,9 +1474,9 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
             const montoPagarInput = document.getElementById('montoPagar');
             const montoPendienteSpan = document.getElementById('montoPendiente');
             const totalPagoSpan = document.getElementById('totalPago');
-            
+
             tipoPagoSelect.innerHTML = '';
-            
+
             // Opciones de tipo de pago
             const efectivoOption = document.createElement('option');
             efectivoOption.value = 'EFECTIVO';
@@ -1491,12 +1504,12 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 seguroOption.textContent = '🛡️ Seguro';
                 tipoPagoSelect.appendChild(seguroOption);
             }
-            
+
             // Llenar datos del paciente y fecha
             document.getElementById('nombrePacientePago').textContent = paciente;
             document.getElementById('fechaPacientePago').textContent = fecha;
             document.getElementById('idPacientePago').value = idPaciente;
-            
+
             // Llenar tabla de pruebas
             const tabla = document.getElementById('tablaPruebasPago');
             tabla.innerHTML = '';
@@ -1507,7 +1520,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 const tipo = prueba.tipo_prueba;
                 const precio = parseFloat(prueba.precio || 0);
                 const id_tipo_prueba = prueba.id_tipo_prueba;
-                
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
@@ -1521,9 +1534,9 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 tabla.appendChild(row);
                 total += precio;
             });
-            
+
             totalPagoSpan.textContent = total.toFixed(0) + ' FCFA';
-            
+
             // Función para actualizar el monto pendiente
             const actualizarMontoPendiente = () => {
                 const totalAPagar = parseFloat(totalPagoSpan.textContent.replace(' FCFA', ''));
@@ -1580,7 +1593,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
             const montoPagarInput = document.getElementById('editMontoPagar');
             const montoPendienteSpan = document.getElementById('editMontoPendiente');
             const totalGrupoSpan = document.getElementById('editTotalGrupo');
-            
+
             // Llenar datos del paciente y fecha en el modal de edición
             document.getElementById('editNombrePaciente').textContent = paciente;
             document.getElementById('editFechaPaciente').textContent = fecha;
@@ -1588,7 +1601,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
             document.getElementById('editFecha').value = fecha;
 
             tipoPagoSelect.innerHTML = '';
-            
+
             // Opciones de tipo de pago para edición
             const efectivoOption = document.createElement('option');
             efectivoOption.value = 'EFECTIVO';
@@ -1616,7 +1629,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 seguroOption.textContent = '🛡️ Seguro';
                 tipoPagoSelect.appendChild(seguroOption);
             }
-            
+
             // Llenar tabla de pruebas en el modal de edición
             const tabla = document.getElementById('tablaPruebasEditar');
             tabla.innerHTML = '';
@@ -1628,7 +1641,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 const precio = parseFloat(prueba.precio || 0);
                 const pagado = prueba.pagado; // 0 si no está pagado, 1 si está pagado
                 const id_tipo_prueba = prueba.id_tipo_prueba;
-                
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${tipo}</td>
@@ -1644,7 +1657,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 tabla.appendChild(row);
                 totalGrupo += precio;
             });
-            
+
             totalGrupoSpan.textContent = totalGrupo.toFixed(0) + ' FCFA';
 
             // Función para actualizar el monto pendiente en edición
@@ -1679,47 +1692,38 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
             montoPagarInput.addEventListener('input', actualizarMontoPendienteEdit);
         }
 
-        // Función auxiliar para cargar los seguros de un paciente (implementación pendiente)
+        // Función auxiliar para cargar los seguros de un paciente  
         async function cargarSeguros(idPaciente, selectId) {
-            // Aquí deberías hacer una llamada AJAX a tu backend para obtener los seguros del paciente
-            // y llenar el select con id 'selectId'.
             // Ejemplo:
-            /*
-            fetch('api/obtener_seguros.php?paciente_id=' + idPaciente)
+            fetch('api/verificar_seguro.php?paciente_id=' + idPaciente)
                 .then(response => response.json())
-                .then(data => {
+                .then(response => {
+                    let seguro = response.dataSeguro;
                     const selectElement = document.getElementById(selectId);
                     selectElement.innerHTML = ''; // Limpiar opciones existentes
-                    data.forEach(seguro => {
-                        const option = document.createElement('option');
-                        option.value = seguro.id;
-                        option.textContent = `${seguro.nombre} - Saldo: ${seguro.saldo_actual} FCFA`;
-                        selectElement.appendChild(option);
-                    });
+                    const option = document.createElement('option');
+                    option.value = seguro.seguro_id;
+                    option.textContent = `${seguro.nombre} - Saldo: ${seguro.saldo_actual} FCFA`;
+                    selectElement.appendChild(option);
+
                 });
-            */
-            console.log(`Cargando seguros para el paciente ${idPaciente} en el select ${selectId}`);
-            // Placeholder: añadir opciones manualmente si no se implementa AJAX
-             const selectElement = document.getElementById(selectId);
-             selectElement.innerHTML = `
-                 <option value="1">Seguro Médico Principal - Saldo: 50000 FCFA</option>
-                 <option value="2">Seguro Familiar - Saldo: 30000 FCFA</option>
-             `;
+
         }
 
-        // Función auxiliar para verificar si un paciente tiene seguro (implementación pendiente)
+        // Función auxiliar para verificar si un paciente tiene seguro  
         async function checkPatientInsurance(idPaciente) {
-            // Aquí deberías hacer una llamada AJAX a tu backend para verificar si el paciente tiene seguro
-            // y devolver true o false.
-            // Ejemplo:
-            /*
+            // Aquí se hace una llamada AJAX al backend para verificar si el paciente tiene seguro
+            // y devolver true o false. 
             return fetch('api/verificar_seguro.php?paciente_id=' + idPaciente)
                 .then(response => response.json())
-                .then(data => data.has_insurance);
-            */
-            console.log(`Verificando seguro para el paciente ${idPaciente}`);
-            // Placeholder: devolver true para probar la funcionalidad
-            return true; 
+                .then(data => {
+                    if (data.existeSeguro)
+                        return true;
+                    else
+                        return false
+                });
+
+
         }
 
     });

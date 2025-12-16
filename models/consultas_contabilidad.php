@@ -122,7 +122,7 @@ $analiticas = $pdo->query("SELECT a.id,
                          INNER JOIN pacientes AS p ON a.id_paciente = p.id
                           INNER JOIN tipo_pruebas AS tp ON a.id_tipo_prueba = tp.id
                          ORDER BY a.id DESC LIMIT 20")->fetchAll();
-$ventas = $pdo->query("SELECT v.id, v.paciente_id, v.fecha, v.monto_total, v.seguro,
+$ventas = $pdo->query("SELECT v.id, v.paciente_id, v.fecha, v.monto_total, v.seguro, v.monto_recibido,
                 v.estado_pago, v.metodo_pago, CONCAT(p.nombre,' ',p.apellidos)  AS nombre_paciente
                     FROM ventas AS v
                     INNER JOIN pacientes AS p ON v.paciente_id = p.id
@@ -153,6 +153,7 @@ try {
     v.monto_total,
     v.estado_pago,
     v.metodo_pago,
+    v.monto_recibido,
     v.seguro
 FROM ventas v
 LEFT JOIN pacientes p ON v.paciente_id = p.id

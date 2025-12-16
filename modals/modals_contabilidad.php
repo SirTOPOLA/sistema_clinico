@@ -1,42 +1,55 @@
 <!-- MODALES DE LA VISTA DE CONTABILIDAD -->
-
-<!-- Cobrar consulta -->
+ 
+ <!--  ========================= CONSULTAS =================== -->
 <div class="modal fade" id="modalCobrarConsulta" tabindex="-1">
-    <div class="modal-dialog">
-        <form class="modal-content" method="post">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>Cobrar consulta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-lg">
+    <form action="api/guardar_pago.php" method="POST" class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-cash-stack me-2"></i>Pagar Consulta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <input type="hidden" name="csrf" value="<?php echo csrf_token(); ?>">
-                <input type="hidden" name="accion" value="cobrar_consulta">
-                <input type="hidden" name="consulta_id" id="cc_consulta_id">
+                <input type="hidden" name="id_usuario" value="<?= $_SESSION['usuario']['id'] ?? '' ?>">
+                <input type="hidden" name="id_paciente" id="idPacientePagoConsulta">
+
                 <div class="mb-3">
-                    <label class="form-label">Monto</label>
-                    <div class="input-group">
-                        <span class="input-group-text">XAF</span>
-                        <input type="number" step="0.01" class="form-control" name="monto" id="cc_monto" required>
-                    </div>
+                    <strong>Paciente:</strong> <span id="nombrePacientePagoConsulta"></span><br>
+                    <strong>Fecha:</strong> <span id="fechaPacientePagoConsulta"></span>
                 </div>
+
+                          <div class="text-end mb-3">
+                    <strong>Total a Pagar: </strong><span id="totalPagoConsulta" class="fs-5">0 FCFA</span>
+                </div>
+
                 <div class="mb-3">
-                    <label class="form-label">Método de pago</label>
-                    <select class="form-select" name="metodo_pago">
-                        <option>EFECTIVO</option>
-                        <option>TARJETA</option>
-                        <option>TRANSFERENCIA</option>
-                        <option>OTRO</option>
+                    <label for="tipoPagoConsulta" class="form-label">Tipo de Pago</label>
+                    <select class="form-select" id="tipoPagoConsulta" name="tipo_pago" required>
+                    </select>
+                </div>
+                
+                <div id="contenedorMontoAPagarConsulta" class="mb-3" style="display:none;">
+                    <label for="montoPagar" class="form-label">Monto a Pagar</label>
+                    <input type="number" class="form-control" id="montoPagarConsulta" name="monto_pagar" min="0">
+                </div>
+
+                <div id="contenedorMontoPendienteConsulta" class="mb-3" style="display:none;">
+                    <strong>Monto Pendiente:</strong> <span id="montoPendienteConsulta" class="fs-5 text-danger">0 FCFA</span>
+                </div>
+
+                <div id="contenedorSeguroConsulta" class="mb-3" style="display:none;">
+                    <label for="idSeguro" class="form-label">Seleccionar Seguro</label>
+                    <select class="form-select" id="idSeguroConsulta" name="id_seguro">
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Confirmar
-                    cobro</button>
+                <button type="submit" class="btn btn-success"><i class="bi bi-wallet2 me-1"></i> Confirmar Pago</button>
             </div>
         </form>
     </div>
 </div>
+
+
 
 <!-- ===================== ANALÍTICAS ==================== -->
 <div class="modal fade" id="modalPagar" tabindex="-1" aria-hidden="true">
@@ -507,11 +520,11 @@
                         </h6>
 
                         <label class="form-label fw-semibold">Código de Factura:</label>
-                        <p id="factura" class="mb-2 text-dark fw-bold"></p>
+                        <span id="factura" class="mb-2 text-dark fw-bold"></span>
 
                         <div class="input-group mb-3">
                             <span class="input-group-text bg-light fw-semibold">Nombre:</span>
-                            <input type="text" id="nombreProveedor" class="form-control" disabled>
+                            <input type="text" id="nombreProveedorDePago" class="form-control" disabled>
                         </div>
 
                         <div class="row g-3">
@@ -544,16 +557,14 @@
                         <label class="form-label fw-semibold">Monto a pagar</label>
                         <div class="input-group mb-3">
                             <span class="input-group-text bg-light fw-semibold">XAF</span>
-                            <input type="text" name="monto" id="montoPendiente" class="form-control" required>
+                            <input type="number" name="monto" id="montoPendienteDePago" class="form-control" required>
+                        </div>
+                        <div class="input-group mb-3">
+                           
+                            <input type="hidden" name="metodo_pago" id="montoPendienteDePago" class="form-control" value="efectivo" required>
                         </div>
 
-                        <label class="form-label fw-semibold">Método de pago</label>
-                        <select class="form-select" name="metodo_pago">
-                            <option>EFECTIVO</option>
-                            <option>TRANSFERENCIA</option>
-                            <option>TARJETA</option>
-                            <option>OTRO</option>
-                        </select>
+                        
 
                     </div>
                 </div>

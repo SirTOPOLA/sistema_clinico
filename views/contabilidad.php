@@ -72,7 +72,8 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                 </li>
             </ul>
             <div class="tab-content" id="pills-tabContent">
-                <!-- ================= Consultas ================ -->
+              
+            <!-- ================= Consultas ================ -->
                 <div class="tab-pane fade show active" id="pills-consultas" role="tabpanel"
                     aria-labelledby="pills-consultas-tab" tabindex="0">
                     <div class="card glass">
@@ -120,6 +121,8 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                                                         <button class="btn btn-sm btn-success" data-bs-toggle="modal"
                                                             data-bs-target="#modalCobrarConsulta"
                                                             data-id="<?php echo (int) $c['id']; ?>"
+                                                            data-paciente="<?php echo   $c['nombre_paciente']; ?>"
+                                                            data-fecha="<?php echo   $c['fecha_registro']; ?>"
                                                             data-monto="<?php echo (float) ($c['precio'] ?? 0); ?>">
                                                             <i class="bi bi-cash-coin"></i> Cobrar
                                                         </button>
@@ -153,104 +156,108 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                         <div class="card-body p-0">
                             <div class="table-responsive">
                                 <table class="table table-hover mb-0 align-middle">
-                                <thead class="table-light text-nowrap">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre del Paciente</th>
-                        <th>Código</th>
-                        <th>Pruebas</th>
-                        <th>Resultados</th>
-                        <th>Fecha</th>
-                        <th>Pagos</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($grupos as $grupo): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($grupo['registros'][0]['id']) ?></td>
-                            <td><?= htmlspecialchars($grupo['paciente']) ?></td>
-                            <td><?= htmlspecialchars($grupo['codigo']) ?></td>
-                            <td>
-                                <ul class="mb-0">
-                                    <?php foreach ($grupo['registros'] as $r): ?>
-                                        <li><?= htmlspecialchars($r['tipo_prueba']) ?></li>
-                                    <?php endforeach ?>
-                                </ul>
-                            </td>
-                            <td>
-                                <?php
-                                $todosConResultado = true;
-                                foreach ($grupo['registros'] as $r) {
-                                    if (empty($r['resultado'])) {
-                                        $todosConResultado = false;
-                                        break;
-                                    }
-                                }
-                                ?>
-                                <?php if ($todosConResultado): ?>
-                                    <span class="badge bg-primary">Resultado</span>
-                                <?php else: ?>
-                                    <span class="badge bg-danger">Sin Resultado</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= date('d/m/Y', strtotime($grupo['fecha'])) ?></td>
-                            <td>
-                                <?php
-                                $estado_pago = 'SIN PAGAR'; // Valor por defecto
-                                // Buscar el estado de pago del primer registro en el grupo
-                                if (isset($grupo['registros'][0]['tipo_pago'])) {
-                                    $estado_pago = $grupo['registros'][0]['tipo_pago'];
-                                }
+                                    <thead class="table-light text-nowrap">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nombre del Paciente</th>
+                                            <th>Código</th>
+                                            <th>Pruebas</th>
+                                            <th>Resultados</th>
+                                            <th>Fecha</th>
+                                            <th>Pagos</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($grupos as $grupo): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($grupo['registros'][0]['id']) ?></td>
+                                                <td><?= htmlspecialchars($grupo['paciente']) ?></td>
+                                                <td><?= htmlspecialchars($grupo['codigo']) ?></td>
+                                                <td>
+                                                    <ul class="mb-0">
+                                                        <?php foreach ($grupo['registros'] as $r): ?>
+                                                            <li><?= htmlspecialchars($r['tipo_prueba']) ?></li>
+                                                        <?php endforeach ?>
+                                                    </ul>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $todosConResultado = true;
+                                                    foreach ($grupo['registros'] as $r) {
+                                                        if (empty($r['resultado'])) {
+                                                            $todosConResultado = false;
+                                                            break;
+                                                        }
+                                                    }
+                                                    ?>
+                                                    <?php if ($todosConResultado): ?>
+                                                        <span class="badge bg-primary">Resultado</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-danger">Sin Resultado</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td><?= date('d/m/Y', strtotime($grupo['fecha'])) ?></td>
+                                                <td>
+                                                    <?php
+                                                    $estado_pago = 'SIN PAGAR'; // Valor por defecto
+                                                    // Buscar el estado de pago del primer registro en el grupo
+                                                    if (isset($grupo['registros'][0]['tipo_pago'])) {
+                                                        $estado_pago = $grupo['registros'][0]['tipo_pago'];
+                                                    }
 
-                                switch ($estado_pago) {
-                                    case 'EFECTIVO':
-                                    case 'SEGURO':
-                                        echo '<span class="badge bg-success">Pagado</span>';
-                                        break;
-                                    case 'ADEUDO':
-                                        echo '<span class="badge bg-warning text-dark">Adeudo</span>';
-                                        break;
-                                    case 'SIN PAGAR':
-                                        echo '<span class="badge bg-danger">Sin Pagar</span>';
-                                        break;
-                                    default:
-                                        echo '<span class="badge bg-secondary">Desconocido</span>';
-                                }
-                                ?>
-                            </td>
-                            <td>
-                                <?php if ($estado_pago == 'SIN PAGAR' ): ?>
-                                    <button class="btn btn-sm btn-outline-success btn-pagar" data-bs-toggle="modal"
-                                            data-bs-target="#modalPagar"
-                                            data-grupo='<?= json_encode(array_filter($grupo['registros'], fn($r) => $r['pagado'] == 0)) ?>'
-                                            data-paciente="<?= htmlspecialchars($grupo['paciente']) ?>"
-                                            data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>"
-                                            data-paciente-id="<?= htmlspecialchars($grupo['id_paciente']) ?>" title="Pagar pruebas">
-                                        <i class="bi bi-cash-coin me-1"></i> Pagar
-                                    </button>
-                                <?php else: ?>
-                                    <a href="fpdf/generar_factura.php?id=<?= $grupo['registros'][0]['id'] ?>&fecha=<?= $grupo['fecha'] ?>"
-                                            target="_blank" class="btn btn-outline-secondary btn-sm" title="Imprimir Factura">
-                                        <i class="bi bi-printer"></i> Imprimir Factura
-                                    </a>
-                                    <button class="btn btn-sm btn-outline-primary btn-editar-pago mt-1" data-bs-toggle="modal"
-                                            data-bs-target="#modalEditarPago"
-                                            data-grupo='<?= json_encode($grupo['registros']) ?>'
-                                            data-paciente="<?= htmlspecialchars($grupo['paciente']) ?>"
-                                            data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>"
-                                            data-paciente-id="<?= htmlspecialchars($grupo['id_paciente']) ?>" title="Editar Pago">
-                                        <i class="bi bi-pencil-square"></i> Editar
-                                    </button>
-                                <?php endif; ?>
-                                <a href="fpdf/imprimir_pruebas.php?id=<?= $grupo['id_paciente'] ?>&fecha=<?= $grupo['fecha'] ?>"
-                                        target="_blank" class="btn btn-outline-primary btn-sm mt-1" title="Imprimir Pruebas Médicas">
-                                    <i class="bi bi-file-earmark-medical"></i> Ver Pruebas
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach ?>
-                </tbody>
+                                                    switch ($estado_pago) {
+                                                        case 'EFECTIVO':
+                                                        case 'SEGURO':
+                                                            echo '<span class="badge bg-success">Pagado</span>';
+                                                            break;
+                                                        case 'ADEUDO':
+                                                            echo '<span class="badge bg-warning text-dark">Adeudo</span>';
+                                                            break;
+                                                        case 'SIN PAGAR':
+                                                            echo '<span class="badge bg-danger">Sin Pagar</span>';
+                                                            break;
+                                                        default:
+                                                            echo '<span class="badge bg-secondary">Desconocido</span>';
+                                                    }
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?php if ($estado_pago == 'SIN PAGAR'): ?>
+                                                        <button class="btn btn-sm btn-outline-success btn-pagar"
+                                                            data-bs-toggle="modal" data-bs-target="#modalPagar"
+                                                            data-grupo='<?= json_encode(array_filter($grupo['registros'], fn($r) => $r['pagado'] == 0)) ?>'
+                                                            data-paciente="<?= htmlspecialchars($grupo['paciente']) ?>"
+                                                            data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>"
+                                                            data-paciente-id="<?= htmlspecialchars($grupo['id_paciente']) ?>"
+                                                            title="Pagar pruebas">
+                                                            <i class="bi bi-cash-coin me-1"></i> Pagar
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <a href="fpdf/generar_factura.php?id=<?= $grupo['registros'][0]['id'] ?>&fecha=<?= $grupo['fecha'] ?>"
+                                                            target="_blank" class="btn btn-outline-secondary btn-sm"
+                                                            title="Imprimir Factura">
+                                                            <i class="bi bi-printer"></i> Imprimir Factura
+                                                        </a>
+                                                        <button class="btn btn-sm btn-outline-primary btn-editar-pago mt-1"
+                                                            data-bs-toggle="modal" data-bs-target="#modalEditarPago"
+                                                            data-grupo='<?= json_encode($grupo['registros']) ?>'
+                                                            data-paciente="<?= htmlspecialchars($grupo['paciente']) ?>"
+                                                            data-fecha="<?= htmlspecialchars($grupo['fecha']) ?>"
+                                                            data-paciente-id="<?= htmlspecialchars($grupo['id_paciente']) ?>"
+                                                            title="Editar Pago">
+                                                            <i class="bi bi-pencil-square"></i> Editar
+                                                        </button>
+                                                    <?php endif; ?>
+                                                    <a href="fpdf/imprimir_pruebas.php?id=<?= $grupo['id_paciente'] ?>&fecha=<?= $grupo['fecha'] ?>"
+                                                        target="_blank" class="btn btn-outline-primary btn-sm mt-1"
+                                                        title="Imprimir Pruebas Médicas">
+                                                        <i class="bi bi-file-earmark-medical"></i> Ver Pruebas
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach ?>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -275,11 +282,9 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                                         <tr>
                                             <th>ID</th>
                                             <th>Paciente</th>
-                                            <th>Atendido por</th>
                                             <th>Fecha</th>
                                             <th>Monto Total</th>
-                                            <th>Estado Pago</th>
-                                            <th>Método Pago</th>
+                                            <th>Monto Pendiente</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
@@ -288,30 +293,30 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                                         // Bucle para mostrar las ventas dinámicamente
                                         foreach ($ventas as $venta):
                                             ?>
-                                            <tr>
+                                            <?php
+                                            // $pendiente = ($venta['monto_total'] - $venta['monto_recibido']);
+                                            if (($venta['monto_total'] - $venta['monto_recibido']) > 0)
+                                                $pendiente = ($venta['monto_total'] - $venta['monto_recibido']);
+                                            else
+                                                $pendiente = 0;
+
+                                            $clase = ($pendiente === 0) ? ' text-white'
+                                                : 'table-danger text-white ';
+                                            ?>
+                                            <tr class="<?= $clase; ?>">
                                                 <td><?= htmlspecialchars($venta['id']) ?></td>
                                                 <td><?= htmlspecialchars($venta['nombre_paciente']) ?></td>
-                                                <td><?= htmlspecialchars($venta['nombre_usuario']) ?></td>
                                                 <td class="fecha-venta"><?= date('d/m/Y', strtotime($venta['fecha'])) ?>
                                                 </td>
                                                 <td class="monto-total-venta">
                                                     <?= number_format($venta['monto_total'], 2) . ' XAF' ?>
                                                 </td>
-                                                <?php
-                                                $estado = htmlspecialchars($venta['estado_pago']);
-                                                $clase = ($estado === 'PAGADO') ? 'bg-success text-white fw-bold rounded px-2 py-1'
-                                                    : 'bg-warning text-dark fw-bold rounded px-2 py-1';
-                                                ?>
-                                                <td class="estado-pago">
-                                                    <span class="<?= $clase ?>"><?= $estado ?></span>
+
+
+                                                <td class="monto-total-venta">
+                                                    <?= number_format($pendiente, 2) . ' XAF' ?>
                                                 </td>
 
-                                                <td class="metodo-pago"><?php if ((int) $venta["seguro"] == 1) {
-                                                    echo htmlspecialchars("SEGURO");
-                                                } else {
-                                                    echo htmlspecialchars($venta['metodo_pago']);
-                                                }
-                                                ?></td>
                                                 <td class="text-nowrap">
                                                     <button class="btn btn-sm btn-outline-info btn-ver-detalles-venta"
                                                         data-id="<?= $venta['id'] ?>" data-bs-toggle="modal"

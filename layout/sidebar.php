@@ -24,8 +24,7 @@ $iconos_por_rol = [
     'ingresos' => 'bi-door-open',
     'pagos' => 'bi-cash-coin',
     'consultas' => 'bi-clipboard-check',
-    'contabilidad' => 'bi-bar-chart-line',
-    /* 'seguros' => 'bi-file-earmark-medical', */
+    'contabilidad' => 'bi-bar-chart-line', 
     'empleados' => 'bi-person-workspace',
   ],
   'secretaria' => [
