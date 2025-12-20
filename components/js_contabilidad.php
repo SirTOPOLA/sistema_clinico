@@ -7,6 +7,129 @@ $productos = $pdo->query("SELECT id, nombre, precio_unitario FROM productos ORDE
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+
+<!-- ==================== CONSULTA ======================== -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const modalCC = document.getElementById('modalCobrarConsulta');
+
+    modalCC?.addEventListener('show.bs.modal', async (ev) => {
+
+        const btn = ev.relatedTarget;
+
+        // ====== ELEMENTOS ======
+        const tipoPagoSelect = document.getElementById('formaPago');
+        const contenedorSeguro = document.getElementById('contenedorSeguroConsulta');
+        const contenedorMontoAPagar = document.getElementById('contenedorMontoAPagarConsulta');
+        const contenedorMontoPendiente = document.getElementById('contenedorMontoPendienteConsulta');
+
+        const montoPagarInput = document.getElementById('montoPagarConsulta');
+        const montoPendienteSpan = document.getElementById('montoPendienteConsulta');
+        const totalPagoSpan = document.getElementById('totalPagoConsulta');
+
+        // ====== DATOS DEL BOTÓN ======
+        const idPaciente = btn?.dataset.id || '';
+        const totalConsulta = parseFloat(btn?.dataset.monto || 0);
+
+        document.getElementById('idPacientePagoConsulta').value = idPaciente;
+        document.getElementById('nombrePacientePagoConsulta').innerText = btn?.dataset.paciente || '';
+        document.getElementById('fechaPacientePagoConsulta').innerText = btn?.dataset.fecha || '';
+        totalPagoSpan.innerText = `${totalConsulta} XAF`;
+
+        // ====== RESET ======
+        tipoPagoSelect.value = 'efectivo';
+        contenedorSeguro.style.display = 'none';
+        contenedorMontoAPagar.style.display = 'none';
+        contenedorMontoPendiente.style.display = 'none';
+        montoPagarInput.value = '';
+
+        // ====== VALIDAR SEGURO ======
+        let dataSeguro = null;
+        const optionSeguro = tipoPagoSelect.querySelector('option[value="seguro"]');
+
+        try {
+            const res = await fetch(`api/verificar_seguro.php?paciente_id=${idPaciente}`);
+            const json = await res.json();
+
+            if (json.existeSeguro) {
+                optionSeguro.hidden = false;
+                dataSeguro = json.dataSeguro;
+            } else {
+                optionSeguro.hidden = true;
+                if (tipoPagoSelect.value === 'seguro') {
+                    tipoPagoSelect.value = 'efectivo';
+                }
+            }
+        } catch (err) {
+            console.error('Error verificando seguro', err);
+            optionSeguro.hidden = true;
+        }
+
+        // ====== EVENTO TIPO DE PAGO ======
+        tipoPagoSelect.onchange = () => {
+
+            contenedorSeguro.style.display = 'none';
+            contenedorMontoAPagar.style.display = 'none';
+            contenedorMontoPendiente.style.display = 'none';
+            montoPagarInput.value = '';
+
+            if (tipoPagoSelect.value === 'prestamo') {
+
+                contenedorMontoAPagar.style.display = 'block';
+                contenedorMontoPendiente.style.display = 'block';
+
+                montoPagarInput.max = totalConsulta;
+                montoPagarInput.value = 0;
+                montoPendienteSpan.innerText = `${totalConsulta} XAF`;
+
+            } else if (tipoPagoSelect.value === 'seguro' && dataSeguro) {
+
+                contenedorSeguro.style.display = 'block';
+
+                contenedorSeguro.innerHTML = `
+                    <div class="alert alert-info">
+                        <strong>Seguro:</strong> ${dataSeguro.nombre}<br>
+                        <strong>Saldo disponible:</strong> ${dataSeguro.saldo_actual} XAF
+                    </div>
+                `;
+
+            }
+        };
+
+        // ====== CALCULAR MONTO PENDIENTE ======
+        montoPagarInput.oninput = () => {
+
+            let monto = parseFloat(montoPagarInput.value || 0);
+
+            if (monto < 0) monto = 0;
+            if (monto > totalConsulta) monto = totalConsulta;
+
+            montoPagarInput.value = monto;
+
+            const pendiente = totalConsulta - monto;
+            montoPendienteSpan.innerText = `${pendiente} XAF`;
+        };
+
+    });
+
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script>
     // Utilidades UI
     const money = n => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(n || 0));
@@ -17,115 +140,7 @@ $productos = $pdo->query("SELECT id, nombre, precio_unitario FROM productos ORDE
         t.show();
     <?php endif; ?>
 
-    // Pasar datos a modal Cobrar Consulta
-    const modalCC = document.getElementById('modalCobrarConsulta');
-    modalCC?.addEventListener('show.bs.modal', ev => {
-        const tipoPagoSelect = document.getElementById('tipoPagoConsulta');
-        const contenedorSeguro = document.getElementById('contenedorSeguroConsulta');
-        const contenedorMontoAPagar = document.getElementById('contenedorMontoAPagarConsulta');
-        const contenedorMontoPendiente = document.getElementById('contenedorMontoPendienteConsulta');
-        const montoPagarInput = document.getElementById('montoPagarConsulta');
-        const montoPendienteSpan = document.getElementById('montoPendienteConsulta');
-        const totalPagoSpan = document.getElementById('totalPagoConsulta');
-        const btn = ev.relatedTarget;
-
-        document.getElementById('idPacientePagoConsulta').value = btn?.dataset.id || '';
-        document.getElementById('nombrePacientePagoConsulta').innerText = btn?.dataset.paciente || '';
-        document.getElementById('fechaPacientePagoConsulta').innerText = btn?.dataset.fecha || '';
-        totalPagoSpan.innerText = `${btn?.dataset.monto} XAF` || '';
-        console.log('paciente: ' + btn?.dataset.paciente || '')
-        const idPaciente = btn?.dataset.id || '';
-
-
-        tipoPagoSelect.innerHTML = '';
-
-        // Opciones de tipo de pago
-        const efectivoOption = document.createElement('option');
-        efectivoOption.value = 'EFECTIVO';
-        efectivoOption.textContent = '💰 Efectivo';
-        tipoPagoSelect.appendChild(efectivoOption);
-
-        const adeudoOption = document.createElement('option');
-        adeudoOption.value = 'ADEUDO';
-        adeudoOption.textContent = '📝 A Deber (Adeudo)';
-        tipoPagoSelect.appendChild(adeudoOption);
-
-        // Ocultar secciones no aplicables inicialmente
-        contenedorSeguro.style.display = 'none';
-        contenedorMontoAPagar.style.display = 'none';
-        contenedorMontoPendiente.style.display = 'none';
-        montoPagarInput.value = '';
-        montoPagarInput.required = false;
-
-
-
-        // Función para actualizar el monto pendiente
-        const actualizarMontoPendiente = () => {
-            const totalAPagar = parseFloat(totalPagoSpan.textContent.replace(' FCFA', ''));
-            const montoPagado = parseFloat(montoPagarInput.value || 0);
-            const pendiente = totalAPagar - montoPagado;
-            montoPendienteSpan.textContent = pendiente.toFixed(0) + ' FCFA';
-        };
-
-        // Event listener para cambios en el tipo de pago
-        tipoPagoSelect.addEventListener('change', () => {
-            const tipoSeleccionado = tipoPagoSelect.value;
-            contenedorSeguro.style.display = 'none';
-            contenedorMontoAPagar.style.display = 'none';
-            contenedorMontoPendiente.style.display = 'none';
-            montoPagarInput.value = '';
-            montoPagarInput.required = false;
-
-            if (tipoSeleccionado === 'SEGURO') {
-                contenedorSeguro.style.display = 'block';
-                cargarSeguros(idPaciente, 'idSeguro'); // Cargar seguros del paciente
-            } else if (tipoSeleccionado === 'ADEUDO') {
-                contenedorMontoAPagar.style.display = 'block';
-                contenedorMontoPendiente.style.display = 'block';
-                montoPagarInput.required = true; // Hacer obligatorio el monto a pagar si es a deber
-            }
-            actualizarMontoPendiente();
-            
-        });
-
- 
-            fetch('api/verificar_seguro.php?paciente_id=' + idPaciente)
-                    .then(response => response.json())
-                    .then(data => {
-                       
-                        console.log(`Tiene: ${ data.existeSeguro}`)
-                        if ( data.existeSeguro) {
-                            const seguroOption = document.createElement('option');
-                            seguroOption.value = 'SEGURO';
-                            seguroOption.textContent = '🛡️ Seguro';
-                            tipoPagoSelect.appendChild(seguroOption);
-                        }
-                    })
-  
-
-        // Función auxiliar para cargar los seguros de un paciente  
-        async function cargarSeguros(idPaciente, selectId) {
-            // Ejemplo:
-            fetch('api/verificar_seguro.php?paciente_id=' + idPaciente)
-                .then(response => response.json())
-                .then(response => {
-                    let seguro = response.dataSeguro;
-                    const selectElement = document.getElementById(selectId);
-                    selectElement.innerHTML = ''; // Limpiar opciones existentes
-                    const option = document.createElement('option');
-                    option.value = seguro.seguro_id;
-                    option.textContent = `${seguro.nombre} - Saldo: ${seguro.saldo_actual} FCFA`;
-                    selectElement.appendChild(option);
-
-                });
-
-        }
-
-        
-
-
-
-    });
+   
 
 
 
@@ -588,7 +603,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                 document.getElementById('detalle-personal').textContent = personal;
                 document.getElementById('detalle-fecha').textContent = fecha;
                 document.getElementById('detalle-total').textContent = `XAF${parseFloat(total).toFixed(2)}`;
-                document.getElementById('detalle-estado-pago').textContent = estadoPago;
+                document.getElementById('detalle-estado-pago').innerText = estadoPago;
 
                 cambioDevueltoF = total - montoGastado;
                 console.log("Los")
@@ -1116,7 +1131,7 @@ UNA FECHA X DE LA BASE DE DATOS A LA FECHA DEL SISTEMA
                     detalleUsuario.textContent = venta.usuario_nombre;
                     detalleFecha.textContent = new Date(venta.fecha).toLocaleDateString();
                     detalleMontoTotal.textContent = `${parseFloat(venta.monto_total).toFixed(2)}${currency}`;
-                    detalleMetodoPago.textContent = venta.metodo_pago;
+                    detalleMetodoPago.innerText = venta.metodo_pago;
                     detalleEstadoPago.textContent = `${venta.estado_pago}`;
                     detalleMontoRecibido.textContent = `${parseFloat(venta.monto_recibido).toFixed(2)}${currency}`;
                     detalleCambioDevuelto.textContent = `${parseFloat(venta.cambio_devuelto).toFixed(2)}${currency}`;

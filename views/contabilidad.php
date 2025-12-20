@@ -105,8 +105,18 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                                             <tr>
                                                 <td>#<?php echo (int) $c['id']; ?></td>
                                                 <td><?= htmlspecialchars($c['nombre_paciente']); ?></td>
-                                                <td>XAF <?php echo money($c['precio'] ?? 0); ?></td>
+                                                <!-- <td>XAF <?php echo money($c['precio'] ?? 0); ?></td> -->
                                                 <td>
+    <?php if ($c['pagado']): ?>
+        XAF <?= money($c['precio_total']); ?>
+    <?php else: ?>
+        XAF <strong class="text-danger">
+            <?= money($c['monto_pendiente']); ?>
+        </strong>
+    <?php endif; ?>
+</td>
+
+                                              <!--   <td>
                                                     <?php if ((int) $c['pagado'] === 1): ?>
                                                         <span class="badge rounded-pill bg-success"><i class="bi bi-check2"></i>
                                                             Pagado</span>
@@ -114,7 +124,26 @@ require("components/estilos_contabilidad.php"); /* Este archivo proporciona esti
                                                         <span class="badge rounded-pill bg-warning text-dark"><i
                                                                 class="bi bi-exclamation-triangle"></i> Pendiente</span>
                                                     <?php endif; ?>
-                                                </td>
+                                                </td> -->
+
+                                                <td>
+    <?php if ($c['pagado']): ?>
+        <span class="badge rounded-pill bg-success">
+            <i class="bi bi-check2"></i> Pagado
+        </span>
+    <?php elseif ($c['tiene_prestamo']): ?>
+        <span class="badge rounded-pill bg-warning text-dark">
+            <i class="bi bi-clock-history"></i> Parcial
+        </span>
+    <?php else: ?>
+        <span class="badge rounded-pill bg-danger">
+            <i class="bi bi-exclamation-circle"></i> Pendiente
+        </span>
+    <?php endif; ?>
+</td>
+
+
+
                                                 <td><?php echo htmlspecialchars($c['fecha_registro']); ?></td>
                                                 <td class="text-end">
                                                     <?php if ((int) $c['pagado'] !== 1): ?>

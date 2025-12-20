@@ -205,6 +205,7 @@ $campos_booleanos = [
 
             <div class="modal-body p-4">
                 <input type="hidden" name="id_usuario" value="<?= $idUsuario ?>">
+                <input type="hidden" name="precio" value="<?= (int) 1000 ?>">
 
                 <div class="mb-4">
                     <label class="form-label fw-semibold"><i class="bi bi-person-badge-fill me-2"></i>Paciente <span

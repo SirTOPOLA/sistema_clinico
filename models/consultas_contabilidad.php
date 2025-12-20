@@ -106,14 +106,33 @@ try {
 // Listados cortos (últimos 20)
 /* $consultas = $pdo->query("SELECT id, id_paciente, precio, pagado, fecha_registro FROM consultas
              ORDER BY id DESC LIMIT 20")->fetchAll(); */
-$consultas = $pdo->query("SELECT c.id, c.id_paciente, 
-                CONCAT(p.nombre,' ',p.apellidos)  AS nombre_paciente, c.precio, 
-                c.pagado, c.fecha_registro
-             FROM consultas AS c
-             INNER JOIN pacientes AS p ON c.id_paciente = p.id
+$consultas = $pdo->query("
+             SELECT 
+                 c.id,
+                 c.id_paciente,
+                 CONCAT(p.nombre,' ',p.apellidos) AS nombre_paciente,
+                 c.precio AS precio_total,
+                 c.pagado,
+                 c.fecha_registro,
+         
+                 /* Monto pendiente real */
+                 COALESCE(pr.total, c.precio) AS monto_pendiente,
+         
+                 /* Flags útiles */
+                 IF(pr.id IS NULL, 0, 1) AS tiene_prestamo
+         
+             FROM consultas c
+             INNER JOIN pacientes p ON p.id = c.id_paciente
+         
+             LEFT JOIN prestamos pr 
+                 ON pr.origen_tipo = 'CONSULTA'
+                AND pr.origen_id = c.id
+                AND pr.estado != 'PAGADO'
+         
              ORDER BY c.id DESC
              LIMIT 20
          ")->fetchAll();
+
 
 $analiticas = $pdo->query("SELECT a.id, 
                 a.id_paciente, a.id_tipo_prueba, a.estado, a.pagado, a.tipo_pago, a.fecha_registro,

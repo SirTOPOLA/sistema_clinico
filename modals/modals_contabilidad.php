@@ -3,7 +3,7 @@
  <!--  ========================= CONSULTAS =================== -->
 <div class="modal fade" id="modalCobrarConsulta" tabindex="-1">
     <div class="modal-dialog modal-lg">
-    <form action="api/guardar_pago.php" method="POST" class="modal-content">
+    <form action="api/guardar_pago_consulta.php" method="POST" class="modal-content">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title"><i class="bi bi-cash-stack me-2"></i>Pagar Consulta</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -22,8 +22,11 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="tipoPagoConsulta" class="form-label">Tipo de Pago</label>
-                    <select class="form-select" id="tipoPagoConsulta" name="tipo_pago" required>
+                    <label for="formaPago" class="form-label">Tipo de Pago</label>
+                    <select class="form-select" id="formaPago" name="tipo_pago" required>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="prestamo">A Deudo</option>
+                        <option value="seguro">Seguro</option>
                     </select>
                 </div>
                 
@@ -37,9 +40,9 @@
                 </div>
 
                 <div id="contenedorSeguroConsulta" class="mb-3" style="display:none;">
-                    <label for="idSeguro" class="form-label">Seleccionar Seguro</label>
+                   <!--  <label for="idSeguro" class="form-label">Seleccionar Seguro</label>
                     <select class="form-select" id="idSeguroConsulta" name="id_seguro">
-                    </select>
+                    </select> -->
                 </div>
             </div>
             <div class="modal-footer">

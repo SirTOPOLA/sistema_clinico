@@ -20,7 +20,7 @@ function validar_rangos($datos) {
     if ($datos['peso_anterior'] < 1 || $datos['peso_anterior'] > 300) return "Peso anterior fuera de rango.";
     if ($datos['peso_actual'] < 1 || $datos['peso_actual'] > 300) return "Peso actual fuera de rango.";
     if ($datos['peso_ideal'] < 1 || $datos['peso_ideal'] > 300) return "Peso ideal fuera de rango.";
-    if ($datos['imc'] < 5 || $datos['imc'] > 80) return "IMC fuera de rango.";
+    if ($datos['imc'] < 5 || $datos['imc'] > 80) return "IMC fuera de rango."; 
     return true;
 }
 
@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $id_usuario = (int) $_POST['id_usuario'];
         $id_paciente = (int) $_POST['id_paciente'];
+        $precio = (int) $_POST['precio'];
         $motivo_consulta = trim($_POST['motivo_consulta']);
 
         // Datos clínicos
@@ -43,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'peso_actual' => floatval($_POST['peso_actual']),
             'peso_ideal' => floatval($_POST['peso_ideal']),
             'imc' => floatval($_POST['imc']),
+          
         ];
 
         $validacion = validar_campos_requeridos([
@@ -75,11 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             motivo_consulta, temperatura, control_cada_horas, frecuencia_cardiaca,
             frecuencia_respiratoria, tension_arterial, pulso, saturacion_oxigeno,
             peso_anterior, peso_actual, peso_ideal, imc,
-            id_paciente, id_usuario, fecha_registro
+            id_paciente, id_usuario, fecha_registro, precio
         ) VALUES (
             :motivo, :temp, :control, :fc, :fr, :ta, :pulso, :so,
             :peso_ant, :peso_act, :peso_ideal, :imc,
-            :paciente, :usuario, :fecha
+            :paciente, :usuario, :fecha, :precio
         )";
 
         $stmtConsulta = $pdo->prepare($sqlConsulta);
@@ -98,7 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':imc' => $datos['imc'],
             ':paciente' => $id_paciente,
             ':usuario' => $id_usuario,
-            ':fecha' => $fecha_registro
+            ':fecha' => $fecha_registro,
+            ':precio' => $precio
         ]);
 
         $id_consulta = $pdo->lastInsertId();
