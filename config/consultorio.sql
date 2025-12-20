@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 04-12-2025 a las 11:47:45
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.0.30
+-- Host: 127.0.0.1
+-- Generation Time: Dec 20, 2025 at 02:23 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `consultorio`
+-- Database: `consultorio`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `analiticas`
+-- Table structure for table `analiticas`
 --
 
 CREATE TABLE `analiticas` (
@@ -43,7 +43,7 @@ CREATE TABLE `analiticas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `analiticas`
+-- Dumping data for table `analiticas`
 --
 
 INSERT INTO `analiticas` (`id`, `resultado`, `estado`, `id_tipo_prueba`, `id_consulta`, `fecha_registro`, `id_usuario`, `id_paciente`, `codigo_paciente`, `pagado`, `valores_refencia`, `tipo_pago`) VALUES
@@ -52,12 +52,16 @@ INSERT INTO `analiticas` (`id`, `resultado`, `estado`, `id_tipo_prueba`, `id_con
 (4, NULL, '0', 1, 2, '2025-09-02 10:35:24', 1, 4, 'CM100201', 0, NULL, 'ADEUDO'),
 (5, NULL, '0', 1, 4, '2025-09-02 11:55:54', 1, 3, 'MC061545', 1, NULL, 'EFECTIVO'),
 (6, NULL, '0', 1, 3, '2025-09-02 12:04:31', 1, 2, 'SM2007060636698143', 0, NULL, 'ADEUDO'),
-(7, 'POSITIVO', '1', 1, 4, '2025-09-09 10:11:21', 1, 3, 'MC061545', 1, '', 'EFECTIVO');
+(7, 'POSITIVO', '1', 1, 4, '2025-09-09 10:11:21', 1, 3, 'MC061545', 1, '', 'EFECTIVO'),
+(8, NULL, '0', 2, 2, '2025-11-26 13:20:12', 1, 4, 'CM100201', 0, NULL, 'SIN PAGAR'),
+(9, NULL, '0', 1, 2, '2025-11-26 13:20:12', 1, 4, 'CM100201', 0, NULL, 'SIN PAGAR'),
+(10, NULL, '0', 1, 4, '2025-11-26 13:21:34', 1, 3, 'MC061545', 0, NULL, 'SIN PAGAR'),
+(11, NULL, '0', 1, 5, '2025-11-26 15:44:31', 1, 9, 'RB123115', 0, NULL, 'SIN PAGAR');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `categorias`
+-- Table structure for table `categorias`
 --
 
 CREATE TABLE `categorias` (
@@ -67,7 +71,7 @@ CREATE TABLE `categorias` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `categorias`
+-- Dumping data for table `categorias`
 --
 
 INSERT INTO `categorias` (`id`, `nombre`, `descripcion`) VALUES
@@ -81,7 +85,7 @@ INSERT INTO `categorias` (`id`, `nombre`, `descripcion`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `compras`
+-- Table structure for table `compras`
 --
 
 CREATE TABLE `compras` (
@@ -99,19 +103,21 @@ CREATE TABLE `compras` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `compras`
+-- Dumping data for table `compras`
 --
 
 INSERT INTO `compras` (`id`, `proveedor_id`, `codigo_factura`, `personal_id`, `fecha`, `monto_entregado`, `monto_gastado`, `cambio_devuelto`, `monto_pendiente`, `total`, `estado_pago`) VALUES
 (1, 1, 'CDO-20250826-162920-68adc4c037301', 4, '2025-08-25', 10000.00, 10000.00, 0.00, 0.00, 10000.00, 'PAGADO'),
-(2, 1, 'CDO-20250826-163613-68adc65db2fc1', 2, '2025-08-26', 15000.00, 15000.00, 0.00, 0.00, 15000.00, 'PAGADO'),
-(3, 1, 'FAC-20250826-a5d4e390', 3, '2025-08-18', 10000.00, 10000.00, 0.00, 0.00, 10000.00, 'PAGADO'),
-(4, 1, 'FAC-20250826-d0563bdd', 1, '2025-08-26', 25000.00, 25000.00, 0.00, 0.00, 25000.00, 'PAGADO');
+(2, 1, 'CDO-20250826-163613-68adc65db2fc1', 2, '2025-08-26', 15000.00, 16000.00, 0.00, 0.00, 15000.00, 'PAGADO'),
+(3, 1, 'FAC-20250826-a5d4e390', 3, '2025-08-18', 12000.00, 10000.00, 2000.00, 0.00, 10000.00, 'PAGADO'),
+(4, 1, 'FAC-20250826-d0563bdd', 1, '2025-08-26', 20000.00, 25000.00, 0.00, 0.00, 25000.00, 'PAGADO'),
+(5, 1, 'FAC-20251206-8842fefb', 5, '2025-12-06', 10000.00, 10750.00, 0.00, 0.00, 10750.00, 'PAGADO'),
+(6, 2, 'FAC-20251207-db9d03d4', 3, '2025-12-07', 25000.00, 30000.00, 0.00, 0.00, 30000.00, 'PAGADO');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `compras_detalle`
+-- Table structure for table `compras_detalle`
 --
 
 CREATE TABLE `compras_detalle` (
@@ -123,19 +129,21 @@ CREATE TABLE `compras_detalle` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `compras_detalle`
+-- Dumping data for table `compras_detalle`
 --
 
 INSERT INTO `compras_detalle` (`id`, `compra_id`, `producto_id`, `cantidad`, `precio_compra`) VALUES
 (7, 3, 1, 10, 1000.00),
 (8, 1, 1, 10, 1000.00),
 (9, 2, 1, 15, 1000.00),
-(10, 4, 1, 25, 1000.00);
+(10, 4, 1, 25, 1000.00),
+(11, 5, 2, 43, 250.00),
+(12, 6, 2, 100, 300.00);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `consultas`
+-- Table structure for table `consultas`
 --
 
 CREATE TABLE `consultas` (
@@ -160,19 +168,23 @@ CREATE TABLE `consultas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `consultas`
+-- Dumping data for table `consultas`
 --
 
 INSERT INTO `consultas` (`id`, `motivo_consulta`, `temperatura`, `control_cada_horas`, `frecuencia_cardiaca`, `frecuencia_respiratoria`, `tension_arterial`, `pulso`, `saturacion_oxigeno`, `peso_anterior`, `peso_actual`, `peso_ideal`, `imc`, `id_paciente`, `id_usuario`, `fecha_registro`, `pagado`, `precio`) VALUES
 (1, 'dolor desde hace 2 dias', 36, 2, 45, 65, '456', 34, 35, 69, 67, 66, 5, 2, 1, '2025-06-12 16:12:39', 1, 1000),
-(2, 'dolor de cabeza', 37, 8, 75, 16, '120/80', 70, 98, 70, 68, 70, 22, 4, 1, '2025-09-02 11:29:01', 0, 0),
-(3, 'fiebre de 3 noches', 38, 8, 75, 16, '120/80', 72, 98, 70, 68, 70, 23, 2, 1, '2025-09-02 11:33:08', 0, 0),
-(4, 'dolor de cuerpo', 38, 8, 75, 16, '120/80', 72, 98, 70, 68, 70, 23, 3, 1, '2025-09-02 12:54:04', 0, 0);
+(2, 'dolor de cabeza', 37, 8, 75, 16, '120/80', 70, 98, 70, 68, 70, 22, 4, 1, '2025-09-02 11:29:01', 1, 1500),
+(3, 'fiebre de 3 noches', 38, 8, 75, 16, '120/80', 72, 98, 70, 68, 70, 23, 2, 1, '2025-09-02 11:33:08', 1, 0),
+(4, 'dolor de cuerpo', 38, 8, 75, 16, '120/80', 72, 98, 70, 68, 70, 23, 3, 1, '2025-09-02 12:54:04', 0, 0),
+(5, 'fiebre', 38, 8, 75, 16, '120/90', 72, 98, 55, 50, 55, 22, 9, 1, '2025-11-26 15:42:07', 1, 0),
+(6, 'dolor', 38, 8, 75, 16, '120/90', 72, 98, 70, 69, 72, 22, 3, 1, '2025-12-20 01:06:13', 1, 0),
+(7, 'cabeza', 36, 8, 72, 16, '120', 72, 88, 70, 69, 72, 22, 4, 1, '2025-12-20 01:11:06', 1, 1000),
+(8, 'fiebre', 38, 8, 74, 16, '120', 72, 98, 70, 69, 72, 22, 9, 1, '2025-12-20 01:12:54', 0, 1000);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `detalle_consulta`
+-- Table structure for table `detalle_consulta`
 --
 
 CREATE TABLE `detalle_consulta` (
@@ -194,19 +206,23 @@ CREATE TABLE `detalle_consulta` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `detalle_consulta`
+-- Dumping data for table `detalle_consulta`
 --
 
 INSERT INTO `detalle_consulta` (`id`, `operacion`, `orina`, `defeca`, `defeca_dias`, `duerme`, `duerme_horas`, `antecedentes_patologicos`, `alergico`, `antecedentes_familiares`, `antecedentes_conyuge`, `control_signos_vitales`, `id_consulta`, `id_usuario`, `fecha_registro`) VALUES
 (1, 'no', 'si', 'si', 4, 'si', 6, 'TB', 'NO', 'NO', 'NO', '4', 1, 1, '2025-06-12 16:12:39'),
 (2, 'on', '', '', 1, 'on', 8, '', '', '', '', '', 2, 1, '2025-09-02 11:29:01'),
 (3, '0', '1', '1', 1, '1', 8, '0', '1', '0', '0', '1', 3, 1, '2025-09-02 11:33:08'),
-(4, '', 'on', 'on', 1, 'on', 8, '', '', '', '', '', 4, 1, '2025-09-02 12:54:04');
+(4, '', 'on', 'on', 1, 'on', 8, '', '', '', '', '', 4, 1, '2025-09-02 12:54:04'),
+(5, '', 'on', 'on', 3, 'on', 8, '', '', '', '', '', 5, 1, '2025-11-26 15:42:07'),
+(6, '', 'on', 'on', 3, 'on', 8, '', '', '', '', 'on', 6, 1, '2025-12-20 01:06:13'),
+(7, '', 'on', 'on', 4, 'on', 6, '', '', '', '', '', 7, 1, '2025-12-20 01:11:06'),
+(8, '', 'on', 'on', 4, 'on', 8, '', '', '', '', '', 8, 1, '2025-12-20 01:12:54');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ingresos`
+-- Table structure for table `ingresos`
 --
 
 CREATE TABLE `ingresos` (
@@ -222,7 +238,7 @@ CREATE TABLE `ingresos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `ingresos`
+-- Dumping data for table `ingresos`
 --
 
 INSERT INTO `ingresos` (`id`, `id_paciente`, `id_sala`, `fecha_ingreso`, `fecha_alta`, `token`, `fecha_registro`, `id_usuario`, `numero_cama`) VALUES
@@ -232,7 +248,7 @@ INSERT INTO `ingresos` (`id`, `id_paciente`, `id_sala`, `fecha_ingreso`, `fecha_
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `movimientos_inventario`
+-- Table structure for table `movimientos_inventario`
 --
 
 CREATE TABLE `movimientos_inventario` (
@@ -247,7 +263,7 @@ CREATE TABLE `movimientos_inventario` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `movimientos_seguro`
+-- Table structure for table `movimientos_seguro`
 --
 
 CREATE TABLE `movimientos_seguro` (
@@ -262,16 +278,19 @@ CREATE TABLE `movimientos_seguro` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `movimientos_seguro`
+-- Dumping data for table `movimientos_seguro`
 --
 
 INSERT INTO `movimientos_seguro` (`id`, `seguro_id`, `paciente_id`, `venta_id`, `tipo`, `monto`, `fecha`, `descripcion`) VALUES
-(1, 1, 2, NULL, 'CREDITO', 100000.00, '2025-09-01 14:17:40', 'Depósito inicial del seguro');
+(1, 1, 2, NULL, 'CREDITO', 100000.00, '2025-09-01 14:17:40', 'Depósito inicial del seguro'),
+(2, 1, 2, NULL, 'DEBITO', 2200.00, '2025-12-08 22:45:56', 'Consumo en farmacia'),
+(3, 1, 3, NULL, 'DEBITO', 700.00, '2025-12-08 22:54:46', 'Consumo en farmacia'),
+(4, 1, 2, NULL, 'DEBITO', 0.00, '2025-12-20 01:07:08', 'Pago consulta con seguro');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `pacientes`
+-- Table structure for table `pacientes`
 --
 
 CREATE TABLE `pacientes` (
@@ -294,19 +313,20 @@ CREATE TABLE `pacientes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `pacientes`
+-- Dumping data for table `pacientes`
 --
 
 INSERT INTO `pacientes` (`id`, `codigo`, `nombre`, `apellidos`, `fecha_nacimiento`, `dip`, `sexo`, `direccion`, `email`, `telefono`, `profesion`, `ocupacion`, `tutor_nombre`, `telefono_tutor`, `id_usuario`, `fecha_registro`) VALUES
 (2, 'SM2007060636698143', 'salvador 2', 'mete bijeri', '2007-06-06', '3776539', 'Masculino', 'Buena esperanza I', 'salvadormete@gmail.com', '555432345', 'estudiante', 'estudiante', 'no tiene', 'no tiene', 1, '2025-06-12 11:14:13'),
 (3, 'MC061545', 'Maximiliano', 'Compe', '2005-06-15', '8963542', 'Masculino', 'Ela Nguema', 'maxicomoe@gmail.com', '555667809', 'estudiante', 'estudiante', 'no tiene', 'no tiene', 1, '2025-06-17 13:16:03'),
 (4, 'CM100201', 'Carlos', 'Mete Boko', '2012-10-02', '000000000', 'Masculino', 'Ela-Nguema', NULL, '222555777', 'Informático', 'informatico', 'Carlos Luis', '222555777', 1, '2025-09-02 09:57:37'),
-(8, 'AT061077', 'Alba', 'tope', '2020-06-10', '0001245785', 'Femenino', 'Calle Mongomo', NULL, '222011225', 'mis labores', 'Mis labores', 'simplicia', '555147896', 1, '2025-09-10 13:46:26');
+(8, 'AT061077', 'Alba', 'tope', '2020-06-10', '0001245785', 'Femenino', 'Calle Mongomo', NULL, '222011225', 'mis labores', 'Mis labores', 'simplicia', '555147896', 1, '2025-09-10 13:46:26'),
+(9, 'RB123115', 'Rufina', 'Bechiro Batapa', '2004-12-31', '000407309', 'Femenino', 'Bisinga', NULL, '555709860', 'estudiante', 'estudiante', 'Jesus crispin Topolá', '551718822', 1, '2025-11-26 15:38:20');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `pagos`
+-- Table structure for table `pagos`
 --
 
 CREATE TABLE `pagos` (
@@ -319,7 +339,7 @@ CREATE TABLE `pagos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `pagos`
+-- Dumping data for table `pagos`
 --
 
 INSERT INTO `pagos` (`id`, `cantidad`, `id_analitica`, `id_tipo_prueba`, `fecha_registro`, `id_usuario`) VALUES
@@ -334,7 +354,7 @@ INSERT INTO `pagos` (`id`, `cantidad`, `id_analitica`, `id_tipo_prueba`, `fecha_
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `pagos_proveedores`
+-- Table structure for table `pagos_proveedores`
 --
 
 CREATE TABLE `pagos_proveedores` (
@@ -347,17 +367,20 @@ CREATE TABLE `pagos_proveedores` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `pagos_proveedores`
+-- Dumping data for table `pagos_proveedores`
 --
 
 INSERT INTO `pagos_proveedores` (`id`, `compra_id`, `proveedor_id`, `monto`, `fecha`, `metodo_pago`) VALUES
 (5, 2, 1, 2500.00, '2025-08-29', 'EFECTIVO'),
-(6, 2, 1, 2500.00, '2025-09-10', 'EFECTIVO');
+(7, 2, 1, 1000.00, '2025-12-06', 'EFECTIVO'),
+(8, 5, 1, 750.00, '2025-12-06', 'EFECTIVO'),
+(9, 6, 2, 5000.00, '2025-12-08', 'EFECTIVO'),
+(10, 4, 1, 5000.00, '2025-11-24', 'EFECTIVO');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `personal`
+-- Table structure for table `personal`
 --
 
 CREATE TABLE `personal` (
@@ -375,7 +398,7 @@ CREATE TABLE `personal` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `personal`
+-- Dumping data for table `personal`
 --
 
 INSERT INTO `personal` (`id`, `nombre`, `apellidos`, `fecha_nacimiento`, `direccion`, `correo`, `telefono`, `especialidad`, `codigo`, `fecha_registro`, `id_usuario`) VALUES
@@ -389,7 +412,7 @@ INSERT INTO `personal` (`id`, `nombre`, `apellidos`, `fecha_nacimiento`, `direcc
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `prestamos`
+-- Table structure for table `prestamos`
 --
 
 CREATE TABLE `prestamos` (
@@ -397,24 +420,29 @@ CREATE TABLE `prestamos` (
   `paciente_id` int(11) NOT NULL,
   `total` decimal(12,2) NOT NULL,
   `estado` enum('PENDIENTE','PARCIAL','PAGADO') DEFAULT 'PENDIENTE',
-  `fecha` date NOT NULL
+  `fecha` date NOT NULL,
+  `origen_tipo` enum('CONSULTA','ANALITICA','VENTA','OTRO') NOT NULL,
+  `origen_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `prestamos`
+-- Dumping data for table `prestamos`
 --
 
-INSERT INTO `prestamos` (`id`, `paciente_id`, `total`, `estado`, `fecha`) VALUES
-(1, 2, 500.00, 'PENDIENTE', '2025-08-29'),
-(2, 3, 2000.00, 'PENDIENTE', '2025-08-29'),
-(3, 4, 2000.00, 'PARCIAL', '2025-09-05'),
-(4, 4, 2000.00, 'PARCIAL', '2025-09-05'),
-(5, 2, 1000.00, 'PARCIAL', '2025-09-09');
+INSERT INTO `prestamos` (`id`, `paciente_id`, `total`, `estado`, `fecha`, `origen_tipo`, `origen_id`) VALUES
+(1, 2, 500.00, 'PENDIENTE', '2025-08-29', 'CONSULTA', 0),
+(2, 3, 2000.00, 'PENDIENTE', '2025-08-29', 'CONSULTA', 0),
+(3, 4, 2000.00, 'PARCIAL', '2025-09-05', 'CONSULTA', 0),
+(4, 4, 2000.00, 'PARCIAL', '2025-09-05', 'CONSULTA', 0),
+(5, 2, 1000.00, 'PARCIAL', '2025-09-09', 'CONSULTA', 0),
+(6, 2, 500.00, 'PARCIAL', '2025-12-20', 'CONSULTA', 0),
+(7, 8, 500.00, 'PARCIAL', '2025-12-20', 'CONSULTA', 0),
+(8, 9, 300.00, 'PARCIAL', '2025-12-20', 'CONSULTA', 8);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `productos`
+-- Table structure for table `productos`
 --
 
 CREATE TABLE `productos` (
@@ -431,17 +459,17 @@ CREATE TABLE `productos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `productos`
+-- Dumping data for table `productos`
 --
 
 INSERT INTO `productos` (`id`, `nombre`, `concentracion`, `forma_farmaceutica`, `presentacion`, `categoria_id`, `unidad_id`, `precio_unitario`, `stock_actual`, `stock_minimo`) VALUES
-(1, 'Paracetamol', NULL, NULL, 'Tabletas', 1, 1, 1500.00, 44, 5),
-(2, 'MEMOCER', '445mg', 'capsula', 'Caja con 60 cápsulas', 6, 1, 350.00, 0, 6);
+(1, 'Paracetamol', '50mg', NULL, 'Tabletas', 1, 1, 1500.00, 42, 5),
+(2, 'MEMOCER', '445mg', 'capsula', 'Caja con 60 cápsulas', 6, 1, 350.00, 137, 6);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `proveedores`
+-- Table structure for table `proveedores`
 --
 
 CREATE TABLE `proveedores` (
@@ -453,7 +481,7 @@ CREATE TABLE `proveedores` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `proveedores`
+-- Dumping data for table `proveedores`
 --
 
 INSERT INTO `proveedores` (`id`, `nombre`, `direccion`, `telefono`, `contacto`) VALUES
@@ -463,7 +491,7 @@ INSERT INTO `proveedores` (`id`, `nombre`, `direccion`, `telefono`, `contacto`) 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `recetas`
+-- Table structure for table `recetas`
 --
 
 CREATE TABLE `recetas` (
@@ -478,7 +506,7 @@ CREATE TABLE `recetas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `recetas`
+-- Dumping data for table `recetas`
 --
 
 INSERT INTO `recetas` (`id`, `descripcion`, `id_consulta`, `id_paciente`, `codigo_paciente`, `comentario`, `fecha_registro`, `id_usuario`) VALUES
@@ -487,7 +515,7 @@ INSERT INTO `recetas` (`id`, `descripcion`, `id_consulta`, `id_paciente`, `codig
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `roles`
+-- Table structure for table `roles`
 --
 
 CREATE TABLE `roles` (
@@ -497,7 +525,7 @@ CREATE TABLE `roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `roles`
+-- Dumping data for table `roles`
 --
 
 INSERT INTO `roles` (`id`, `nombre`, `fecha_registro`) VALUES
@@ -511,7 +539,7 @@ INSERT INTO `roles` (`id`, `nombre`, `fecha_registro`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `salas_ingreso`
+-- Table structure for table `salas_ingreso`
 --
 
 CREATE TABLE `salas_ingreso` (
@@ -522,7 +550,7 @@ CREATE TABLE `salas_ingreso` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `salas_ingreso`
+-- Dumping data for table `salas_ingreso`
 --
 
 INSERT INTO `salas_ingreso` (`id`, `nombre`, `fecha_registro`, `id_usuario`) VALUES
@@ -534,7 +562,7 @@ INSERT INTO `salas_ingreso` (`id`, `nombre`, `fecha_registro`, `id_usuario`) VAL
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `seguros`
+-- Table structure for table `seguros`
 --
 
 CREATE TABLE `seguros` (
@@ -547,16 +575,16 @@ CREATE TABLE `seguros` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `seguros`
+-- Dumping data for table `seguros`
 --
 
 INSERT INTO `seguros` (`id`, `titular_id`, `monto_inicial`, `saldo_actual`, `fecha_deposito`, `metodo_pago`) VALUES
-(1, 2, 100000.00, 100000.00, '2025-09-01', 'EFECTIVO');
+(1, 2, 100000.00, 97100.00, '2025-09-01', 'EFECTIVO');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `seguros_beneficiarios`
+-- Table structure for table `seguros_beneficiarios`
 --
 
 CREATE TABLE `seguros_beneficiarios` (
@@ -567,7 +595,7 @@ CREATE TABLE `seguros_beneficiarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `seguros_beneficiarios`
+-- Dumping data for table `seguros_beneficiarios`
 --
 
 INSERT INTO `seguros_beneficiarios` (`id`, `seguro_id`, `paciente_id`, `fecha_registro`) VALUES
@@ -576,7 +604,7 @@ INSERT INTO `seguros_beneficiarios` (`id`, `seguro_id`, `paciente_id`, `fecha_re
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tipo_pruebas`
+-- Table structure for table `tipo_pruebas`
 --
 
 CREATE TABLE `tipo_pruebas` (
@@ -588,7 +616,7 @@ CREATE TABLE `tipo_pruebas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `tipo_pruebas`
+-- Dumping data for table `tipo_pruebas`
 --
 
 INSERT INTO `tipo_pruebas` (`id`, `nombre`, `precio`, `fecha_registro`, `id_usuario`) VALUES
@@ -599,7 +627,7 @@ INSERT INTO `tipo_pruebas` (`id`, `nombre`, `precio`, `fecha_registro`, `id_usua
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `unidades_medida`
+-- Table structure for table `unidades_medida`
 --
 
 CREATE TABLE `unidades_medida` (
@@ -609,7 +637,7 @@ CREATE TABLE `unidades_medida` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `unidades_medida`
+-- Dumping data for table `unidades_medida`
 --
 
 INSERT INTO `unidades_medida` (`id`, `nombre`, `abreviatura`) VALUES
@@ -621,7 +649,7 @@ INSERT INTO `unidades_medida` (`id`, `nombre`, `abreviatura`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuarios`
+-- Table structure for table `usuarios`
 --
 
 CREATE TABLE `usuarios` (
@@ -634,7 +662,7 @@ CREATE TABLE `usuarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Volcado de datos para la tabla `usuarios`
+-- Dumping data for table `usuarios`
 --
 
 INSERT INTO `usuarios` (`id`, `nombre_usuario`, `id_rol`, `password`, `id_personal`, `fecha_registro`) VALUES
@@ -647,7 +675,7 @@ INSERT INTO `usuarios` (`id`, `nombre_usuario`, `id_rol`, `password`, `id_person
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ventas`
+-- Table structure for table `ventas`
 --
 
 CREATE TABLE `ventas` (
@@ -666,7 +694,7 @@ CREATE TABLE `ventas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `ventas`
+-- Dumping data for table `ventas`
 --
 
 INSERT INTO `ventas` (`id`, `paciente_id`, `usuario_id`, `fecha`, `monto_total`, `monto_recibido`, `cambio_devuelto`, `motivo_descuento`, `descuento_global`, `seguro`, `estado_pago`, `metodo_pago`) VALUES
@@ -675,12 +703,16 @@ INSERT INTO `ventas` (`id`, `paciente_id`, `usuario_id`, `fecha`, `monto_total`,
 (5, 2, 4, '2025-08-29', 6000.00, 6000.00, 0.00, NULL, 0.00, 0, 'PAGADO', 'EFECTIVO'),
 (6, 3, 4, '2025-08-29', 3000.00, 4000.00, 1000.00, NULL, 0.00, 0, 'PAGADO', 'EFECTIVO'),
 (9, 3, 4, '2025-08-29', 6000.00, 4000.00, 0.00, NULL, 0.00, 0, 'PENDIENTE', 'EFECTIVO'),
-(10, 2, 4, '2025-08-29', 3000.00, 2500.00, 0.00, NULL, 0.00, 0, 'PENDIENTE', 'EFECTIVO');
+(10, 2, 4, '2025-08-29', 3000.00, 2500.00, 0.00, NULL, 0.00, 0, 'PENDIENTE', 'EFECTIVO'),
+(16, 4, 1, '2025-12-08', 1500.00, 1500.00, 0.00, NULL, 0.00, NULL, 'PAGADO', 'EFECTIVO'),
+(17, 2, 1, '2025-12-08', 700.00, 1000.00, 300.00, NULL, 0.00, NULL, 'PAGADO', 'EFECTIVO'),
+(18, 2, 1, '2025-12-08', 2200.00, 0.00, 0.00, NULL, 0.00, 1, 'PAGADO', ''),
+(19, 3, 1, '2025-12-08', 700.00, 0.00, 0.00, NULL, 0.00, 1, 'PAGADO', '');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ventas_detalle`
+-- Table structure for table `ventas_detalle`
 --
 
 CREATE TABLE `ventas_detalle` (
@@ -693,7 +725,7 @@ CREATE TABLE `ventas_detalle` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `ventas_detalle`
+-- Dumping data for table `ventas_detalle`
 --
 
 INSERT INTO `ventas_detalle` (`id`, `venta_id`, `producto_id`, `cantidad`, `precio_venta`, `descuento_unitario`) VALUES
@@ -702,14 +734,19 @@ INSERT INTO `ventas_detalle` (`id`, `venta_id`, `producto_id`, `cantidad`, `prec
 (3, 5, 1, 4, 0.00, 0.00),
 (4, 6, 1, 2, 0.00, 0.00),
 (7, 9, 1, 4, 1500.00, 0.00),
-(8, 10, 1, 2, 1500.00, 0.00);
+(8, 10, 1, 2, 1500.00, 0.00),
+(9, 16, 1, 1, 1500.00, 0.00),
+(10, 17, 2, 2, 350.00, 0.00),
+(11, 18, 1, 1, 1500.00, 0.00),
+(12, 18, 2, 2, 350.00, 0.00),
+(13, 19, 2, 2, 350.00, 0.00);
 
 --
--- Índices para tablas volcadas
+-- Indexes for dumped tables
 --
 
 --
--- Indices de la tabla `analiticas`
+-- Indexes for table `analiticas`
 --
 ALTER TABLE `analiticas`
   ADD PRIMARY KEY (`id`),
@@ -719,13 +756,13 @@ ALTER TABLE `analiticas`
   ADD KEY `id_paciente` (`id_paciente`);
 
 --
--- Indices de la tabla `categorias`
+-- Indexes for table `categorias`
 --
 ALTER TABLE `categorias`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `compras`
+-- Indexes for table `compras`
 --
 ALTER TABLE `compras`
   ADD PRIMARY KEY (`id`),
@@ -733,7 +770,7 @@ ALTER TABLE `compras`
   ADD KEY `proveedor_id` (`proveedor_id`);
 
 --
--- Indices de la tabla `compras_detalle`
+-- Indexes for table `compras_detalle`
 --
 ALTER TABLE `compras_detalle`
   ADD PRIMARY KEY (`id`),
@@ -741,7 +778,7 @@ ALTER TABLE `compras_detalle`
   ADD KEY `producto_id` (`producto_id`);
 
 --
--- Indices de la tabla `consultas`
+-- Indexes for table `consultas`
 --
 ALTER TABLE `consultas`
   ADD PRIMARY KEY (`id`),
@@ -749,7 +786,7 @@ ALTER TABLE `consultas`
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
--- Indices de la tabla `detalle_consulta`
+-- Indexes for table `detalle_consulta`
 --
 ALTER TABLE `detalle_consulta`
   ADD PRIMARY KEY (`id`),
@@ -757,7 +794,7 @@ ALTER TABLE `detalle_consulta`
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
--- Indices de la tabla `ingresos`
+-- Indexes for table `ingresos`
 --
 ALTER TABLE `ingresos`
   ADD PRIMARY KEY (`id`),
@@ -767,14 +804,14 @@ ALTER TABLE `ingresos`
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
--- Indices de la tabla `movimientos_inventario`
+-- Indexes for table `movimientos_inventario`
 --
 ALTER TABLE `movimientos_inventario`
   ADD PRIMARY KEY (`id`),
   ADD KEY `producto_id` (`producto_id`);
 
 --
--- Indices de la tabla `movimientos_seguro`
+-- Indexes for table `movimientos_seguro`
 --
 ALTER TABLE `movimientos_seguro`
   ADD PRIMARY KEY (`id`),
@@ -783,14 +820,14 @@ ALTER TABLE `movimientos_seguro`
   ADD KEY `venta_id` (`venta_id`);
 
 --
--- Indices de la tabla `pacientes`
+-- Indexes for table `pacientes`
 --
 ALTER TABLE `pacientes`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
--- Indices de la tabla `pagos`
+-- Indexes for table `pagos`
 --
 ALTER TABLE `pagos`
   ADD PRIMARY KEY (`id`),
@@ -799,7 +836,7 @@ ALTER TABLE `pagos`
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
--- Indices de la tabla `pagos_proveedores`
+-- Indexes for table `pagos_proveedores`
 --
 ALTER TABLE `pagos_proveedores`
   ADD PRIMARY KEY (`id`),
@@ -807,20 +844,20 @@ ALTER TABLE `pagos_proveedores`
   ADD KEY `proveedor_id` (`proveedor_id`);
 
 --
--- Indices de la tabla `personal`
+-- Indexes for table `personal`
 --
 ALTER TABLE `personal`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `prestamos`
+-- Indexes for table `prestamos`
 --
 ALTER TABLE `prestamos`
   ADD PRIMARY KEY (`id`),
   ADD KEY `paciente_id` (`paciente_id`);
 
 --
--- Indices de la tabla `productos`
+-- Indexes for table `productos`
 --
 ALTER TABLE `productos`
   ADD PRIMARY KEY (`id`),
@@ -828,13 +865,13 @@ ALTER TABLE `productos`
   ADD KEY `unidad_id` (`unidad_id`);
 
 --
--- Indices de la tabla `proveedores`
+-- Indexes for table `proveedores`
 --
 ALTER TABLE `proveedores`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `recetas`
+-- Indexes for table `recetas`
 --
 ALTER TABLE `recetas`
   ADD PRIMARY KEY (`id`),
@@ -843,27 +880,27 @@ ALTER TABLE `recetas`
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
--- Indices de la tabla `roles`
+-- Indexes for table `roles`
 --
 ALTER TABLE `roles`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `salas_ingreso`
+-- Indexes for table `salas_ingreso`
 --
 ALTER TABLE `salas_ingreso`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
--- Indices de la tabla `seguros`
+-- Indexes for table `seguros`
 --
 ALTER TABLE `seguros`
   ADD PRIMARY KEY (`id`),
   ADD KEY `titular_id` (`titular_id`);
 
 --
--- Indices de la tabla `seguros_beneficiarios`
+-- Indexes for table `seguros_beneficiarios`
 --
 ALTER TABLE `seguros_beneficiarios`
   ADD PRIMARY KEY (`id`),
@@ -871,20 +908,20 @@ ALTER TABLE `seguros_beneficiarios`
   ADD KEY `paciente_id` (`paciente_id`);
 
 --
--- Indices de la tabla `tipo_pruebas`
+-- Indexes for table `tipo_pruebas`
 --
 ALTER TABLE `tipo_pruebas`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
--- Indices de la tabla `unidades_medida`
+-- Indexes for table `unidades_medida`
 --
 ALTER TABLE `unidades_medida`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `usuarios`
+-- Indexes for table `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`),
@@ -892,7 +929,7 @@ ALTER TABLE `usuarios`
   ADD KEY `id_personal` (`id_personal`);
 
 --
--- Indices de la tabla `ventas`
+-- Indexes for table `ventas`
 --
 ALTER TABLE `ventas`
   ADD PRIMARY KEY (`id`),
@@ -900,7 +937,7 @@ ALTER TABLE `ventas`
   ADD KEY `paciente_id` (`paciente_id`);
 
 --
--- Indices de la tabla `ventas_detalle`
+-- Indexes for table `ventas_detalle`
 --
 ALTER TABLE `ventas_detalle`
   ADD PRIMARY KEY (`id`),
@@ -908,171 +945,171 @@ ALTER TABLE `ventas_detalle`
   ADD KEY `producto_id` (`producto_id`);
 
 --
--- AUTO_INCREMENT de las tablas volcadas
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT de la tabla `analiticas`
+-- AUTO_INCREMENT for table `analiticas`
 --
 ALTER TABLE `analiticas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
--- AUTO_INCREMENT de la tabla `categorias`
+-- AUTO_INCREMENT for table `categorias`
 --
 ALTER TABLE `categorias`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT de la tabla `compras`
+-- AUTO_INCREMENT for table `compras`
 --
 ALTER TABLE `compras`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT de la tabla `compras_detalle`
+-- AUTO_INCREMENT for table `compras_detalle`
 --
 ALTER TABLE `compras_detalle`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT de la tabla `consultas`
+-- AUTO_INCREMENT for table `consultas`
 --
 ALTER TABLE `consultas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT de la tabla `detalle_consulta`
+-- AUTO_INCREMENT for table `detalle_consulta`
 --
 ALTER TABLE `detalle_consulta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT de la tabla `ingresos`
+-- AUTO_INCREMENT for table `ingresos`
 --
 ALTER TABLE `ingresos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT de la tabla `movimientos_inventario`
+-- AUTO_INCREMENT for table `movimientos_inventario`
 --
 ALTER TABLE `movimientos_inventario`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `movimientos_seguro`
+-- AUTO_INCREMENT for table `movimientos_seguro`
 --
 ALTER TABLE `movimientos_seguro`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT de la tabla `pacientes`
+-- AUTO_INCREMENT for table `pacientes`
 --
 ALTER TABLE `pacientes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- AUTO_INCREMENT de la tabla `pagos`
+-- AUTO_INCREMENT for table `pagos`
 --
 ALTER TABLE `pagos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT de la tabla `pagos_proveedores`
+-- AUTO_INCREMENT for table `pagos_proveedores`
 --
 ALTER TABLE `pagos_proveedores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT de la tabla `personal`
+-- AUTO_INCREMENT for table `personal`
 --
 ALTER TABLE `personal`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT de la tabla `prestamos`
+-- AUTO_INCREMENT for table `prestamos`
 --
 ALTER TABLE `prestamos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT de la tabla `productos`
+-- AUTO_INCREMENT for table `productos`
 --
 ALTER TABLE `productos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT de la tabla `proveedores`
+-- AUTO_INCREMENT for table `proveedores`
 --
 ALTER TABLE `proveedores`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT de la tabla `recetas`
+-- AUTO_INCREMENT for table `recetas`
 --
 ALTER TABLE `recetas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT de la tabla `roles`
+-- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT de la tabla `salas_ingreso`
+-- AUTO_INCREMENT for table `salas_ingreso`
 --
 ALTER TABLE `salas_ingreso`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT de la tabla `seguros`
+-- AUTO_INCREMENT for table `seguros`
 --
 ALTER TABLE `seguros`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT de la tabla `seguros_beneficiarios`
+-- AUTO_INCREMENT for table `seguros_beneficiarios`
 --
 ALTER TABLE `seguros_beneficiarios`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT de la tabla `tipo_pruebas`
+-- AUTO_INCREMENT for table `tipo_pruebas`
 --
 ALTER TABLE `tipo_pruebas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT de la tabla `unidades_medida`
+-- AUTO_INCREMENT for table `unidades_medida`
 --
 ALTER TABLE `unidades_medida`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT de la tabla `usuarios`
+-- AUTO_INCREMENT for table `usuarios`
 --
 ALTER TABLE `usuarios`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT de la tabla `ventas`
+-- AUTO_INCREMENT for table `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
--- AUTO_INCREMENT de la tabla `ventas_detalle`
+-- AUTO_INCREMENT for table `ventas_detalle`
 --
 ALTER TABLE `ventas_detalle`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
--- Restricciones para tablas volcadas
+-- Constraints for dumped tables
 --
 
 --
--- Filtros para la tabla `analiticas`
+-- Constraints for table `analiticas`
 --
 ALTER TABLE `analiticas`
   ADD CONSTRAINT `analiticas_ibfk_1` FOREIGN KEY (`id_tipo_prueba`) REFERENCES `tipo_pruebas` (`id`),
@@ -1081,35 +1118,35 @@ ALTER TABLE `analiticas`
   ADD CONSTRAINT `analiticas_ibfk_4` FOREIGN KEY (`id_paciente`) REFERENCES `pacientes` (`id`);
 
 --
--- Filtros para la tabla `compras`
+-- Constraints for table `compras`
 --
 ALTER TABLE `compras`
   ADD CONSTRAINT `compras_ibfk_1` FOREIGN KEY (`personal_id`) REFERENCES `personal` (`id`),
   ADD CONSTRAINT `compras_ibfk_2` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`);
 
 --
--- Filtros para la tabla `compras_detalle`
+-- Constraints for table `compras_detalle`
 --
 ALTER TABLE `compras_detalle`
   ADD CONSTRAINT `compras_detalle_ibfk_1` FOREIGN KEY (`compra_id`) REFERENCES `compras` (`id`),
   ADD CONSTRAINT `compras_detalle_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`);
 
 --
--- Filtros para la tabla `consultas`
+-- Constraints for table `consultas`
 --
 ALTER TABLE `consultas`
   ADD CONSTRAINT `consultas_ibfk_1` FOREIGN KEY (`id_paciente`) REFERENCES `pacientes` (`id`),
   ADD CONSTRAINT `consultas_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Filtros para la tabla `detalle_consulta`
+-- Constraints for table `detalle_consulta`
 --
 ALTER TABLE `detalle_consulta`
   ADD CONSTRAINT `detalle_consulta_ibfk_1` FOREIGN KEY (`id_consulta`) REFERENCES `consultas` (`id`),
   ADD CONSTRAINT `detalle_consulta_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Filtros para la tabla `ingresos`
+-- Constraints for table `ingresos`
 --
 ALTER TABLE `ingresos`
   ADD CONSTRAINT `ingresos_ibfk_1` FOREIGN KEY (`id_paciente`) REFERENCES `pacientes` (`id`),
@@ -1117,13 +1154,13 @@ ALTER TABLE `ingresos`
   ADD CONSTRAINT `ingresos_ibfk_3` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Filtros para la tabla `movimientos_inventario`
+-- Constraints for table `movimientos_inventario`
 --
 ALTER TABLE `movimientos_inventario`
   ADD CONSTRAINT `movimientos_inventario_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`);
 
 --
--- Filtros para la tabla `movimientos_seguro`
+-- Constraints for table `movimientos_seguro`
 --
 ALTER TABLE `movimientos_seguro`
   ADD CONSTRAINT `movimientos_seguro_ibfk_1` FOREIGN KEY (`seguro_id`) REFERENCES `seguros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1131,13 +1168,13 @@ ALTER TABLE `movimientos_seguro`
   ADD CONSTRAINT `movimientos_seguro_ibfk_3` FOREIGN KEY (`venta_id`) REFERENCES `ventas` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `pacientes`
+-- Constraints for table `pacientes`
 --
 ALTER TABLE `pacientes`
   ADD CONSTRAINT `pacientes_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Filtros para la tabla `pagos`
+-- Constraints for table `pagos`
 --
 ALTER TABLE `pagos`
   ADD CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`id_analitica`) REFERENCES `analiticas` (`id`),
@@ -1145,27 +1182,27 @@ ALTER TABLE `pagos`
   ADD CONSTRAINT `pagos_ibfk_3` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Filtros para la tabla `pagos_proveedores`
+-- Constraints for table `pagos_proveedores`
 --
 ALTER TABLE `pagos_proveedores`
   ADD CONSTRAINT `pagos_proveedores_ibfk_1` FOREIGN KEY (`compra_id`) REFERENCES `compras` (`id`),
   ADD CONSTRAINT `pagos_proveedores_ibfk_2` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`);
 
 --
--- Filtros para la tabla `prestamos`
+-- Constraints for table `prestamos`
 --
 ALTER TABLE `prestamos`
   ADD CONSTRAINT `prestamos_ibfk_1` FOREIGN KEY (`paciente_id`) REFERENCES `pacientes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `productos`
+-- Constraints for table `productos`
 --
 ALTER TABLE `productos`
   ADD CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`id`),
   ADD CONSTRAINT `productos_ibfk_2` FOREIGN KEY (`unidad_id`) REFERENCES `unidades_medida` (`id`);
 
 --
--- Filtros para la tabla `recetas`
+-- Constraints for table `recetas`
 --
 ALTER TABLE `recetas`
   ADD CONSTRAINT `recetas_ibfk_1` FOREIGN KEY (`id_consulta`) REFERENCES `consultas` (`id`),
@@ -1173,46 +1210,46 @@ ALTER TABLE `recetas`
   ADD CONSTRAINT `recetas_ibfk_3` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Filtros para la tabla `salas_ingreso`
+-- Constraints for table `salas_ingreso`
 --
 ALTER TABLE `salas_ingreso`
   ADD CONSTRAINT `salas_ingreso_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Filtros para la tabla `seguros`
+-- Constraints for table `seguros`
 --
 ALTER TABLE `seguros`
   ADD CONSTRAINT `seguros_ibfk_1` FOREIGN KEY (`titular_id`) REFERENCES `pacientes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `seguros_beneficiarios`
+-- Constraints for table `seguros_beneficiarios`
 --
 ALTER TABLE `seguros_beneficiarios`
   ADD CONSTRAINT `seguros_beneficiarios_ibfk_1` FOREIGN KEY (`seguro_id`) REFERENCES `seguros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `seguros_beneficiarios_ibfk_2` FOREIGN KEY (`paciente_id`) REFERENCES `pacientes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `tipo_pruebas`
+-- Constraints for table `tipo_pruebas`
 --
 ALTER TABLE `tipo_pruebas`
   ADD CONSTRAINT `tipo_pruebas_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`);
 
 --
--- Filtros para la tabla `usuarios`
+-- Constraints for table `usuarios`
 --
 ALTER TABLE `usuarios`
   ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id`),
   ADD CONSTRAINT `usuarios_ibfk_2` FOREIGN KEY (`id_personal`) REFERENCES `personal` (`id`);
 
 --
--- Filtros para la tabla `ventas`
+-- Constraints for table `ventas`
 --
 ALTER TABLE `ventas`
   ADD CONSTRAINT `ventas_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`),
   ADD CONSTRAINT `ventas_ibfk_2` FOREIGN KEY (`paciente_id`) REFERENCES `pacientes` (`id`);
 
 --
--- Filtros para la tabla `ventas_detalle`
+-- Constraints for table `ventas_detalle`
 --
 ALTER TABLE `ventas_detalle`
   ADD CONSTRAINT `ventas_detalle_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `ventas` (`id`),
